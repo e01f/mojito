@@ -4859,7 +4859,7 @@ class OpLibrary(Library):
         r2 = self.eSeriesResistor()
 
         r1uVM = r1.unityVarMap()
-        r2uVM = r2.unityVarMap()
+        r2uVM = {'R' : 'R2'}
 
         pm = PointMeta({})
 
@@ -4868,7 +4868,7 @@ class OpLibrary(Library):
 
         part = CompoundPart(['1', '2', '3'], pm, name)
         part.addPart(r1, {'1':'1','2':'2'}, r1uVM)
-        part.addPart(r2, {'2':'2','3':'3'}, r2uVM)
+        part.addPart(r2, {'1':'2','2':'3'}, r2uVM)
 
         part.addToSummaryStr('resistiveDivider','')
 

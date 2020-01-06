@@ -105,7 +105,7 @@ class ProblemFactory:
                                                      target_waveform)
         elif problem_choice == 101:
             problem = self.uniFilter_Problem()
-        elif problemDescriptions == 1001:
+        elif problem_choice == 1001:
             problem = self.resistiveDivider_Problem()
         elif problem_choice in known_problem_choices:
             raise ValueError('problem_choice=%d is not implemented yet' %
@@ -1474,10 +1474,10 @@ EFBM fbmnode gnd volts='ABS(V(ninp)-V(ninpdc))'
 .probe tran V(*)
 
 * Frequency-domain measurements
-.measure AC passbandvavg  AVG  V(nout) FROM=10   TO=800
-.measure AC stopbandvavg  AVG  V(nout) FROM=1200 TO=45000
-.measure AC passbandgvpp  PP   V(nout) FROM=10   TO=800
-.measure AC stopbandgvmax MAX  V(nout) FROM=1200 TO=45000
+.measure AC passbandvavg  AVG  V(nout) FROM=10   TO=1000
+.measure AC stopbandvavg  AVG  V(nout) FROM=10000 TO=45000
+.measure AC passbandgvpp  PP   V(nout) FROM=10   TO=1000
+.measure AC stopbandgvmax MAX  V(nout) FROM=10000 TO=45000
 .measure    passbandvavgg      PARAM='passbandvavg/pVdd'
 .measure    stopbandvavgg      PARAM='stopbandvavg/pVdd'
 .measure    passbandgvppg      PARAM='passbandgvpp/pVdd'
@@ -1500,7 +1500,7 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
                           Metric('passbandvavgg', 0.8, float('Inf'), True),
                           Metric('stopbandvavgg', float('-Inf'), 0.2, True),
                           Metric('passbandgvppg', float('-Inf'), 0.1, True),
-                          Metric('stopbandgvmaxg', float('-Inf'), 0.1, True),
+                          Metric('stopbandgvmaxg', float('-Inf'), 0.3, True),
                           #Metric('gain', 10, float('Inf'), True),
                           #Metric('phase0', -10, 10, False),
                           #Metric('phasemargin', 65, 180, False),
@@ -1543,7 +1543,7 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
         return ps
 
 
-def resistiveDivider_Problem(self):
+    def resistiveDivider_Problem(self):
         """
         @description        
           TBA
@@ -1627,17 +1627,18 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
 
 """
             op_metrics = [
-                          Metric('pwrnode', float('-Inf'), 100.0e-3, True)
+                          Metric('pwrnode', float('-Inf'), 100.0e-3, True),
+                          Metric('V(nout)', 2.4, 2.6, True)
                           ]
    
             #if we use a .lis output like 'region' or 'vgs' even once in
             # order to constrain DOCs via perc_DOCs_met, list it here
             # (if you forget a measure, it _will_ complain)
-            doc_measures = [] 
+            doc_measures = ['test']
             sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
                              #'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvmaxg'],
                              #'ic0':['pwrnode','fbmnode'],
-                             'ic0':['pwrnode'],
+                             'ic0':['pwrnode'], 
                              #'lis':['perc_DOCs_met']
                              'lis':['V(nout)']
                              },
