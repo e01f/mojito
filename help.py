@@ -32,4 +32,4 @@ Maintenance
 -help.py - this file.  To get help for other files just type filename with no args.
 
 """
-    print help
+    print(help)

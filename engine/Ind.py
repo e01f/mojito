@@ -257,7 +257,7 @@ class Ind:
            (note that BAD inds return True for fullyEvaluated())
         """
         #exploit cache?
-        if self._cached_wc_metvals.has_key(metric_name):
+        if metric_name in self._cached_wc_metvals:
             return self._cached_wc_metvals[metric_name]
 
         #main case: do the computation
@@ -322,8 +322,7 @@ class Ind:
             self._cached_constraint_violation = {}
         
         #exploit cache?
-        if dataID is not None and \
-               self._cached_constraint_violation.has_key(dataID):
+        if dataID is not None and dataID in self._cached_constraint_violation:
             return self._cached_constraint_violation[dataID]
 
         #corner case
@@ -347,7 +346,7 @@ class Ind:
             metric_violation = metric.constraintViolation(metric_value)
             scaled_violation = metric_violation / (metric_max - metric_min)
 
-            if not metric_weights.has_key(metric.name):
+            if not metric.name in metric_weights:
                 metric_w = 1.0
             else:
                 metric_w = metric_weights[metric.name]

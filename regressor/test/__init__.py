@@ -1,7 +1,7 @@
 import unittest, os
 from tests import doctest, importSuite
 
-from Lut_test import LutTest
+from .Lut_test import LutTest
 
 TestClasses = [LutTest,
                ]

@@ -1,5 +1,5 @@
-from Part import EmbeddedPart
-from Analysis import FunctionAnalysis, CircuitAnalysis
+from .Part import EmbeddedPart
+from .Analysis import FunctionAnalysis, CircuitAnalysis
 
 class ProblemSetup:
     """
@@ -80,7 +80,7 @@ class ProblemSetup:
         @return
           metrics -- Metric object        
         """
-        if self._metric_name_to_metric.has_key(metric_name):
+        if metric_name in self._metric_name_to_metric:
             return self._metric_name_to_metric[metric_name]
         else:
             raise ValueError("No metric with name '%s' found" % metric_name)

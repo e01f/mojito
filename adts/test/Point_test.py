@@ -65,7 +65,7 @@ class PointTest(unittest.TestCase):
         
         for i in range(100):
             random_point = pm.createRandomUnscaledPoint()
-            self.assertEquals( len(random_point), 0 )
+            self.assertEqual( len(random_point), 0 )
 
     def testUniquePointIDs(self):
         p1 = Point(False, {'a':3, 'b':42.2})

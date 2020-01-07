@@ -37,7 +37,7 @@ Details about inputs:
     #got the right number of args?  If not, output help
     num_args = len(sys.argv)
     if num_args not in [6]:
-        print help
+        print(help)
         sys.exit(0)
 
     #yank out the args into usable values
@@ -57,5 +57,4 @@ Details about inputs:
                                    pruned_filebase, all_varnames)
     
     #done!
-    print "Done.  Output is in %s.hdr and %s.val" % \
-          (pruned_filebase, pruned_filebase)
+    print("Done.  Output is in %s.hdr and %s.val" % (pruned_filebase, pruned_filebase))

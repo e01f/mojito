@@ -1,7 +1,6 @@
 import __main__
 defaultGlobalDict = __main__.__dict__
 import os, unittest
-from types import StringTypes
     
 # shared, default config root for testing
 _root = None
@@ -23,7 +22,7 @@ def importObject(spec, globalDict=defaultGlobalDict):
     otherwise return it as-is.
     """
 
-    if isinstance(spec,StringTypes):
+    if isinstance(spec, str):
         return importString(spec, globalDict)
 
     return spec
@@ -42,7 +41,7 @@ def importSequence(specs, globalDict=defaultGlobalDict):
     imports.
     """
 
-    if isinstance(specs,StringTypes):
+    if isinstance(specs, str):
         return [importString(x.strip(),globalDict) for x in specs.split(',')]
     else:
         return [importObject(s,globalDict) for s in specs]

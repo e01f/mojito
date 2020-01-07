@@ -1,10 +1,10 @@
 import unittest, os
 from tests import doctest, importSuite
 
-from Ind_test import IndTest
-from Pooler_test import PoolerTest
-from SynthEngine_test import SynthEngineTest
-from EngineUtils_test import EngineUtilsTest
+from .Ind_test import IndTest
+from .Pooler_test import PoolerTest
+from .SynthEngine_test import SynthEngineTest
+from .EngineUtils_test import EngineUtilsTest
 
 TestClasses = [IndTest,
                PoolerTest,

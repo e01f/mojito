@@ -15,8 +15,8 @@ class Schema(dict):
         #initialize parent class
         dict.__init__(self,*args)
         for varname, varval in self.items():
-            assert isinstance(varname, types.StringType)
-            assert isinstance(varval, types.ListType)
+            assert isinstance(varname, str)
+            assert isinstance(varval, list)
         self.checkConsistency()
 
     def checkConsistency(self):
@@ -89,7 +89,7 @@ class Schemas(list):
             assert isinstance(schema, Schema), schema
             schema_count = 1
             for varname, possible_values in schema.items():
-                assert isinstance(possible_values, types.ListType), \
+                assert isinstance(possible_values, list), \
                        possible_values
                 schema_count *= len(possible_values)
             count += schema_count

@@ -3,7 +3,7 @@ Defines Point and PointMeta types
 """
 import types
 
-from Var import *
+from .Var import *
 
 class PointMeta(dict):
     """
@@ -240,7 +240,7 @@ class Point(dict):
         self.__class__._ID_counter += 1
         
         #validate inputs
-        assert isinstance(is_scaled, types.BooleanType)
+        assert isinstance(is_scaled, bool)
 
         #initialize parent class
         dict.__init__(self,*args)

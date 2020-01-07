@@ -119,7 +119,7 @@ class Library:
         """
         
         #list
-        if isinstance(varname_list_or_dict, types.ListType):
+        if isinstance(varname_list_or_dict, list):
             varname_list = varname_list_or_dict
             assert mathutil.allEntriesAreUnique(varname_list)
             return PointMeta([self.buildVarMeta(varname)
@@ -201,7 +201,7 @@ class Library:
                 continue
 
             #
-            if self._ref_varmetas.has_key(new_name) and \
+            if new_name in self._ref_varmetas and \
                extra_vm != self._ref_varmetas[new_name]:
                 s = "Adding a varmeta with (new) name of %s" % new_name
                 s += " by copying it from input part's varmeta[old_name=%s]" % \
@@ -211,7 +211,7 @@ class Library:
                 log.warning(s)
 
             #corner case: overlap
-            if pm.has_key(extra_vm.name): 
+            if extra_vm.name in pm: 
                 if only_add_nonoverlapping_vars:
                     #already have the var; nothing to do
                     pass 
@@ -263,7 +263,7 @@ def replaceAfterMWithBlank(s):
     locs.append(len(s))
 
     #from list of locs, construct new_s_list which has all the wanted segments
-    num_pairs = len(locs)/2
+    num_pairs = len(locs)//2
     new_s_list = []
     for pair_i in range(num_pairs):
         st = locs[pair_i*2]
@@ -271,7 +271,7 @@ def replaceAfterMWithBlank(s):
         new_s_list.append(s[st:fin])
 
     #merge the list into a string, and return it
-    new_s = string.join(new_s_list)
+    new_s = ' '.join(new_s_list)
     return new_s
    
 def replaceSummaryStrWithBlank(s):

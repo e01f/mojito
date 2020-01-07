@@ -82,7 +82,7 @@ class MathutilTest(unittest.TestCase):
         if self.just1: return
         self.assertTrue( isNumber( -3.0 ) )
         self.assertTrue( isNumber( -3 ) )
-        self.assertTrue( isNumber( long(10) ) )
+        self.assertTrue( isNumber( int(10) ) )
 
         #we shouldn't be seeing complex, so catch it here for now
         # (if we decide to use it, then we can change isNumber then)
@@ -92,15 +92,11 @@ class MathutilTest(unittest.TestCase):
         self.assertFalse( isNumber( [] ) )
         self.assertFalse( isNumber( 'asd' ) )
         self.assertFalse( isNumber( {} ) )
-        
-        self.assertFalse( isNumber( types.FloatType ) )
-        self.assertFalse( isNumber( types.IntType ) )
-        self.assertFalse( isNumber( types.LongType ) )
 
     def testAllEntriesAreNumbers(self):
         if self.just1: return
         self.assertTrue( allEntriesAreNumbers( [] ) )
-        self.assertTrue( allEntriesAreNumbers( [1, 3.0, long(30)] ) )
+        self.assertTrue( allEntriesAreNumbers( [1, 3.0, int(30)] ) )
         self.assertTrue( allEntriesAreNumbers( set([1,2] ) ) )
         self.assertTrue( allEntriesAreNumbers( numpy.arange(1,10) ) )
 
@@ -162,7 +158,7 @@ class MathutilTest(unittest.TestCase):
 
         #this has 10 strings; all are unique except last string
         ind_strs = ['{metric_transistorArea:1.01995e-10,metric_numAtomicParts:18}', '{metric_transistorArea:1.34424e-10,metric_numAtomicParts:20}', '{metric_transistorArea:2.0399e-10,metric_numAtomicParts:20}', '{metric_transistorArea:9.54889e-11,metric_numAtomicParts:13}', '{metric_transistorArea:9.06167e-11,metric_numAtomicParts:13}', '{metric_transistorArea:1.15687e-10,metric_numAtomicParts:16}', '{metric_transistorArea:7.42621e-11,metric_numAtomicParts:11}', '{metric_transistorArea:9.30186e-11,metric_numAtomicParts:18}', '{metric_transistorArea:5.12247e-11,metric_numAtomicParts:11}', '{metric_transistorArea:9.54889e-11,metric_numAtomicParts:13}']
-        self.assertEqual(sorted(uniqueStringIndices(ind_strs)), range(9))
+        self.assertEqual(sorted(uniqueStringIndices(ind_strs)), list(range(9)))
         
     def testUniquifyVector(self):
         if self.just1: return

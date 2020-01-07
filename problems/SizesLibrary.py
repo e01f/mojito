@@ -13,7 +13,7 @@ from util import mathutil
 
 from adts import *
 from util.constants import REGION_SATURATION
-from Library import whoami, Library
+from .Library import whoami, Library
 
 import logging
 log = logging.getLogger('problems')
@@ -183,9 +183,9 @@ class SizesLibrary(Library):
         Variables: W,L,M
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         part = AtomicPart('M', ['D', 'G', 'S', 'B'],
-                          self.buildPointMeta(['W','L','M']),
+                          self.buildPointMeta(['M','W','L']),
                           self.ss.nmos_modelname, name)
         self._parts[name] = part
         return part
@@ -197,9 +197,9 @@ class SizesLibrary(Library):
         Variables: W,L,M
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name] 
+        if name in self._parts:  return self._parts[name] 
         part = AtomicPart('M', ['D', 'G', 'S', 'B'],
-                          self.buildPointMeta(['W','L','M']),
+                          self.buildPointMeta(['M','W','L']),
                           self.ss.pmos_modelname, name)
         self._parts[name] = part
         return self._parts[name]
@@ -216,7 +216,7 @@ class SizesLibrary(Library):
         internal, which would have otherwise been an issue esp. for cascodes.
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         pm = self.buildPointMeta({'DC':'DC_V'})
         part = AtomicPart('V', ['NPOS'], pm, name=name)
         self._parts[name] = part
@@ -229,7 +229,7 @@ class SizesLibrary(Library):
         Variables: (none)
         """
         wire_part = self.wire_factory.build()
-        if not self._parts.has_key(wire_part.name):
+        if not wire_part.name in self._parts:
             self._parts[wire_part.name] = wire_part
         return wire_part
     
@@ -241,7 +241,7 @@ class SizesLibrary(Library):
         Variables: 
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         part = CompoundPart(['1','2'], PointMeta({}), name=name)
         self._parts[name] = part
         return part
@@ -253,7 +253,7 @@ class SizesLibrary(Library):
         Variables: R
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         part = AtomicPart('R', ['1','2'], self.buildPointMeta(['R']), name=name)
         self._parts[name] = part
         return part
@@ -265,7 +265,7 @@ class SizesLibrary(Library):
         Variables: C
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         part = AtomicPart('C', ['1','2'], self.buildPointMeta(['C']), name=name)
         self._parts[name] = part
         return part        
@@ -293,7 +293,7 @@ class SizesLibrary(Library):
          Note: for pmos4, the effective Width is 2*W for smoothness
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
         
         
         #parts to embed
@@ -343,7 +343,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos4_part = self.mos4()
@@ -375,7 +375,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos3_part = self.mos3()
@@ -413,7 +413,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos3_part = self.saturatedMos3()
@@ -448,7 +448,7 @@ class SizesLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         part = FlexPart(['1', '2'], PointMeta({}), name)
         part.addPartChoice( self.wire(), {'1':'1','2':'2'}, {} )
@@ -474,7 +474,7 @@ class SizesLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         res_part = self.resistor()
@@ -511,7 +511,7 @@ class SizesLibrary(Library):
                         use_pmos=1: Vdd-Vbias}
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos3_part = self.saturatedMos3()
@@ -563,7 +563,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         bias_part = self.biasedMos()
@@ -596,7 +596,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         res_part = self.resistor()
@@ -635,7 +635,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos_part = self.biasedMos()
@@ -677,7 +677,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         onemos_part = self.biasedMos()
@@ -723,7 +723,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.saturatedMos3()
@@ -782,7 +782,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         shifter_part = self.levelShifter()
@@ -827,7 +827,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         emb_part = self.levelShifterOrWire()
@@ -879,7 +879,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         sf_part = self.levelShifter()
@@ -937,7 +937,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cap_part = self.capacitor()
@@ -986,7 +986,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         wire_part = self.wire()
@@ -1029,7 +1029,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         biasedMos_part = self.biasedMos()
@@ -1071,7 +1071,7 @@ class SizesLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascodeDevice_part = self.cascodeDevice()
@@ -1121,7 +1121,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascode_part = self.cascodeDeviceOrWire()
@@ -1207,7 +1207,7 @@ class SizesLibrary(Library):
                   
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascode_part = self.cascodeDevice()
@@ -1309,7 +1309,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stacked_part = self.inputCascode_Stacked()
@@ -1364,7 +1364,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         emb_part = self.inputCascodeFlex()
@@ -1411,7 +1411,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         emb_part = self.inputCascodeStage()
@@ -1450,7 +1450,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mainload_part = self.biasedMos()
@@ -1530,7 +1530,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         res_part = self.resistor()
@@ -1624,7 +1624,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         input_part = self.ssViInput()
@@ -1712,7 +1712,7 @@ class SizesLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.ssViAmp1()
@@ -1768,7 +1768,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ref_part = self.saturatedMos3()
@@ -1814,7 +1814,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascoderef_part = self.saturatedMos3()
@@ -1884,7 +1884,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascoderef_part = self.biasedMos()
@@ -1972,7 +1972,7 @@ class SizesLibrary(Library):
             -note how we set cascode_K and main_K 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cm_Simple = self.currentMirror_Simple()
@@ -2038,7 +2038,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cm_part = self.currentMirror()
@@ -2074,7 +2074,7 @@ class SizesLibrary(Library):
         Variable breakdown:
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ssvi_part = self.ssViInput()
@@ -2123,7 +2123,7 @@ class SizesLibrary(Library):
         Variable breakdown:
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ssvi_part = self.ssViInput()
@@ -2174,7 +2174,7 @@ class SizesLibrary(Library):
             1 : ddViInput_Folded
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stacked_part = self.ddViInput_stacked()
@@ -2217,7 +2217,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         flex_part = self.ddViInput_Flex()
@@ -2281,7 +2281,7 @@ class SizesLibrary(Library):
             Vbias=load_Vbias
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         input_part = self.ddViInput()
@@ -2347,7 +2347,7 @@ class SizesLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.dsViAmp1()
@@ -2407,7 +2407,7 @@ class SizesLibrary(Library):
           it actually doesn't
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ss_part = self.ssIiLoad()
@@ -2456,7 +2456,7 @@ class SizesLibrary(Library):
             loadcascode_recurse, loadcascode_W, loadcascode_L, loadcascode_Vbias
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         input_part = self.ddViInput()
@@ -2509,7 +2509,7 @@ class SizesLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.ddViAmp1()
@@ -2609,7 +2609,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stage1_part = self.ddViAmp1_VddGndPorts()
@@ -2754,7 +2754,7 @@ class SizesLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stage1_part = self.dsViAmp1_VddGndPorts()
@@ -2885,7 +2885,7 @@ class SizesLibrary(Library):
           For  dsViAmp2_SingleEndedMiddle_VddGndPorts: 1:1 mapping of its vars
         """ 
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         dds_part = self.dsViAmp2_DifferentialMiddle_VddGndPorts()
@@ -2926,7 +2926,7 @@ class SizesLibrary(Library):
           For  dsViAmp2_VddGndPorts: 1:1 mapping of its vars
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         onestage_part = self.dsViAmp1_VddGndPorts()

@@ -38,11 +38,11 @@ class VarMeta:
         if name is None:
             self.name = VarMetaNameFactory().create()
         else:
-            if not isinstance(name, types.StringType):
+            if not isinstance(name, str):
                 raise ValueError("'name' %s is not a string" % name)
             self.name = name
 
-        assert isinstance(use_eq_in_netlist, types.BooleanType)
+        assert isinstance(use_eq_in_netlist, bool)
         self.use_eq_in_netlist = use_eq_in_netlist
 
     def __eq__(self, other):
@@ -198,7 +198,7 @@ class ContinuousVarMeta(VarMeta):
         VarMeta.__init__(self, name, use_eq_in_netlist)
 
         #validate inputs
-        if not isinstance(logscale, types.BooleanType):
+        if not isinstance(logscale, bool):
             raise ValueError("'logscale' must be boolean: %s" % logscale)
         if not mathutil.isNumber(min_unscaled_value):
             raise ValueError("'min_unscaled_value' must be a number: %s" %
@@ -394,7 +394,7 @@ class DiscreteVarMeta(VarMeta):
 
         if not mathutil.allEntriesAreNumbers(possible_values):
             raise ValueError("Each value of possible_values must be a number")
-        if sorted(possible_values) != possible_values:
+        if not isinstance(possible_values, range) and (sorted(possible_values) != possible_values):
             raise ValueError("expect possible_values to be sorted")
         
         #DO NOT have the following check, because we want to be able
@@ -573,11 +573,14 @@ class DiscreteVarMeta(VarMeta):
         self._is_choice_var = True
         lastel = self.possible_values[0]
         for index, poss_value in enumerate(self.possible_values):
-            if not isinstance(poss_value, types.IntType) and \
-               not isinstance(poss_value, types.FloatType):
+            if not isinstance(poss_value, int) and \
+               not isinstance(poss_value, float):
                 self._is_choice_var = False
                 break
-            if (poss_value != index) and (poss_value < lastel):
+            if (poss_value != index):
+                self._is_choice_var = False
+                break
+            if (poss_value < lastel):
                 self._is_choice_var = False
                 break
             lastel = poss_value

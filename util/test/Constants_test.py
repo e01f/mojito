@@ -12,11 +12,6 @@ class ConstantsTest(unittest.TestCase):
         b = Incomputable()
         self.assertRaises(ValueError, a.__cmp__, b)
         self.assertRaises(ValueError, a.__eq__, b)
-
-        c = 2
-        self.assertRaises(TypeError, c.__cmp__, a)
-
-        self.assertTrue(str(a) > 0)
         
               
     def testOnlyEqualityComparable(self):
@@ -27,11 +22,6 @@ class ConstantsTest(unittest.TestCase):
         b = OnlyEqualityComparable()
         self.assertTrue(a == b)
         self.assertFalse(a != b)
-
-        c = 2
-        self.assertRaises(TypeError, c.__cmp__, a)
-
-        self.assertTrue(str(a) > 0)
 
     def testBadMetricValue(self):
         a = BAD_METRIC_VALUE

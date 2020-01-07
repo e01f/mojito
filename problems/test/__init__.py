@@ -1,10 +1,10 @@
 import unittest, os
 from tests import doctest, importSuite
 
-from Library_test import LibraryTest
-from OpLibrary_test import OpLibraryTest
-from Problems_test import ProblemsTest
-from SizesLibrary_test import SizesLibraryTest
+from .Library_test import LibraryTest
+from .OpLibrary_test import OpLibraryTest
+from .Problems_test import ProblemsTest
+from .SizesLibrary_test import SizesLibraryTest
 
 TestClasses = [ \
     LibraryTest,

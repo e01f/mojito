@@ -62,7 +62,7 @@ class IndTest(unittest.TestCase):
 
         #retrieve a worst-case value; see that caching didn't happen
         self.assertEqual(ind.worstCaseMetricValue(an2.metric.name), 33.2)
-        self.assertFalse(ind._cached_wc_metvals.has_key(an2.metric.name))
+        self.assertFalse(an2.metric.name in ind._cached_wc_metvals)
 
         #set enough sim results to be fully evaluated, and re-test
         ind.reportSimRequest(an, an.env_points[0])
@@ -71,7 +71,7 @@ class IndTest(unittest.TestCase):
 
         #retrieve a worst-case value; see that caching did happen
         self.assertEqual(ind.worstCaseMetricValue(an2.metric.name), 33.2)
-        self.assertTrue(ind._cached_wc_metvals.has_key(an2.metric.name))
+        self.assertTrue(an2.metric.name in ind._cached_wc_metvals)
         self.assertEqual(ind._cached_wc_metvals[an2.metric.name], 33.2)
 
     def testIsBad(self):        

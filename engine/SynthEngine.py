@@ -20,8 +20,8 @@ from adts.Part import replaceAutoNodesWithXXX
 
 from util import mathutil
 from util.constants import Incomputable, BAD_METRIC_VALUE
-from Ind import Genotype, Ind
-from EngineUtils import AgeLayeredPop, \
+from .Ind import Genotype, Ind
+from .EngineUtils import AgeLayeredPop, \
      uniqueIndsByPerformance, populationSummaryStr, \
      SynthState, loadSynthState, \
      fastNondominatedSort, minMaxMetrics, numIndsInNestedPop
@@ -781,8 +781,8 @@ class SynthEngine:
             x0 = [ind.worstCaseMetricValue(metnames[0]) for ind in F[0]]
             y0 = [ind.worstCaseMetricValue(metnames[1]) for ind in F[0]]
             
-            print x0
-            print y0
+            print(x0)
+            print(y0)
             plt.figure(1)
             plt.plot(x0, y0, 'o--')
 
@@ -1258,7 +1258,7 @@ class SynthEngine:
         #build up dicts
         child_dict = copy.copy(dict(parent_opt_point))
         for mutate_i in range(num_mutates):
-            if mutate_1var: vars_to_mutate = [random.choice(point_meta.keys())]
+            if mutate_1var: vars_to_mutate = [random.choice(list(point_meta))]
             else:           vars_to_mutate = point_meta.keys()
             
             for var in vars_to_mutate:

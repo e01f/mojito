@@ -36,7 +36,7 @@ Details:
     #got the right number of args?  If not, output help
     num_args = len(sys.argv)
     if num_args not in [5,7]:
-        print help
+        print(help)
         sys.exit(0)
 
     #yank out the args into usable values
@@ -55,7 +55,7 @@ Details:
     # -load data
     ps = ProblemFactory().build(problem_choice)
     if not os.path.exists(ind_file):
-        print "Cannot find file with name %s" % ind_file
+        print("Cannot find file with name %s" % ind_file)
         sys.exit(0)
     
     fid=open(ind_file,'r');
@@ -83,15 +83,13 @@ Details:
     if make_simulatable:
         #retrieve analysis
         if analysis_index >= len(ps.analyses):
-            print "Requested analysis_index=%d but only %d analyses available"%\
-                  (analysis_index, len(ps.analyses))
+            print("Requested analysis_index=%d but only %d analyses available" % (analysis_index, len(ps.analyses)))
             sys.exit(0)
         analysis = ps.analyses[analysis_index]
 
         #retrieve env_point
         if env_index >= len(analysis.env_points):
-            print "Requested env_index=%d but only %d env_points available"%\
-                  (env_index, len(analysis.env_points))
+            print("Requested env_index=%d but only %d env_points available" % (env_index, len(analysis.env_points)))
             sys.exit(0)
         env_point = analysis.env_points[env_index]
 
@@ -102,7 +100,7 @@ Details:
         netlist = design_netlist
 
     #successful, so print netlist
-    print netlist
+    print(netlist)
         
     
     

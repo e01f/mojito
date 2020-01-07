@@ -1,5 +1,5 @@
-from Point import RndPoint, EnvPoint
-from Analysis import Analysis
+from .Point import RndPoint, EnvPoint
+from .Analysis import Analysis
 
 class EvalRequest:
     """

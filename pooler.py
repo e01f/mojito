@@ -11,8 +11,8 @@ if __name__== '__main__':
 
     num_args = len(sys.argv)
     if num_args not in [5]:
-        print 'Usage: pooler PROBLEM_NUM DB_DIRS_FILE POOLED_DB_FILE POOL_SIZE'
-        print ProblemFactory().problemDescriptions()
+        print('Usage: pooler PROBLEM_NUM DB_DIRS_FILE POOLED_DB_FILE POOL_SIZE')
+        print(ProblemFactory().problemDescriptions())
         sys.exit(0)
         
     problem_choice = eval(sys.argv[1])

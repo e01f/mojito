@@ -32,7 +32,7 @@ Usage: synth PROBLEM_NUM POP_SIZE OUTPUT_DIR POOLED_DB_FILE [RESTART_DB_FILE]
     #got the right number of args?  If not, output help
     num_args = len(sys.argv)
     if num_args not in [5,6]:
-        print help
+        print(help)
         sys.exit(0)
 
     #yank out the args into values usable for synth engine

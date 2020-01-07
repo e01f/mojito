@@ -101,6 +101,8 @@ class AnalysisTest(unittest.TestCase):
         #test
         # FIXME: the following directory setup is a make-it-work hack
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         if 'adts/test/' not in pwd:

@@ -1,14 +1,14 @@
 import unittest, os
 from tests import doctest, importSuite
 
-from Analysis_test import AnalysisTest
-from EvalRequest_test import EvalRequestTest
-from Metric_test import MetricTest
-from Part_test import PartTest
-from Point_test import PointTest
-from ProblemSetup_test import ProblemSetupTest
-from Schema_test import SchemaTest
-from Var_test import VarTest
+from .Analysis_test import AnalysisTest
+from .EvalRequest_test import EvalRequestTest
+from .Metric_test import MetricTest
+from .Part_test import PartTest
+from .Point_test import PointTest
+from .ProblemSetup_test import ProblemSetupTest
+from .Schema_test import SchemaTest
+from .Var_test import VarTest
 
 TestClasses = [ \
     AnalysisTest,

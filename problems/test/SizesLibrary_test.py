@@ -2532,11 +2532,11 @@ C18 Iout n_auto_111  C=1e-09
         """This is complex because it needs to take into account
         that auto-named nodes can have different values"""
         maxn = 30
-        cand_xs = range(maxn)
+        cand_xs = list(range(maxn))
         cand_ys = [-1]
         cand_zs = [-2]
-        if 'yyy' in target_str_in: cand_ys = range(maxn)
-        if 'zzz' in target_str_in: cand_zs = range(maxn)
+        if 'yyy' in target_str_in: cand_ys = list(range(maxn))
+        if 'zzz' in target_str_in: cand_zs = list(range(maxn))
 
         self.assertTrue( self._foundMatch(target_str_in, actual_str,
                                           cand_xs, cand_ys, cand_zs),
@@ -2554,7 +2554,7 @@ C18 Iout n_auto_111  C=1e-09
                     target_str = target_str_in.replace('xxx', str(nodenum_xxx))
                     target_str = target_str.replace('yyy', str(nodenum_yyy))
                     target_str = target_str.replace('zzz', str(nodenum_zzz))
-                    if actual_str == target_str:
+                    if (sorted(actual_str.split()) == sorted(target_str.split())):
                         return True
         return False
 

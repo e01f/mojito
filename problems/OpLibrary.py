@@ -14,7 +14,7 @@ import numpy
 from util import mathutil
 
 from adts import *
-from Library import whoami, Library
+from .Library import whoami, Library
 from util.constants import REGION_SATURATION
 from util.ascii import asciiRowToStrings, asciiTo2dArray, \
      hdrValFilesToTrainingData
@@ -116,7 +116,7 @@ class ApproxMosModels:
                 #build PointRegressor
                 model = PointRegressor(regressor, input_varnames, False)
                 
-                fid = open(filebase + '.clustermodel','w')
+                fid = open(filebase + '.clustermodel','wb')
                 pickle.dump(model,fid)
                 fid.close()                
                 log.info("Saving cached model to disk: %s" % clusterfile)
@@ -125,7 +125,7 @@ class ApproxMosModels:
                 log.info("Reusing the cached model %s..." % clusterfile)
                 
                 #FIXME: we should check the model to see if it corresponds.
-                fid = open(clusterfile, 'r')
+                fid = open(clusterfile, 'rb')
                 model = pickle.load(fid)
                 fid.close()
                 
@@ -189,10 +189,10 @@ class OpLibraryStrategy:
           A _lot_ of defaults get set here!
         """
         #validate inputs
-        assert isinstance(feature_size, types.FloatType)
-        assert isinstance(nmos_modelname, types.StringType)
-        assert isinstance(pmos_modelname, types.StringType)
-        assert isinstance(vdd, types.FloatType)
+        assert isinstance(feature_size, float)
+        assert isinstance(nmos_modelname, str)
+        assert isinstance(pmos_modelname, str)
+        assert isinstance(vdd, float)
         #assert isinstance(approx_mos_models, ApproxMosModels)
         
         #
@@ -429,7 +429,7 @@ class OpLibrary(Library):
         Note: this is the physical nmos part described by W, L and M
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         part = AtomicPart('M', ['D', 'G', 'S', 'B'],
                           self.buildPointMeta(['W','L','M']),
                           self.ss.nmos_modelname, name)
@@ -455,7 +455,7 @@ class OpLibrary(Library):
         Note: this is the physical nmos part described by W, L and M
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name] 
+        if name in self._parts:  return self._parts[name] 
         part = AtomicPart('M', ['D', 'G', 'S', 'B'],
                           self.buildPointMeta(['W','L', 'M']),
                           self.ss.pmos_modelname, name)
@@ -480,7 +480,7 @@ class OpLibrary(Library):
         Note: This is the nmos part that is OP driven
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
 
         #parts to embed
         nmos4_sized_part = self.nmos4_sized()
@@ -542,7 +542,7 @@ class OpLibrary(Library):
         Note: This is the pmos part that is OP driven
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name] 
+        if name in self._parts:  return self._parts[name] 
 
         #parts to embed
         pmos4_sized_part = self.pmos4_sized()
@@ -606,7 +606,7 @@ class OpLibrary(Library):
         internal, which would have otherwise been an issue esp. for cascodes.
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         pm = self.buildPointMeta({'DC':'DC_V'})
         part = AtomicPart('V', ['NPOS'], pm, name=name)
         self._parts[name] = part
@@ -619,7 +619,7 @@ class OpLibrary(Library):
         Variables: (none)
         """
         wire_part = self.wire_factory.build()
-        if not self._parts.has_key(wire_part.name):
+        if not wire_part.name in self._parts:
             self._parts[wire_part.name] = wire_part
         return wire_part
     
@@ -631,7 +631,7 @@ class OpLibrary(Library):
         Variables: 
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         part = CompoundPart(['1','2'], PointMeta({}), name=name)
         self._parts[name] = part
         return part
@@ -643,7 +643,7 @@ class OpLibrary(Library):
         Variables: R
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -662,7 +662,7 @@ class OpLibrary(Library):
         Variables: R
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -716,7 +716,7 @@ class OpLibrary(Library):
         Variables: R
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -736,7 +736,7 @@ class OpLibrary(Library):
         """
         
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         
         #parts to embed
         sizedres_part = self.sizedLinscaleResistor()
@@ -764,7 +764,7 @@ class OpLibrary(Library):
         Variables: C
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
 
         pm = PointMeta({})
         pm['C'] = self.buildVarMeta('escale_C', 'C')
@@ -781,7 +781,7 @@ class OpLibrary(Library):
         Variables: C
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
 
         pm = PointMeta({})
         pm['C'] = self.buildVarMeta('logscale_C', 'C')
@@ -811,7 +811,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
         
         #parts to embed
         nmos4_part = self.nmos4()
@@ -851,7 +851,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos4_part = self.mos4()
@@ -890,7 +890,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos3_part = self.mos3()
@@ -947,7 +947,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos3_part = self.saturatedMos3()
@@ -988,7 +988,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         wire_part = self.wire()
@@ -1026,7 +1026,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         res_part = self.resistor()
@@ -1073,7 +1073,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos3_part = self.saturatedMos3()
@@ -1121,7 +1121,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         bias_part = self.biasedMos()
@@ -1159,7 +1159,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         # use a sized resistor here, because the series capacitor makes OP
@@ -1206,7 +1206,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mos_part = self.biasedMos()
@@ -1276,7 +1276,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         onemos_part = self.biasedMos()
@@ -1346,7 +1346,7 @@ class OpLibrary(Library):
                 Vds=Vout   
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.saturatedMos3()
@@ -1428,7 +1428,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         shifter_part = self.levelShifter()
@@ -1473,7 +1473,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         emb_part = self.levelShifterOrWire()
@@ -1525,7 +1525,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         sf_part = self.levelShifter()
@@ -1583,7 +1583,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cap_part = self.capacitor()
@@ -1631,7 +1631,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         wire_part = self.wire()
@@ -1678,7 +1678,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         biasedMos_part = self.biasedMos()
@@ -1723,7 +1723,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascodeDevice_part = self.cascodeDevice()
@@ -1774,7 +1774,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascode_part = self.cascodeDeviceOrWire()
@@ -1885,7 +1885,7 @@ class OpLibrary(Library):
                   
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascode_part = self.cascodeDeviceOrWire()
@@ -2014,7 +2014,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stacked_part = self.inputCascode_Stacked()
@@ -2076,7 +2076,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         emb_part = self.inputCascodeFlex()
@@ -2128,7 +2128,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         emb_part = self.inputCascodeStage()
@@ -2166,7 +2166,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         mainload_part = self.biasedMos()
@@ -2241,7 +2241,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         res_part = self.resistor()
@@ -2322,7 +2322,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         input_part = self.ssViInput()
@@ -2433,7 +2433,7 @@ class OpLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.ssViAmp1()
@@ -2499,7 +2499,7 @@ class OpLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.ssViAmp1()
@@ -2704,7 +2704,7 @@ class OpLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.ssViAmp1()
@@ -2754,7 +2754,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ref_part = self.saturatedMos3()
@@ -2804,7 +2804,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascoderef_part = self.saturatedMos3()
@@ -2885,7 +2885,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cascoderef_part = self.biasedMos()
@@ -2971,7 +2971,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cm_Simple = self.currentMirror_Simple()
@@ -3017,7 +3017,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         cm_part = self.currentMirror()
@@ -3058,7 +3058,7 @@ class OpLibrary(Library):
         Variable breakdown:
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ssvi_part = self.ssViInput()
@@ -3133,7 +3133,7 @@ class OpLibrary(Library):
         Variable breakdown:
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ssvi_part = self.ssViInput()
@@ -3215,7 +3215,7 @@ class OpLibrary(Library):
             1 : ddViInput_Folded
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stacked_part = self.ddViInput_stacked()
@@ -3258,7 +3258,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         flex_part = self.ddViInput_Flex()
@@ -3303,7 +3303,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         input_part = self.ddViInput()
@@ -3428,7 +3428,7 @@ class OpLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.dsViAmp1()
@@ -3611,7 +3611,7 @@ class OpLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.dsViAmp1()
@@ -3664,7 +3664,7 @@ class OpLibrary(Library):
           it actually doesn't
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         ss_part = self.ssIiLoad()
@@ -3713,7 +3713,7 @@ class OpLibrary(Library):
             loadcascode_recurse, loadcascode_W, loadcascode_L, loadcascode_Vbias
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         input_part = self.ddViInput()
@@ -3766,7 +3766,7 @@ class OpLibrary(Library):
             All, a 1:1 mapping, except: loadrail_is_vdd=chosen_part_index
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         amp_part = self.ddViAmp1()
@@ -3866,7 +3866,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stage1_part = self.ddViAmp1_VddGndPorts()
@@ -4010,7 +4010,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stage1_part = self.dsViAmp1b_VddGndPorts()
@@ -4109,7 +4109,7 @@ class OpLibrary(Library):
         but with the possibility of fixing the design variables
         """ 
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         dss_part = self.dsViAmp2_SingleEndedMiddle_VddGndPorts()
@@ -4371,7 +4371,7 @@ class OpLibrary(Library):
           For  dsViAmp2_SingleEndedMiddle_VddGndPorts: 1:1 mapping of its vars
         """ 
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         dds_part = self.dsViAmp2_DifferentialMiddle_VddGndPorts()
@@ -4412,7 +4412,7 @@ class OpLibrary(Library):
           For  dsViAmp2_VddGndPorts: 1:1 mapping of its vars
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         onestage_part = self.dsViAmp1_VddGndPorts()
@@ -4480,7 +4480,7 @@ class OpLibrary(Library):
         Variables: L
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -4498,7 +4498,7 @@ class OpLibrary(Library):
         Variables: L
         """
         name = whoami()
-        if self._parts.has_key(name):  return self._parts[name]
+        if name in self._parts:  return self._parts[name]
         
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -4521,7 +4521,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         wire_part = self.wire()
@@ -4571,7 +4571,7 @@ class OpLibrary(Library):
           
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         oc_part = self.openCircuit()
@@ -4621,7 +4621,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         wire_part = self.wireOrRCL()
@@ -4665,7 +4665,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         stage1_part = self.filterStage()
@@ -4720,7 +4720,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
         
         pm = PointMeta({})
 
@@ -4772,7 +4772,7 @@ class OpLibrary(Library):
 
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         tsf1_part = self.threeStageFilter()
@@ -4817,7 +4817,7 @@ class OpLibrary(Library):
           tba
         """
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         #parts to embed
         plain_part = self.nStageFilter(3)
@@ -4853,7 +4853,7 @@ class OpLibrary(Library):
 
     def resistiveDivider(self):
         name = whoami()
-        if self._parts.has_key(name): return self._parts[name]
+        if name in self._parts: return self._parts[name]
 
         r1 = self.eSeriesResistor()
         r2 = self.eSeriesResistor()

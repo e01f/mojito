@@ -2,7 +2,7 @@
 Utilities useful for different synthesis engines and components.
 """
 
-import cPickle as pickle
+import _pickle as pickle
 import random
 import types
 
@@ -10,7 +10,7 @@ import numpy
 
 from adts import *
 from util import mathutil
-from Ind import Ind
+from .Ind import Ind
 
 import logging
 log = logging.getLogger('synth')
@@ -286,8 +286,10 @@ class SynthState:
         obj_to_save = self
 
         log.info('Save current state to file: %s...' % output_file)
-        
-        pickle.dump(obj_to_save, open(output_file,'w'))
+
+        of = open(output_file,'wb')
+        pickle.dump(obj_to_save, of)
+        of.close()
 
         #put the info back
         self.ps = ps
@@ -312,10 +314,12 @@ def loadSynthState(db_file, ps):
     @return
       synth_state -- SynthState object
     """
-    assert isinstance(db_file, types.StringType), db_file.__class__
+    assert isinstance(db_file, str), db_file.__class__
     num_tries = 0
     max_num_tries = 5 #magic number
-    synth_state = pickle.load(open(db_file,'r'))            
+    dbf = open(db_file,'rb')
+    synth_state = pickle.load(dbf)
+    dbf.close()
     synth_state.ps = ps
     for R in synth_state.R_per_age_layer:
         for ind in R:
@@ -334,7 +338,7 @@ def minMaxMetrics(ps, all_inds):
     @return
       minmax_metrics -- dict of metric_name : (min_val, max_val)
     """
-    assert isinstance(all_inds, types.ListType), all_inds.__class__
+    assert isinstance(all_inds, list), all_inds.__class__
 
     minmax_metrics = {}
     for metric in ps.flattenedMetrics():
@@ -522,7 +526,7 @@ def mergeNondominatedSort(P, minmax_metrics, max_num_inds, metric_weights):
     elif len(P) <= 1:
         return P
     else:
-        N2 = len(P)/2
+        N2 = len(P)//2
         left = P[:N2]
         right = P[N2:]
 
@@ -580,7 +584,7 @@ def numIndsInNestedPop(F):
     return sum([len(Fi) for Fi in F])
 
 class UniqueIDFactory:
-    _ID_counter = 0L
+    _ID_counter = 0
     
     def newID(self):
         return self.__class__._ID_counter

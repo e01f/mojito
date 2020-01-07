@@ -3,13 +3,13 @@ A 'Pooler' continually yanks databases from many ongoing synth engine runs
 and pools them all into one bigger DB.
 """
 
-import cPickle as pickle
+import _pickle as pickle
 import os
 import string
 import time
 
 from adts import *
-from EngineUtils import AgeLayeredPop, \
+from .EngineUtils import AgeLayeredPop, \
      uniqueIndsByPerformance, SynthState, loadSynthState, \
      fastNondominatedSort, minMaxMetrics
 

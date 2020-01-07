@@ -100,7 +100,7 @@ class Metric:
         else:
             margins = [min(value - self.min_threshold,self.max_threshold - value)
                        for value in metric_values]
-            return metric_values[numpy.argmin(margins)]
+            return list(metric_values)[numpy.argmin(margins)]
 
     def isFeasible(self, metric_value):
         """

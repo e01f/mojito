@@ -95,7 +95,7 @@ class LutTest(unittest.TestCase):
         
         lookups_per_sec=nb_lookups / elapsed
         
-        print "%d simulations (%d-D) of %d points took %f seconds (%d lookups/sec)" % ( cnt, dim , nr_points, elapsed, lookups_per_sec)
+        print("%d simulations (%d-D) of %d points took %f seconds (%d lookups/sec)" % ( cnt, dim , nr_points, elapsed, lookups_per_sec))
         
     def testSingleCluster(self):
         if self.just1: return

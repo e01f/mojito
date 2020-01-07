@@ -13,9 +13,9 @@ import string
 import types
 
 from util import mathutil
-from Metric import Metric
-from Point import *
-from Schema import Schema, Schemas
+from .Metric import Metric
+from .Point import *
+from .Schema import Schema, Schemas
 
 import logging
 log = logging.getLogger('part')
@@ -51,7 +51,7 @@ def switchAndEval(case, case2result):
       It will not complain that there is a missing 'default' unless it
       does not find another key in case2result that matches 'case'.
     """
-    if case2result.has_key(case):
+    if case in case2result:
         return eval(case2result[case])
     else:
         return eval(case2result['default'])
@@ -124,7 +124,7 @@ class FunctionDOC:
             raise ValueError(metric.__class__)
         if metric.improve_past_feasible:
             raise ValueError("no objectives allowed on DOC metric")
-        if not isinstance(function_str, types.StringType):
+        if not isinstance(function_str, str):
             raise ValueError(function_str.__class__)
 
         #set attributes
@@ -176,9 +176,9 @@ class SimulationDOC:
             raise ValueError(metric.__class__)
         if metric.improve_past_feasible:
             raise ValueError("no objectives allowed on DOC metric")
-        if not isinstance(function_str, types.StringType):
+        if not isinstance(function_str, str):
             raise ValueError(function_str.__class__)
-        if function_str != string.lower(function_str):
+        if function_str != function_str.lower():
             raise ValueError("function_str needs to be lowercase: %s" %
                              function_str)
 
@@ -224,7 +224,7 @@ class SimulationDOC:
         #Build up a lis_point that function_str can interpret
         #Example: 'lis__INSTANCENAME__vgs' => 'vgs', wherever INSTANCENAME
         # matches device_name
-        device_name = string.lower(device_name)
+        device_name = device_name.lower()
         lis_point = {}
         for big_lis_name, lis_value in lis_results.items():
             prefix = 'lis__' + device_name + '__'
@@ -332,7 +332,7 @@ class Part:
         if name is None:
             self.name = 'part_ID' + str(self.ID)
         else:
-            assert isinstance(name, types.StringType)
+            assert isinstance(name, str)
             self.name = name
 
         self.function_DOCs = []
@@ -575,13 +575,13 @@ class AtomicPart(Part):
           name -- string -- see Part
         """
         Part.__init__(self, external_portnames, point_meta, name)
-        assert isinstance(spice_symbol, types.StringType)
+        assert isinstance(spice_symbol, str)
         assert len(spice_symbol) == 1
         self.spice_symbol = spice_symbol
         if model_name is None:
             self.model_name = ''
         else:
-            assert isinstance(model_name, types.StringType)
+            assert isinstance(model_name, str)
             self.model_name = model_name
 
     def internalNodenames(self):
@@ -1250,7 +1250,7 @@ class EmbeddedPart:
         assert scaled_point.is_scaled
         
         if isinstance(self.part, AtomicPart):
-            if scaled_point.has_key('W') and scaled_point.has_key('L'):
+            if 'W' in scaled_point and 'L' in scaled_point:
                 return scaled_point['W'] * scaled_point['L']
             else:
                 return 0.0
@@ -1495,7 +1495,7 @@ class EmbeddedPart:
             #  -special case: dcvs has only one port
             if self.part.name == 'dcvs':
                 portnames.append('0')
-            ports_s = string.join(portnames)
+            ports_s = ' '.join(portnames)
 
             #build model string, vars string
             model_s = self.part.model_name
@@ -1529,7 +1529,7 @@ class EmbeddedPart:
                 embpart_subst_connections = {}
                 for embpart_portname, parent_portname in \
                         embpart.connections.items():
-                    if subst_connections.has_key(parent_portname):
+                    if parent_portname in subst_connections:
                         subst_portname = subst_connections[parent_portname]
                     else: 
                         subst_portname = global_intnl_nodenames[parent_portname]
@@ -1736,7 +1736,7 @@ def validateFunctions(functions, scaled_point):
     
     for embpart_varname, f in functions.items():
         #anything that calls 'part.' gets a free pass in this validation
-        if isinstance(f, types.StringType) and f[:5] == 'part.':
+        if isinstance(f, str) and f[:5] == 'part.':
             continue
 
         #but we test the rest!
@@ -1824,7 +1824,16 @@ def evalFunction(point, func_str, part=None):
             if st >= len_f:
                 break
 
-        return eval(f)
+        bnd_f = eval(f) 
+
+        # convert True to 1 and False to 0
+        if isinstance(bnd_f, bool):
+          if bnd_f == True:
+            bnd_f = 1
+          else:
+            bnd_f = 0
+
+        return bnd_f
     
     except:
         s = "Encountered an error in evalFunction()\n"
@@ -1969,9 +1978,9 @@ def replaceAutoNodesWithXXX(netlist_in):
     """ 
     netlist = copy.copy(netlist_in)
     while True:
-        Istart = string.find(netlist, 'n_auto')
+        Istart = netlist.find('n_auto')
         if Istart == -1: break
-        Iend = string.find(netlist, ' ', Istart)
+        Iend = netlist.find(' ', Istart)
         netlist = netlist[:Istart] + 'XXX' + netlist[Iend:]
     return netlist
     
@@ -2007,7 +2016,7 @@ def varOfInversionFunc(func):
       Whitespace is ignored.
     """
     #remove leading and trailing whitespace
-    func = string.strip(func)
+    func = func.strip()
 
     #strip brackets if they exist
     if func[0] == '(':
@@ -2015,12 +2024,12 @@ def varOfInversionFunc(func):
         func = func[1:-1]
 
     #ensure whitespace is around the first '-'
-    Istart = string.find(func, '-')
+    Istart = func.find('-')
     if Istart == -1: return None
     func = func[:Istart] + ' - ' + func[Istart+1:]
 
     #split into 3 parts and analyze
-    s = string.split(func)
+    s = func.split()
     if len(s) != 3: return None
     if s[0] != '1': return None
     if s[1] != '-': return None
@@ -2046,7 +2055,7 @@ def varsOfSimpleEqualityFunc(func):
       If it cannot find that form, then it returns (None,None)
     """
     #remove leading and trailing whitespace
-    func = string.strip(func)
+    func = func.strip()
 
     #strip brackets if they exist
     if func[0] == '(':
@@ -2054,12 +2063,12 @@ def varsOfSimpleEqualityFunc(func):
         func = func[1:-1]
 
     #ensure whitespace is around the first '==' 
-    Istart = string.find(func, '==')
+    Istart = func.find('==')
     if Istart == -1: return (None,None)
     func = func[:Istart] + ' == ' + func[Istart+2:]
 
     #split into 3 parts and analyze
-    s = string.split(func)
+    s = func.split()
             
     if len(s) != 3: return (None, None)
     

@@ -15,9 +15,9 @@ import types
 from util.constants import BAD_METRIC_VALUE, REGION_LINEAR, REGION_SATURATION, \
      REGION_CUTOFF
 from util import mathutil
-from Point import EnvPoint
-from Metric import Metric
-import EvalUtils
+from .Point import EnvPoint
+from .Metric import Metric
+import adts.EvalUtils
 
 import logging
 log = logging.getLogger('analysis')
@@ -109,7 +109,7 @@ class FunctionAnalysis(Analysis):
         Analysis.__init__(self, env_points)
 
         self.function = function
-        metric_name = 'metric_' + function.func_name
+        metric_name = 'metric_' + function.__name__
         self.metric = Metric(metric_name,
                              min_metric_threshold, max_metric_threshold,
                              metric_is_objective)
@@ -203,8 +203,8 @@ class CircuitAnalysis(Analysis):
              For each of the waveforms outputs like .tr0, .sw0
         """
         #validate inputs
-        assert isinstance(simfile_dir, types.StringType)
-        assert isinstance(design_netlist, types.StringType)
+        assert isinstance(simfile_dir, str)
+        assert isinstance(design_netlist, str)
         assert isinstance(env_point, EnvPoint)
         if sorted(env_point.keys()) != \
            sorted(self.env_points[0].keys()):
@@ -308,9 +308,9 @@ class Simulator(Analysis):
             else:
                 if DOCs_metric_name in metrics: raise ValueError
             
-        assert isinstance(lis_measures, types.ListType)
+        assert isinstance(lis_measures, list)
         for metric_names in metrics_per_outfile.values():
-            if not isinstance(metric_names, types.ListType): raise ValueError
+            if not isinstance(metric_names, list): raise ValueError
         if cir_file_path[-1] != '/':
             raise ValueError("cir_file_path must end in '/'; it's: now %s" %
                              cir_file_path)
@@ -486,7 +486,7 @@ class Simulator(Analysis):
         for extension in ['ms0','ma0','mt0']:
             if extension not in output_filetypes: continue
             output_file = simfile_dir + outbase + '.' + extension
-            tokens = EvalUtils.file2tokens(output_file, 2)
+            tokens = adts.EvalUtils.file2tokens(output_file, 2)
             num_measures = len(tokens) / 2
             all_measures = {}
             for measure_i in range(num_measures):
@@ -516,7 +516,7 @@ class Simulator(Analysis):
             try:
                 start_line = self.output_file_start_line[extension]
                 num_vars = self.output_file_num_vars[extension]
-                waveforms_array = EvalUtils.getSpiceData(
+                waveforms_array = adts.EvalUtils.getSpiceData(
                     output_file, self.number_width, start_line, num_vars)
             except:
                 log.debug('Bad result: could not retrieve %s waveforms' %
@@ -547,7 +547,7 @@ class Simulator(Analysis):
         # -ic0: comes from .op sim
         if 'ic0' in output_filetypes:
             ic0_file = simfile_dir + outbase + '.ic0'
-            tokens = EvalUtils.file2tokens(ic0_file, 2)
+            tokens = adts.EvalUtils.file2tokens(ic0_file, 2)
             for metric_name in self.metrics_per_outfile['ic0']:
                 #find the token and value corresponding to 'metric_name'
                 # and fill it
@@ -580,7 +580,7 @@ class Simulator(Analysis):
         have_pzmeasure = mathutil.listsOverlap(pz_dict.values(), metric_names)
         if have_pzmeasure:
             #all pz measures need gbw, so find it (incl. catching error cases)
-            if not sim_results.has_key('gbw'):
+            if not 'gbw' in sim_results:
                 log.debug("Bad result: could not find gbw")
                 return self._badSimResults()
             gbw = sim_results['gbw']
@@ -637,7 +637,7 @@ class Simulator(Analysis):
            success -- bool -- was extraction successful?
            lis_results -- dict of 'lis__device_name__measure_name' : lis_value
         """
-        assert self.metrics_per_outfile.has_key('lis'), 'only call if want lis'
+        assert 'lis' in self.metrics_per_outfile, 'only call if want lis'
         assert lis_file[-4:] == '.lis', lis_file
 
         if not os.path.exists(lis_file):
@@ -649,7 +649,7 @@ class Simulator(Analysis):
             
         #extract subset of 'lis' file that starts with ***mosfets
         # and ends with the next ***
-        lines = EvalUtils.subfile2strings(lis_file, '**** mosfets','***')
+        lines = adts.EvalUtils.subfile2strings(lis_file, '**** mosfets','***')
         if len(lines) == 0:
             log.debug("_extractLisResults failed: '**** mosfets' section "
                       "was not found")
@@ -657,14 +657,14 @@ class Simulator(Analysis):
             
 
         #strip leading whitespace
-        lines = [string.lstrip(line) for line in lines]
+        lines = [line.lstrip() for line in lines]
 
         #extract (ordered) list of transistor names            
         device_names = []
         for line in lines:
             if line[:len('element')] == 'element':
                 #'token' examples are '0:m2', '0:m16', we don't want the 0: part
-                tokens = EvalUtils.string2tokens(line[len('element'):])
+                tokens = adts.EvalUtils.string2tokens(line[len('element'):])
                 device_names += [token[2:] for token in tokens]
         
         #extract list of each measure of interest
@@ -675,7 +675,7 @@ class Simulator(Analysis):
             values = []
             for line in lines:
                 if line[:len(measure_name)] == measure_name:
-                    tokens = EvalUtils.string2tokens(line[len(measure_name):])
+                    tokens = adts.EvalUtils.string2tokens(line[len(measure_name):])
                     if measure_name == 'region':
                         values += [region_token_to_value[token]
                                    for token in tokens]
@@ -707,7 +707,7 @@ class Simulator(Analysis):
 
         #extract subset of 'lis' file that starts with '  ******   pole/zero analysis'
         # and ends with ' ***** constant factor'
-        lines = EvalUtils.subfile2strings(lis_file, '  ******   pole/zero analysis',' ***** constant factor')
+        lines = adts.EvalUtils.subfile2strings(lis_file, '  ******   pole/zero analysis',' ***** constant factor')
  
         # now fill the real values if present
         if len(lines) == 0:
@@ -717,7 +717,7 @@ class Simulator(Analysis):
             # there are pole-zero analysis results
 
             #strip leading whitespace
-            lines = [string.lstrip(line) for line in lines]
+            lines = [line.lstrip() for line in lines]
             
             # find the start of the poles section
             poles_start_idx=0
@@ -756,7 +756,7 @@ class Simulator(Analysis):
                 # the poles are extracted
                 for n in range(0,nb_poles):                
                     line = lines[poles_start_idx+n+3]
-                    values = EvalUtils.string2tokens(line)
+                    values = adts.EvalUtils.string2tokens(line)
                     lis_name = 'lis' + '__pole' + str(n) + '__real'
                     lis_results[lis_name] = eval(values[2])
                     lis_name = 'lis' + '__pole' + str(n) + '__imag'
@@ -779,7 +779,7 @@ class Simulator(Analysis):
                 # the zeros are extracted
                 for n in range(0,nb_zeros):
                     line = lines[zeros_start_idx+n+3]
-                    values = EvalUtils.string2tokens(line)
+                    values = adts.EvalUtils.string2tokens(line)
                     lis_name = 'lis' + '__zero' + str(n) + '__real'
                     lis_results[lis_name] = values[2]
                     lis_name = 'lis' + '__zero' + str(n) + '__imag'
@@ -885,7 +885,7 @@ class Simulator(Analysis):
 
         s.append('\n.end' )
         s.append('\n')
-        s = string.join(s) #list of strings => string
+        s = ' '.join(s) #list of strings => string
         return s
 
     def __str__(self):

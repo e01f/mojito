@@ -15,7 +15,7 @@ except ImportError:
         def hasInf(self, val):
             return 'inf' in str(val)
 
-from constants import BAD_METRIC_VALUE
+from .constants import BAD_METRIC_VALUE
 
 def stddev(x):
     """
@@ -71,14 +71,18 @@ def listsOverlap( list_a, list_b):
     return len( set_a.intersection(set_b) ) > 0
 
 def isNumber( x ):
-    """Returns True only if x is a Float, Int, or Long, and NOT complex"""
-    return isinstance(x, types.FloatType) or \
-           isinstance(x, types.IntType) or \
-           isinstance(x, types.LongType)
+    """Returns True only if x is a Float, Int, and NOT complex"""
+    attrs = ['__add__', '__sub__', '__mul__', '__truediv__', '__pow__']
+    return all(hasattr(x, attr) for attr in attrs) and not isinstance(x, numpy.ndarray) and not isinstance(x, bool) and not isinstance(x, complex)
 
-def allEntriesAreNumbers( xs ):
-    """Returns true if every entry in this list, 1-d array, or set is
+def allEntriesAreNumbers( xr ):
+    """Returns true if every entry in this range, list, 1-d array, or set is
     a NumberType"""
+    if isinstance(xr, range):
+      xs = list(xr)
+    else:
+      xs = xr
+
     for x in xs:
         if not isNumber( x ):
             return False
@@ -159,7 +163,7 @@ def uniqueStringIndices(strings_list):
     @return
       I -- list of indices into strings_list
     """
-    if not isinstance(strings_list, types.ListType):
+    if not isinstance(strings_list, list):
         raise ValueError("argument needs to be a list, not a %s" %
                          (strings_list.__class__))
     
@@ -170,7 +174,7 @@ def uniqueStringIndices(strings_list):
     I = []
     strings_dict = {}
     for i,s in enumerate(strings_list):
-        if not isinstance(s, types.StringType):
+        if not isinstance(s, str):
             raise ValueError("an entry was %s rather than string" %
                              (s.__class__))
         len_before = len(strings_dict)

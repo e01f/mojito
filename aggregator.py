@@ -11,8 +11,8 @@ if __name__== '__main__':
 
     num_args = len(sys.argv)
     if num_args not in [4,5]:
-        print 'Usage: aggregator PROBLEM_NUM DB_DIRS_FILE OUTPUT_DB_FILE [MAX_DB_SIZE]'
-        print ProblemFactory().problemDescriptions()
+        print('Usage: aggregator PROBLEM_NUM DB_DIRS_FILE OUTPUT_DB_FILE [MAX_DB_SIZE]')
+        print(ProblemFactory().problemDescriptions())
         sys.exit(0)
         
     problem_choice = eval(sys.argv[1])

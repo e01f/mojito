@@ -3,8 +3,8 @@ import os
 import numpy
 
 from adts import *
-from SizesLibrary import Point18SizesLibrary, SizesLibraryStrategy, SizesLibrary
-from OpLibrary import ApproxMosModels, OpLibraryStrategy, OpLibrary
+from .SizesLibrary import Point18SizesLibrary, SizesLibraryStrategy, SizesLibrary
+from .OpLibrary import ApproxMosModels, OpLibraryStrategy, OpLibrary
 from adts.Analysis import WaveformsToNmse
 
 import logging
@@ -283,6 +283,8 @@ class ProblemFactory:
         max_simulation_time = 5 #in seconds
         
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/miller2/'
@@ -538,6 +540,8 @@ VGND n_vss 0 DC 0.0V
         max_simulation_time = 5 #in seconds
         
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/miller2/'
@@ -783,6 +787,8 @@ Efb2	ninpdc	ninn	nfbout	gnd	1.0
         # (though any of this can be analysis-specific if we'd wanted
         #  to set them there instead)
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/ssvi1/'
@@ -963,6 +969,8 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
         # (though any of this can be analysis-specific if we'd wanted
         #  to set them there instead)
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/ssvi1/'
@@ -1194,6 +1202,8 @@ Efb4	ninp	gnd	volts='MAX(0,MIN(pVdd,V(ninp_unlim)))'
         to look at 'miller2/nmos_results/nmos_results.*'
         """
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         file_path = pwd + 'problems/miller2/'
@@ -1263,6 +1273,8 @@ Efb4	ninp	gnd	volts='MAX(0,MIN(pVdd,V(ninp_unlim)))'
         max_simulation_time = 1.5 #in seconds
         
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/try/'
@@ -1409,6 +1421,8 @@ Vinac		ninpdc		ninp	AC=pVinac
         # (though any of this can be analysis-specific if we'd wanted
         #  to set them there instead)
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/unifilter/'
@@ -1589,6 +1603,8 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
         # (though any of this can be analysis-specific if we'd wanted
         #  to set them there instead)
         pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/resdiv/'

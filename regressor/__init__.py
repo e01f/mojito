@@ -1,1 +1,1 @@
-from Lut import LutStrategy, LutModel, LutFactory, LutDataPruner
+from .Lut import LutStrategy, LutModel, LutFactory, LutDataPruner

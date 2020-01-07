@@ -1,8 +1,8 @@
 import unittest, os
 from tests import doctest, importSuite
 
-from Constants_test import ConstantsTest
-from Mathutil_test import MathutilTest
+from .Constants_test import ConstantsTest
+from .Mathutil_test import MathutilTest
 
 TestClasses = [
     ConstantsTest,

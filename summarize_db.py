@@ -44,7 +44,7 @@ Details:
     #got the right number of args?  If not, output help
     num_args = len(sys.argv)
     if num_args not in [3,4,5,6]:
-        print help
+        print(help)
         sys.exit(0)
 
     #yank out the args into usable values
@@ -71,28 +71,26 @@ Details:
     # -load data
     ps = ProblemFactory().build(problem_choice)
     if not os.path.exists(db_file):
-        print "Cannot find file with name %s" % db_file
+        print("Cannot find file with name %s" % db_file)
         sys.exit(0)
     state = loadSynthState(db_file, ps)
 
     # -validate sort_metric earlier rather than later
     if sort_metric is not None:
         if sort_metric not in ps.flattenedMetricNames():
-            print "Sort_metric '%s' is not in metric names of %s" % \
-                  (sort_metric, ps.flattenedMetricNames())
+            print("Sort_metric '%s' is not in metric names of %s" % (sort_metric, ps.flattenedMetricNames()))
             sys.exit(0)
     
     # -find nondominated inds
     inds = state.allInds()
     minmax = minMaxMetrics(ps, inds)
-    print "Begin fastNondominatedSort on %d inds..." % len(inds)
+    print("Begin fastNondominatedSort on %d inds..." % len(inds))
     F = fastNondominatedSort(inds, minmax, max_layer_index=0,
                              metric_weights=state.ss.metric_weights)
     nondom_inds = F[0]
-    print "Done fastNondominatedSort; %d inds are nondominated" % \
-          len(nondom_inds)
+    print("Done fastNondominatedSort; %d inds are nondominated" % len(nondom_inds))
 
-    print populationSummaryStr(ps, nondom_inds, sort_metric)
+    print(populationSummaryStr(ps, nondom_inds, sort_metric))
     
     populationSummaryToMatlab(ps, nondom_inds, matlab_metric_file, matlab_point_file)
     #done!
