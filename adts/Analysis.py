@@ -487,7 +487,7 @@ class Simulator(Analysis):
             if extension not in output_filetypes: continue
             output_file = simfile_dir + outbase + '.' + extension
             tokens = adts.EvalUtils.file2tokens(output_file, 2)
-            num_measures = len(tokens) / 2
+            num_measures = len(tokens) // 2
             all_measures = {}
             for measure_i in range(num_measures):
                 measure_name = tokens[measure_i]

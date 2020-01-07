@@ -968,7 +968,7 @@ class SynthEngine:
                 self.simfile_dir, netlist, env_point)
 
             #set DOCs metric
-            assert not sim_results.has_key(DOCs_metric_name)
+            assert not DOCs_metric_name in sim_results
             assert DOCs_metric_name == 'perc_DOCs_met', 'expected percent DOCs'
 
             target_metrics = [m.name for m in analysis.metrics]

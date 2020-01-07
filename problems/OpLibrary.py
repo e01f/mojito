@@ -4726,7 +4726,7 @@ class OpLibrary(Library):
 
         nStage_parts = []
         nStage_vmms = []
-        for i in xrange(nStages):
+        for i in range(nStages):
             #parts to embed
             stageI_part = self.filterStage()
             nStage_parts.append(stageI_part)
@@ -4744,7 +4744,7 @@ class OpLibrary(Library):
         tmp_node = '2'
         tmp_node_prev = '1'
 
-        for i in xrange(nStages):
+        for i in range(nStages):
             #build functions
             stageI_functions = nStage_vmms[i]
             if i < nStages - 1:

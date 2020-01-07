@@ -171,6 +171,6 @@ def file2str(filename, startline=0):
     lines_list[:startline] = []
 
     #convert lines_list to one big string
-    big_string = string.join(lines_list)
+    big_string = ' '.join(lines_list)
     return big_string
 
