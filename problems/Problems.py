@@ -1621,7 +1621,7 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
         #build op analysis
         if True:
             d = {
-                 'pRload':100000,
+                 'pRload':10000000,
                  'pVdcin':vdd
                  }
             op_env_points = [EnvPoint(True, d)]
@@ -1643,8 +1643,8 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
 
 """
             op_metrics = [
-                          Metric('pwrnode', float('-Inf'), 100.0e-3, True),
-                          Metric('V(nout)', 2.4, 2.6, True)
+                          Metric('pwrnode', float('-Inf'), 10.0e-3, False),
+                          Metric('nout', 2.4, 2.6, True)
                           ]
    
             #if we use a .lis output like 'region' or 'vgs' even once in
@@ -1654,9 +1654,8 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
             sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
                              #'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvmaxg'],
                              #'ic0':['pwrnode','fbmnode'],
-                             'ic0':['pwrnode'], 
+                             'ic0':['pwrnode', 'nout']
                              #'lis':['perc_DOCs_met']
-                             'lis':['V(nout)']
                              },
                             cir_file_path,
                             max_simulation_time,
