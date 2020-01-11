@@ -1,0 +1,24 @@
+* PSpice Voltage-Controlled switch -> HSpice Voltage-Controlled Resistor (VCR)
+
+* Sxxx n1 n2 nc+ nc- <model>
+*SOR_SWp     CLAMP 43 CLAMP 43  S_VSWITCH_1
+* ...
+*.MODEL S_VSWITCH_1 VSWITCH (RON=10e-3 ROFF=1e9 VON=10e-3 VOFF=0)
+
+* Becomes:
+
+* Gxxx n+ n- VCR PWL(1) in+ in- <DELTA=val> <SCALE=val> <M=val> <TC1=val> <TC2=val> x1,y1 x2,y2 ... x100,y100 <IC=val> <SMOOTH=val>
+GOR_SWp     CLAMP 43 VCR PWL(1) CLAMP 43     0,1e9 10e-3,10e-3
+
+
+*E123 n1 n2 n3 n4 VALUE={...}
+* -> E123 n1 n2 n3 n4 VOL='...'
+
+*G123 i+ i- VALUE={...}
+* -> G123 i+ i- CUR='...'
+
+*G123 n1 n2 TABLE {V(n+, n-)} = (...) (...) (...) (...) ...
+* -> F123 n1 n2 VCCR PWL(1) n+ n- ... ... ... ... ...
+
+*R123 na nb {BLAH}
+* -> R123 na nb R='BLAH'
