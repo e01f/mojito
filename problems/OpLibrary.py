@@ -4932,7 +4932,7 @@ class OpLibrary(Library):
     def opvCircuit(self):
         """
         Description: OpAmp Circuit
-        Ports: In, Out, Vcc, Vee
+        Ports: In, Out, Vcc, Vee, gnd
         Variables: None
         
         Note: Only inverting amplifier is implemented as of now
@@ -4944,17 +4944,16 @@ class OpLibrary(Library):
         r1 = self.wireOrRCL()
         r2 = self.wireOrRCL()
 
-        r1uVM = {'R' : 'R1'}
-        r2uVM = {'R' : 'R2'}
+        r1uVM = {'R' : 'R1', 'C': 'C1', 'L': 'L1', 'chosen_part_index': 'chosen_part_index1'}
+        r2uVM = {'R' : 'R2', 'C': 'C2', 'L': 'L2', 'chosen_part_index': 'chosen_part_index2'}
 
         pm = PointMeta({})
 
         pm = self.updatePointMeta(pm, r1, r1uVM)
         pm = self.updatePointMeta(pm, r2, r2uVM)
 
+        part = CompoundPart(['In', 'Out', 'Vcc', 'Vee', 'gnd'], pm, name)
         n1 = part.addInternalNode()
-
-        part = CompoundPart(['In', 'Out', 'Vcc', 'Vee'], pm, name)
         part.addPart(opv1, {'IN+':'gnd','IN-': n1, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': 'Out'}, {})
         part.addPart(r1, {'1':'In','2': n1}, r1uVM)
         part.addPart(r2, {'1': n1,'2': 'Out'}, r2uVM)

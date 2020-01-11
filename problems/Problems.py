@@ -1705,17 +1705,17 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
         pmos_modelname = 'P_18_MM'
         
         #build library
-        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vdd, self.approxMosModels())
+        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vcc, self.approxMosModels())
         library = OpLibrary(lib_ss)
         
         #build embedded part
-        # opvCircuit has ports: In, Out, Vcc, Vee
+        # opvCircuit has ports: In, Out, Vcc, Vee, gnd
         part = library.opvCircuit()
 
         #the keys of 'connections' are the external ports of 'part'
         #the value corresponding to each key must be in the test_fixture_strings
         # that are below
-        connections = {'In': 'nVin', 'Out': 'nout', 'Vcc': 'nVcc', 'Vee': 'nVee'}
+        connections = {'In': 'nVin', 'Out': 'nout', 'Vcc': 'nVcc', 'Vee': 'nVee', 'gnd': 'gnd'}
 
         functions = {}
         for varname in part.point_meta.keys():
