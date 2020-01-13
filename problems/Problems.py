@@ -1737,65 +1737,73 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
             pwd += '/'
         cir_file_path = pwd + 'problems/zcd/'
         max_simulation_time = 5 #in seconds
-        simulator_options_string = """
-.include %ssimulator_options.inc
-""" % cir_file_path
-        
-        models_string = """
-.include %smodels.inc
-""" % cir_file_path
+        simulator_options_string = "\n.include %ssimulator_options.inc\n" % cir_file_path
+        models_string = "\n.include %smodels.inc\n" % cir_file_path
 
         #-------------------------------------------------------
         #build op analysis
-        if True:
-            d = {
-                 'pRload': 10000000,
-                 'pVcc': vcc,
-                 'pVee': vee,
-                 }
-            op_env_points = [EnvPoint(True, d)]
-            test_fixture_string = """
+        d = {
+             'pRload': 10000000,
+             'pVcc': vcc,
+             'pVee': vee,
+             }
+        op_env_points = [EnvPoint(True, d)]
+        test_fixture_string = """
 Rload   nout    gnd pRload
 
 * biasing circuitry
-Vcc         nVcc        gnd     DC=pVcc
-Vee         nVee        gnd     DC=pVee
-Vin         nVin        gnd     DC=0.5
+Vcc         nVcc        gnd         DC=pVcc
+Vee         nVee        gnd         DC=pVee
+Vin         nVindc      gnd         DC=0.5
+VinNoDc     nVinNodc    nVindc      PULSE(0 -0.5 0.001)
+Vinac       nVin        nVinNodc    SIN(0 '0.5*sqrt(2)' 1000 0.001)
 
 
 * this measures the amount of feedback biasing there is
 
 * simulation statements
 .op
+* ac decadic 50ppDecade 1Hz to 100kHz
+*.ac dec 50  1   100000
+.TRAN 0.0001 0.003
+
+*.probe ac V(nout)
+*.probe ac V(nVin)
+*.probe ac V(*)
+
+* time-domain measurements
+.measure TRAN voutrms       RMS  V(nout) FROM=0.001
+.measure TRAN voutdc        AVG  V(nout) TO=0.001
 
 * power measurement
 EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
 
 """
-            op_metrics = [
-                          Metric('pwrnode', float('-Inf'), 10.0e-3, False),
-                          Metric('nout', 2.4, 2.6, True)
-                          ]
-   
-            #if we use a .lis output like 'region' or 'vgs' even once in
-            # order to constrain DOCs via perc_DOCs_met, list it here
-            # (if you forget a measure, it _will_ complain)
-            doc_measures = ['test']
-            sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
-                             #'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvmaxg'],
-                             #'ic0':['pwrnode','fbmnode'],
-                             'ic0':['pwrnode', 'nout']
-                             #'lis':['perc_DOCs_met']
-                             },
-                            cir_file_path,
-                            max_simulation_time,
-                            simulator_options_string,
-                            models_string,
-                            test_fixture_string,
-                            doc_measures)
-                            
-            op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
-            analyses.append(op_an)
+        op_metrics = [
+                      Metric('pwrnode', float('-Inf'), 1, False),
+                      Metric('voutdc', -2.6, -2.4, True),
+                      Metric('voutrms', 2.4, 2.6, True)
+                      ]
+
+        #if we use a .lis output like 'region' or 'vgs' even once in
+        # order to constrain DOCs via perc_DOCs_met, list it here
+        # (if you forget a measure, it _will_ complain)
+        doc_measures = ['test']
+        sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
+                         'mt0':['voutrms', 'voutdc'],
+                         #'ic0':['pwrnode','fbmnode'],
+                         'ic0':['pwrnode']
+                         #'lis':['perc_DOCs_met']
+                         },
+                        cir_file_path,
+                        max_simulation_time,
+                        simulator_options_string,
+                        models_string,
+                        test_fixture_string,
+                        doc_measures)
+                        
+        op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
+        analyses.append(op_an)
 
         #-------------------------------------------------------
         # no transient analysis
