@@ -4729,7 +4729,8 @@ class OpLibrary(Library):
             series_rcl_choice = 0 -> no series rcl
             series_rcl_choice = 1..3 -> series rcl having
                 R1, C1, L1 - resistance, capacitance, inductance of series RCL
-            R2, C2, L2 - resistance, capacitance, inductance of RCL
+            rcl_choice = 0..2 = series rcl having
+                R2, C2, L2 - resistance, capacitance, inductance of RCL
             parallel_rcl_choice = 0 -> no parallel rcl
             parallel_rcl_choice = 1..3 -> parallel rcl having
                 R3, C3, L3 - resistance, capacitance, inductance or parallel RCL
@@ -4747,7 +4748,7 @@ class OpLibrary(Library):
         pm = PointMeta({})
         pm_wireOrRCL = {'chosen_part_index': 'series_rcl_choice', 'R': 'R1', 'C': 'C1', 'L': 'L1'}
         pm = self.updatePointMeta(pm, wireOrRCL_part, pm_wireOrRCL)
-        pm_rcl = {'R': 'R2', 'C': 'C2', 'L': 'L2'}
+        pm_rcl = {'chosen_part_index': 'rcl_choice', 'R': 'R2', 'C': 'C2', 'L': 'L2'}
         pm = self.updatePointMeta(pm, rcl_part, pm_rcl)
         pm_ocOrRCL = {'chosen_part_index': 'parallel_rcl_choice', 'R': 'R3', 'C': 'C3', 'L': 'L3'}
         pm = self.updatePointMeta(pm, ocOrRCL_part, pm_ocOrRCL)
@@ -4779,7 +4780,8 @@ class OpLibrary(Library):
             series_rcl_choice = 0 -> no series rcl
             series_rcl_choice = 1..3 -> series rcl having
                 R1, C1, L1 - resistance, capacitance, inductance of series RCL
-            R2, C2, L2 - resistance, capacitance, inductance of RCL
+            rcl_choice = 0..2 = series rcl having
+                R2, C2, L2 - resistance, capacitance, inductance of RCL
             parallel_rcl_choice = 0 -> no parallel rcl
             parallel_rcl_choice = 1..3 -> parallel rcl having
                 R3, C3, L3 - resistance, capacitance, inductance or parallel RCL
@@ -5269,7 +5271,7 @@ class OpLibrary(Library):
         
         #build the main part
         part = CompoundPart(['1', '2', '3', '4'], pm, name)
-        part.addPart(wire_part1, {'1':'1', '1':'3'}, {})
+        part.addPart(wire_part1, {'1':'1', '2':'3'}, {})
         part.addPart(wire_part2, {'1':'2', '2':'4'}, {})
                 
         self._parts[name] = part
@@ -5384,7 +5386,7 @@ class OpLibrary(Library):
 
 
 
-        pm_refStgRCLBlock = {'chosen_part_index': 'refstg_use_series_rcl_block1', 'series_rcl_choice': 'refstg_rcl_series2_choice', 'R1': 'instg_R_series2', 'C1': 'instg_C_series2', 'L1': 'instg_L_series2', 'R2': 'instg_R_series1', 'C2': 'instg_C_series1', 'L2': 'instg_L_series1', 'parallel_rcl_choice': 'refstg_rcl_parallel1_choice', 'R3': 'instg_R_parallel1', 'C3': 'instg_C_parallel1', 'L3': 'instg_L_parallel1'}
+        pm_refStgRCLBlock = {'chosen_part_index': 'refstg_use_series_rcl_block1', 'series_rcl_choice': 'refstg_rcl_series2_choice', 'R1': 'refstg_R_series2', 'C1': 'refstg_C_series2', 'L1': 'refstg_L_series2', 'rcl_choice': 'refstg_rcl_series1_choice', 'R2': 'refstg_R_series1', 'C2': 'refstg_C_series1', 'L2': 'refstg_L_series1', 'parallel_rcl_choice': 'refstg_rcl_parallel1_choice', 'R3': 'refstg_R_parallel1', 'C3': 'refstg_C_parallel1', 'L3': 'refstg_L_parallel1'}
         pm = self.updatePointMeta(pm, refStgRCLBlock, pm_refStgRCLBlock)
 
         pm_refStg1OCOrRCLVcc = {'chosen_part_index': 'refstg_oc_rcl_vcc_choice', 'R': 'refstg_R_vcc', 'C': 'refstg_C_vcc', 'L': 'refstg_L_vcc'}
@@ -5406,7 +5408,7 @@ class OpLibrary(Library):
         pm_fbStgWireOrDiode = {'chosen_part_index': 'use_feedback_diode1'}
         pm = self.updatePointMeta(pm, fbStgWireOrDiode, pm_fbStgWireOrDiode)
 
-        pm_fbStg1RCLBlock = {'chosen_part_index': 'fbstg_use_series_rcl_block1', 'series_rcl_choice': 'fbstg_rcl_series2_choice', 'R1': 'instg_R_series2', 'C1': 'instg_C_series2', 'L1': 'instg_L_series2', 'R2': 'instg_R_series1', 'C2': 'instg_C_series1', 'L2': 'instg_L_series1', 'parallel_rcl_choice': 'fbstg_rcl_parallel1_choice', 'R3': 'instg_R_parallel1', 'C3': 'instg_C_parallel1', 'L3': 'instg_L_parallel1'}
+        pm_fbStg1RCLBlock = {'chosen_part_index': 'fbstg_use_series_rcl_block1', 'series_rcl_choice': 'fbstg_rcl_series2_choice', 'R1': 'fbstg_R_series2', 'C1': 'fbstg_C_series2', 'L1': 'fbstg_L_series2', 'rcl_choice': 'fbstg_rcl_series1_choice', 'R2': 'fbstg_R_series1', 'C2': 'fbstg_C_series1', 'L2': 'fbstg_L_series1', 'parallel_rcl_choice': 'fbstg_rcl_parallel1_choice', 'R3': 'fbstg_R_parallel1', 'C3': 'fbstg_C_parallel1', 'L3': 'fbstg_L_parallel1'}
         pm = self.updatePointMeta(pm, fbStg1RCLBlock, pm_fbStg1RCLBlock)
 
         pm_fbStg1WireOrDiode = {'chosen_part_index': 'use_feedback_diode2'}
@@ -5450,12 +5452,11 @@ class OpLibrary(Library):
         part.addPart(opv1,                  {'IN+': n6, 'IN-': n7, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': n8}, {})
         part.addPart(fbStgWireOrDiode,      {'A': n5,    'K': n8},     pm_fbStgWireOrDiode)
 
-        n9 = part.addInternalNode()
-        part.addPart(fbStg1WireOrDiode,     {'A': n8,    'K': n9},     pm_fbStg1WireOrDiode)
-        part.addPart(fbStg1RCLBlock,        {'1': n5,    '2': n9},     pm_fbStg1RCLBlock)
-        part.addPart(opBiasOCOrRCL,         {'1': n9,    '2': 'gnd'},  pm_opBiasOCOrRCL)
-        part.addPart(opBiasOCOrRCLVcc,      {'1': n9,    '2': 'Vcc'},  pm_opBiasOCOrRCLVcc)
-        part.addPart(opBiasOCOrRCLVee,      {'1': n9,    '2': 'Vee'},  pm_opBiasOCOrRCLVee)
+        part.addPart(fbStg1WireOrDiode,     {'A': n8,    'K': 'Out'},     pm_fbStg1WireOrDiode)
+        part.addPart(fbStg1RCLBlock,        {'1': n5,    '2': 'Out'},     pm_fbStg1RCLBlock)
+        part.addPart(opBiasOCOrRCL,         {'1': 'Out',    '2': 'gnd'},  pm_opBiasOCOrRCL)
+        part.addPart(opBiasOCOrRCLVcc,      {'1': 'Out',    '2': 'Vcc'},  pm_opBiasOCOrRCLVcc)
+        part.addPart(opBiasOCOrRCLVee,      {'1': 'Out',    '2': 'Vee'},  pm_opBiasOCOrRCLVee)
 
 
         part.addToSummaryStr('opvCircuit','')
