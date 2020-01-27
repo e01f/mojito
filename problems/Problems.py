@@ -1891,35 +1891,51 @@ Rload   nout    gnd pRload
 * biasing circuitry
 Vcc         nVcc        gnd         DC=pVcc
 Vee         nVee        gnd         DC=pVee
-Vin         nVindc      gnd         DC=0.5
-VinNoDc     nVinNodc    nVindc      PULSE(0 -0.5 0.001)
-Vinac       nVin        nVinNodc    SIN(0 '0.5*sqrt(2)' 1000 0.001)
+Vin         nVindc      gnd         DC=-0.5
+VinNoDc     nVinNodc    nVindc      PULSE(0 0.5 0.001)
+Vinac       nVin        nVinNodc    SIN(0 5 1000 0.001)
 
 
 * this measures the amount of feedback biasing there is
 
 * simulation statements
-.op
-* ac decadic 50ppDecade 1Hz to 100kHz
-*.ac dec 50  1   100000
-.TRAN 0.0001 0.003
-
-*.probe ac V(nout)
-*.probe ac V(nVin)
-*.probe ac V(*)
+.OP
+.TRAN 0.000003 0.003
 
 * time-domain measurements
-.measure TRAN voutrms       RMS  V(nout) FROM=0.001
 .measure TRAN voutdc        AVG  V(nout) TO=0.001
-
-* power measurement
-EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
+.measure TRAN voutav1       AVG  V(nout) FROM=0.001  TO=0.0015
+.measure TRAN voutav2       AVG  V(nout) FROM=0.0015 TO=0.002
+.measure TRAN voutav3       AVG  V(nout) FROM=0.002  TO=0.0025
+.measure TRAN voutav4       AVG  V(nout) FROM=0.0025 TO=0.003
+.measure TRAN voutpp1        PP  V(nout) FROM=0.0011 TO=0.0014
+.measure TRAN voutpp2        PP  V(nout) FROM=0.0016 TO=0.0019
+.measure TRAN voutpp3        PP  V(nout) FROM=0.0021 TO=0.0024
+.measure TRAN voutpp4        PP  V(nout) FROM=0.0026 TO=0.0029
+.measure TRAN toutzc1       FIND 'time'  WHEN V(nout)=0 TD=0.0009
+.measure TRAN toutzc2       FIND 'time'  WHEN V(nout)=0 TD=0.0014
+.measure TRAN toutzc3       FIND 'time'  WHEN V(nout)=0 TD=0.0019
+.measure TRAN toutzc4       FIND 'time'  WHEN V(nout)=0 TD=0.0024
+.measure tran maxpwr        MAX  power
+.measure tran avgpwr        AVG  power
 
 """
         op_metrics = [
-                      Metric('pwrnode', float('-Inf'), 1, False),
-                      Metric('voutdc', -2.6, -2.4, True),
-                      Metric('voutrms', 2.4, 2.6, True)
+                      Metric('maxpwr', float('-Inf'), 1, False),
+                      Metric('avgpwr', float('-Inf'), 1, False),
+                      Metric('voutdc', 6.0, float('Inf'), False),
+                      Metric('voutav1', float('-Inf'), -6.0, False),
+                      Metric('voutav2', 6.0, float('Inf'), False),
+                      Metric('voutav3', float('-Inf'), -6.0, False),
+                      Metric('voutav4', 6.0, float('Inf'), False),
+                      Metric('voutpp1', float('-Inf'), 0.5, True),
+                      Metric('voutpp2', float('-Inf'), 0.5, True),
+                      Metric('voutpp3', float('-Inf'), 0.5, True),
+                      Metric('voutpp4', float('-Inf'), 0.5, True),
+                      Metric('toutzc1', 0.0009, 0.0011, True),
+                      Metric('toutzc2', 0.0014, 0.0016, True),
+                      Metric('toutzc3', 0.0019, 0.0021, True),
+                      Metric('toutzc4', 0.0024, 0.0026, True)
                       ]
 
         #if we use a .lis output like 'region' or 'vgs' even once in
@@ -1927,9 +1943,9 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         # (if you forget a measure, it _will_ complain)
         doc_measures = ['test']
         sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
-                         'mt0':['voutrms', 'voutdc'],
+                         'mt0':['voutdc', 'voutav1', 'voutav2', 'voutav3', 'voutav4', 'voutpp1', 'voutpp2', 'voutpp3', 'voutpp4', 'toutzc1', 'toutzc2', 'toutzc3', 'toutzc4', 'maxpwr', 'avgpwr'],
                          #'ic0':['pwrnode','fbmnode'],
-                         'ic0':['pwrnode']
+                         #'ic0':['pwrnode']
                          #'lis':['perc_DOCs_met']
                          },
                         cir_file_path,
