@@ -5164,6 +5164,40 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
+    def ocOrD1n4148(self):
+        """
+        Description: oc or 1N4148 Jellybean Diode
+          
+        Ports: A, K
+        
+        Variables: choosen_part_index
+        
+        Variable breakdown:
+            chosen_part_index = 0 -> oc
+            chosen_part_index = 1 -> 1N4148
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        oc_part = self.openCircuit()
+        dio_part = self.d1n4148()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        # build the main part
+        part = FlexPart(['A', 'K'], pm, name)
+        part.addPartChoice(oc_part, {'1':'A','2':'K'}, {})
+        part.addPartChoice(dio_part,  {'A':'A','K':'K'}, {})
+
+        # build a summaryStr
+        part.addToSummaryStr('wireOrD1n4184: ','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
     def lf411(self):
         """
         Description: LF411C OpAmp
@@ -5355,7 +5389,7 @@ class OpLibrary(Library):
 
         opv1 = self.lf411()
 
-        fbStgWireOrDiode = self.wireOrD1n4148()
+        fbStgOcOrDiode = self.ocOrD1n4148()
         fbStg1RCLBlock = self.wireOrSingleOrTwoParallelOrParallelAndSeriesRCL()
         fbStg1WireOrDiode = self.wireOrD1n4148()
 
@@ -5405,8 +5439,8 @@ class OpLibrary(Library):
 
 
 
-        pm_fbStgWireOrDiode = {'chosen_part_index': 'use_feedback_diode1'}
-        pm = self.updatePointMeta(pm, fbStgWireOrDiode, pm_fbStgWireOrDiode)
+        pm_fbStgOcOrDiode = {'chosen_part_index': 'use_feedback_diode1'}
+        pm = self.updatePointMeta(pm, fbStgOcOrDiode, pm_fbStgOcOrDiode)
 
         pm_fbStg1RCLBlock = {'chosen_part_index': 'fbstg_use_series_rcl_block1', 'series_rcl_choice': 'fbstg_rcl_series2_choice', 'R1': 'fbstg_R_series2', 'C1': 'fbstg_C_series2', 'L1': 'fbstg_L_series2', 'rcl_choice': 'fbstg_rcl_series1_choice', 'R2': 'fbstg_R_series1', 'C2': 'fbstg_C_series1', 'L2': 'fbstg_L_series1', 'parallel_rcl_choice': 'fbstg_rcl_parallel1_choice', 'R3': 'fbstg_R_parallel1', 'C3': 'fbstg_C_parallel1', 'L3': 'fbstg_L_parallel1'}
         pm = self.updatePointMeta(pm, fbStg1RCLBlock, pm_fbStg1RCLBlock)
@@ -5450,7 +5484,7 @@ class OpLibrary(Library):
 
         n8 = part.addInternalNode()
         part.addPart(opv1,                  {'IN+': n6, 'IN-': n7, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': n8}, {})
-        part.addPart(fbStgWireOrDiode,      {'A': n5,    'K': n8},     pm_fbStgWireOrDiode)
+        part.addPart(fbStgOcOrDiode,        {'A': n5,    'K': n8},        pm_fbStgOcOrDiode)
 
         part.addPart(fbStg1WireOrDiode,     {'A': n8,    'K': 'Out'},     pm_fbStg1WireOrDiode)
         part.addPart(fbStg1RCLBlock,        {'1': n5,    '2': 'Out'},     pm_fbStg1RCLBlock)
