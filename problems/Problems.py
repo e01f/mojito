@@ -1878,11 +1878,15 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         models_string = "\n.include %smodels.inc\n" % cir_file_path
 
         #-------------------------------------------------------
-        #build op analysis
+        # no op analysis
+
+        #-------------------------------------------------------
+        # transient analysis (includes op analysis)
         d = {
              'pRload': 10000000,
              'pVcc': vcc,
              'pVee': vee,
+             'fTest': 1000
              }
         op_env_points = [EnvPoint(True, d)]
         test_fixture_string = """
@@ -1892,30 +1896,30 @@ Rload   nout    gnd pRload
 Vcc         nVcc        gnd         DC=pVcc
 Vee         nVee        gnd         DC=pVee
 Vin         nVindc      gnd         DC=-0.5
-VinNoDc     nVinNodc    nVindc      PULSE(0 0.5 0.001)
-Vinac       nVin        nVinNodc    SIN(0 5 1000 0.001)
+VinNoDc     nVinNodc    nVindc      PULSE(0 0.5 '1/fTest')
+Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
 
 
 * this measures the amount of feedback biasing there is
 
 * simulation statements
 .OP
-.TRAN 0.000003 0.003
+.TRAN '3/fTest/1000' '3/fTest'
 
 * time-domain measurements
-.measure TRAN voutdc        AVG  V(nout) TO=0.001
-.measure TRAN voutav1       AVG  V(nout) FROM=0.001  TO=0.0015
-.measure TRAN voutav2       AVG  V(nout) FROM=0.0015 TO=0.002
-.measure TRAN voutav3       AVG  V(nout) FROM=0.002  TO=0.0025
-.measure TRAN voutav4       AVG  V(nout) FROM=0.0025 TO=0.003
-.measure TRAN voutpp1        PP  V(nout) FROM=0.0011 TO=0.0014
-.measure TRAN voutpp2        PP  V(nout) FROM=0.0016 TO=0.0019
-.measure TRAN voutpp3        PP  V(nout) FROM=0.0021 TO=0.0024
-.measure TRAN voutpp4        PP  V(nout) FROM=0.0026 TO=0.0029
-.measure TRAN toutzc1       FIND 'time'  WHEN V(nout)=0 TD=0.0009
-.measure TRAN toutzc2       FIND 'time'  WHEN V(nout)=0 TD=0.0014
-.measure TRAN toutzc3       FIND 'time'  WHEN V(nout)=0 TD=0.0019
-.measure TRAN toutzc4       FIND 'time'  WHEN V(nout)=0 TD=0.0024
+.measure TRAN voutdc        AVG  V(nout) TO='1/fTest'
+.measure TRAN voutav1       AVG  V(nout) FROM='1/fTest'  TO='1.5/fTest'
+.measure TRAN voutav2       AVG  V(nout) FROM='1.5/fTest' TO='2/fTest'
+.measure TRAN voutav3       AVG  V(nout) FROM='2/fTest'  TO='2.5/fTest'
+.measure TRAN voutav4       AVG  V(nout) FROM='2.5/fTest' TO='3/fTest'
+.measure TRAN voutpp1        PP  V(nout) FROM='1.1/fTest' TO='1.4/fTest'
+.measure TRAN voutpp2        PP  V(nout) FROM='1.6/fTest' TO='1.9/fTest'
+.measure TRAN voutpp3        PP  V(nout) FROM='2.1/fTest' TO='2.4/fTest'
+.measure TRAN voutpp4        PP  V(nout) FROM='2.6/fTest' TO='2.9/fTest'
+.measure TRAN toutzc1       FIND 'time'  WHEN V(nout)=0 TD='0.9/fTest'
+.measure TRAN toutzc2       FIND 'time'  WHEN V(nout)=0 TD='1.4/fTest'
+.measure TRAN toutzc3       FIND 'time'  WHEN V(nout)=0 TD='1.9/fTest'
+.measure TRAN toutzc4       FIND 'time'  WHEN V(nout)=0 TD='2.4/fTest'
 .measure tran maxpwr        MAX  power
 .measure tran avgpwr        AVG  power
 
@@ -1932,10 +1936,10 @@ Vinac       nVin        nVinNodc    SIN(0 5 1000 0.001)
                       Metric('voutpp2', float('-Inf'), 0.5, True),
                       Metric('voutpp3', float('-Inf'), 0.5, True),
                       Metric('voutpp4', float('-Inf'), 0.5, True),
-                      Metric('toutzc1', 0.0009, 0.0011, True),
-                      Metric('toutzc2', 0.0014, 0.0016, True),
-                      Metric('toutzc3', 0.0019, 0.0021, True),
-                      Metric('toutzc4', 0.0024, 0.0026, True)
+                      Metric('toutzc1', 0.9/d['fTest'], 1.1/d['fTest'], True),
+                      Metric('toutzc2', 1.4/d['fTest'], 1.6/d['fTest'], True),
+                      Metric('toutzc3', 1.9/d['fTest'], 2.1/d['fTest'], True),
+                      Metric('toutzc4', 2.4/d['fTest'], 2.6/d['fTest'], True)
                       ]
 
         #if we use a .lis output like 'region' or 'vgs' even once in
@@ -1958,8 +1962,82 @@ Vinac       nVin        nVinNodc    SIN(0 5 1000 0.001)
         op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
         analyses.append(op_an)
 
-        #-------------------------------------------------------
-        # no transient analysis
+        d2 = {
+             'pRload': 10000000,
+             'pVcc': vcc,
+             'pVee': vee,
+             'fTest': 89
+             }
+        op_env_points2 = [EnvPoint(True, d2)]
+        test_fixture_string2 = """
+Rload   nout    gnd pRload
+
+* biasing circuitry
+Vcc         nVcc        gnd         DC=pVcc
+Vee         nVee        gnd         DC=pVee
+Vin         nVindc      gnd         DC=-0.5
+VinNoDc     nVinNodc    nVindc      PULSE(0 0.5 '1/fTest')
+Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
+
+
+* this measures the amount of feedback biasing there is
+
+* simulation statements
+.OP
+.TRAN '3/fTest/1000' '3/fTest'
+
+* time-domain measurements
+.measure TRAN voutdc-2        AVG  V(nout) TO='1/fTest'
+.measure TRAN voutav1-2       AVG  V(nout) FROM='1/fTest'  TO='1.5/fTest'
+.measure TRAN voutav2-2       AVG  V(nout) FROM='1.5/fTest' TO='2/fTest'
+.measure TRAN voutav3-2       AVG  V(nout) FROM='2/fTest'  TO='2.5/fTest'
+.measure TRAN voutav4-2       AVG  V(nout) FROM='2.5/fTest' TO='3/fTest'
+.measure TRAN voutpp1-2        PP  V(nout) FROM='1.1/fTest' TO='1.4/fTest'
+.measure TRAN voutpp2-2        PP  V(nout) FROM='1.6/fTest' TO='1.9/fTest'
+.measure TRAN voutpp3-2        PP  V(nout) FROM='2.1/fTest' TO='2.4/fTest'
+.measure TRAN voutpp4-2        PP  V(nout) FROM='2.6/fTest' TO='2.9/fTest'
+.measure TRAN toutzc1-2       FIND 'time'  WHEN V(nout)=0 TD='0.9/fTest'
+.measure TRAN toutzc2-2       FIND 'time'  WHEN V(nout)=0 TD='1.4/fTest'
+.measure TRAN toutzc3-2       FIND 'time'  WHEN V(nout)=0 TD='1.9/fTest'
+.measure TRAN toutzc4-2       FIND 'time'  WHEN V(nout)=0 TD='2.4/fTest'
+.measure tran maxpwr-2        MAX  power
+.measure tran avgpwr-2        AVG  power
+
+"""
+        op_metrics2 = [
+                      Metric('maxpwr-2', float('-Inf'), 1, False),
+                      Metric('avgpwr-2', float('-Inf'), 1, False),
+                      Metric('voutdc-2', 6.0, float('Inf'), False),
+                      Metric('voutav1-2', float('-Inf'), -6.0, False),
+                      Metric('voutav2-2', 6.0, float('Inf'), False),
+                      Metric('voutav3-2', float('-Inf'), -6.0, False),
+                      Metric('voutav4-2', 6.0, float('Inf'), False),
+                      Metric('voutpp1-2', float('-Inf'), 0.5, True),
+                      Metric('voutpp2-2', float('-Inf'), 0.5, True),
+                      Metric('voutpp3-2', float('-Inf'), 0.5, True),
+                      Metric('voutpp4-2', float('-Inf'), 0.5, True),
+                      Metric('toutzc1-2', 0.9/d2['fTest'], 1.1/d2['fTest'], True),
+                      Metric('toutzc2-2', 1.4/d2['fTest'], 1.6/d2['fTest'], True),
+                      Metric('toutzc3-2', 1.9/d2['fTest'], 2.1/d2['fTest'], True),
+                      Metric('toutzc4-2', 2.4/d2['fTest'], 2.6/d2['fTest'], True)
+                      ]
+
+        #if we use a .lis output like 'region' or 'vgs' even once in
+        # order to constrain DOCs via perc_DOCs_met, list it here
+        # (if you forget a measure, it _will_ complain)
+        doc_measures2 = ['test']
+        sim2 = Simulator({
+                         'mt0':['voutdc-2', 'voutav1-2', 'voutav2-2', 'voutav3-2', 'voutav4-2', 'voutpp1-2', 'voutpp2-2', 'voutpp3-2', 'voutpp4-2', 'toutzc1-2', 'toutzc2-2', 'toutzc3-2', 'toutzc4-2', 'maxpwr-2', 'avgpwr-2']
+                         },
+                        cir_file_path,
+                        max_simulation_time,
+                        simulator_options_string,
+                        models_string,
+                        test_fixture_string2,
+                        doc_measures2)
+                        
+        op_an2 = CircuitAnalysis(op_env_points2, op_metrics2, sim2)
+        analyses.append(op_an2)
        
         #-------------------------------------------------------
         #add function DOCs analysis
