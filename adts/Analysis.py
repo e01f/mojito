@@ -7,6 +7,7 @@ Holds:
 """
 
 import os
+import subprocess
 import string
 import time
 import types
@@ -362,39 +363,36 @@ class Simulator(Analysis):
              For each of the waveforms outputs like .tr0, .sw0
     
         @notes
-          Currently we use os.system a lot, but subprocess.call
-          is easier to use; we should consider changing (warning:
-          Trent's python 2.4 doesn't properly support subprocess yet)
+          Changed from os.system and ps_temp nastyness to subprocess.Popen
         """
         if len(simfile_dir) > 0 and simfile_dir[-1] != '/':
             simfile_dir = simfile_dir + '/'
+        simfile_dir = simfile_dir.replace("/", "\\")
             
         #Make sure no previous output files
         outbase = 'autogen_cirfile'
-        os.system('rm ' + simfile_dir + outbase + '*;')
-        if os.path.exists(simfile_dir + 'ps_temp.txt'):
-            os.remove(simfile_dir + 'ps_temp.txt')
+        command = 'rm "' + simfile_dir + outbase + '"*'
+        subprocess.call(command, shell=True)
 
         #Create netlist, write it to file
         netlist = self.createFullNetlist(design_netlist, env_point)
         cirfile = simfile_dir + outbase + '.cir'
+        cirfile = cirfile.replace("/", "\\")
         f = open(cirfile, 'w'); f.write(netlist); f.close()
 
         #Call simulator; error check
         #old command = ['cd ' simfile_dir '; hspice -i ' cirfile ' -o ' outbase '; cd -'];
 
         #hspice
-        psc = "ps ax |grep hspice|grep -v 'cd '|grep " + cirfile + \
-              " 1> " + simfile_dir + "ps_temp.txt"
-        command = "cd " + simfile_dir + "; hspice -i " + cirfile + \
-                  " -o " + outbase + "& cd -; " + psc
+        hspicedir = r'C:\synopsys\Hspice_E-2010.12\BIN'
+        command = "\"" + hspicedir + "\\hspice.exe\" -i \"" + cirfile + "\" -o \"" + simfile_dir + outbase + "\""
 
         #eldo
         #psc = ['ps ax |grep eldo|grep -v ''cd ''|grep ' cirfile ' 1> ps_temp.txt'];
         #command = ['cd ' simfile_dir '; eldo -i ' cirfile ' -o ' outbase '& cd -; ' psc];
-
+        
         #log.debug("Call with comand: '%s'" % command)
-        status = os.system(command)
+        process = subprocess.Popen(command)
 
         output_filetypes = self.metrics_per_outfile.keys()
         result_files = [simfile_dir + outbase + '.' + output_filetype
@@ -402,7 +400,9 @@ class Simulator(Analysis):
         got_results = False
         bad_result = False
 
-        if status != 0:
+        status = process.poll()
+
+        if status is not None and status != 0:
           got_results = True;
           bad_result = True;
           log.error('System call with bad result.  Command was: %s' % command)
@@ -410,26 +410,27 @@ class Simulator(Analysis):
         #loop until we get results, or until timeout
         t0 = time.time()
         while not got_results:
+
+            status = process.poll()
             
-            if self._filesExist(result_files):
+            if status is not None and status == 0 and self._filesExist(result_files):
                 #log.debug('\nSuccessfully got result file')
                 got_results = True
                 bad_result = False
+
+            if status is not None and status != 0:
+                got_results = True;
+                bad_result = True;
+                log.error('System call with bad result.  Command was: %s' % command)
             
             elif (time.time() - t0) > self.max_simulation_time:
-                log.debug('\nExceeded max sim time of %d s, so kill' %
-                          self.max_simulation_time)
+                log.debug('\nExceeded max sim time of %d s, so kill' % self.max_simulation_time)
                 got_results = True
                 bad_result = True
                       
                 #kill the process
-                t = EvalUtils.file2tokens(simfile_dir + 'ps_temp.txt', 0)
-                log.debug('ps_temp.txt was:%s' %
-                          EvalUtils.file2str(simfile_dir + 'ps_temp.txt'))
-                pid = t[0]
-                log.debug('fid was: %s' % pid)
-                if not t[0] == 'Done':
-                    os.system('kill -9 %s' % pid)
+                log.debug('fid was: %s' % process.pid)
+                process.kill()
 
             #pause for 0.25 seconds (to avoid taking cpu time while waiting)
             time.sleep(0.25) 
