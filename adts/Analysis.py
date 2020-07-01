@@ -368,10 +368,11 @@ class Simulator(Analysis):
         if len(simfile_dir) > 0 and simfile_dir[-1] != '/':
             simfile_dir = simfile_dir + '/'
         simfile_dir = simfile_dir.replace("/", "\\")
+        simfile_dir_linux = simfile_dir.replace("\\", "/")
             
         #Make sure no previous output files
         outbase = 'autogen_cirfile'
-        command = 'rm "' + simfile_dir + outbase + '"*'
+        command = 'rm "' + simfile_dir_linux + outbase + '"*'
         subprocess.call(command, shell=True)
 
         #Create netlist, write it to file
@@ -384,8 +385,8 @@ class Simulator(Analysis):
         #old command = ['cd ' simfile_dir '; hspice -i ' cirfile ' -o ' outbase '; cd -'];
 
         #hspice
-        hspicedir = r'C:\synopsys\Hspice_E-2010.12\BIN'
-        command = "\"" + hspicedir + "\\hspice.exe\" -i \"" + cirfile + "\" -o \"" + simfile_dir + outbase + "\""
+        hspicedir = r'C:\synopsys\Hspice_J-2014.09-SP2-2\WIN64'
+        command = "\"" + hspicedir + "\\hspice.com\" -C -i \"" + cirfile + "\" -o \"" + simfile_dir + outbase + "\""
 
         #eldo
         #psc = ['ps ax |grep eldo|grep -v ''cd ''|grep ' cirfile ' 1> ps_temp.txt'];
