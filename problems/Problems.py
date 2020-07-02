@@ -32,9 +32,9 @@ class ProblemFactory:
         61 / 62 - DS and DSS (WL / OP)
         71 / 72 - DS, DSS, and DDS (WL / OP)
         81 - minimizeNmseToTargetWaveform
-	1  - maximizePartCountProblem
+        1  - maximizePartCountProblem
         2  - maxPartCount_minArea_Problem
-	--------------------
+        --------------------
         Legend:
         -SS  = single-ended-in, single-ended out, 1 stage amp
         -DS  = diff-in, single-ended-out, 1 stage amp
