@@ -13,6 +13,7 @@ import types
 import sys
 
 import numpy
+import matplotlib.pyplot as plt
 
 from adts import *
 from adts.Part import replaceAutoNodesWithXXX
@@ -220,7 +221,7 @@ class SynthEngine:
         if os.path.exists(self.output_dir):
             log.warning("Output path '%s' already exists; will rewrite" %
                         self.output_dir)
-            shutil.rmtree(self.output_dir)
+            shutil.rmtree(self.output_dir, ignore_errors=True)
         os.mkdir(self.output_dir)
 
         #if we had a restart file, we can ensure that its info wasn't lost
@@ -793,22 +794,22 @@ class SynthEngine:
         if self.ss.do_plot and len(metnames) > 1:
             x0 = [ind.worstCaseMetricValue(metnames[0]) for ind in F[0]]
             y0 = [ind.worstCaseMetricValue(metnames[1]) for ind in F[0]]
-            from scipy import gplt
+            
             print x0
             print y0
-            gplt.hold('off')
-            gplt.plot(x0, y0, 'with points')
+            plt.figure(1)
+            plt.plot(x0, y0, 'o--')
 
-            gplt.hold('on')
             for nondom_layer in range(1,7):
                 if nondom_layer >= len(F): break
                 x = [ind.worstCaseMetricValue(metnames[0])
                      for ind in F[nondom_layer]]
                 y = [ind.worstCaseMetricValue(metnames[1])
                      for ind in F[nondom_layer]]
-                gplt.plot(x, y, 'with points')
+                plt.plot(x, y, 'o--')
 
-            gplt.title('%s vs. %s' % (metnames[1], metnames[0]))
+            plt.title('%s vs. %s' % (metnames[1], metnames[0]))
+            plt.show()
 
         return
 
