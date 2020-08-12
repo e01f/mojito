@@ -34,6 +34,7 @@ class ProblemFactory:
         81 - minimizeNmseToTargetWaveform
         1  - maximizePartCountProblem
         2  - maxPartCount_minArea_Problem
+        101 - universal filter problem
         --------------------
         Legend:
         -SS  = single-ended-in, single-ended out, 1 stage amp
@@ -61,7 +62,7 @@ class ProblemFactory:
                                  51,52,
                                  61,62,
                                  71,72,
-				 81	]
+                                 81,101]
         problem = None #fill this in
         if problem_choice == 1:
             problem = self.maximizePartCount_Problem()
@@ -90,17 +91,18 @@ class ProblemFactory:
             
         elif problem_choice == 71:
             problem = self.WL_dsViAmp_Problem(DS=True, DSS=True, DDS=True)
-     	elif problem_choice == 72:
+        elif problem_choice == 72:
             return self.OP_dsViAmp_Problem(DS=True, DSS=True, DDS=True)     
         elif problem_choice == 72:
             problem = self.OP_dsViAmp_Problem(DS=True, DSS=True, DDS=True)	
-	elif problem_choice == 81:
+        elif problem_choice == 81:
             (dc_sweep_start_voltage, dc_sweep_end_voltage, target_waveform) = \
                                      extra_args
             return self.minimizeNmseToTargetWaveform(dc_sweep_start_voltage,
                                                      dc_sweep_end_voltage,
                                                      target_waveform)
-
+        elif problem_choice == 101:
+            problem = self.uniFilter_Problem()
         elif problem_choice in known_problem_choices:
             raise ValueError('problem_choice=%d is not implemented yet' %
                              problem_choice)	    
@@ -1356,4 +1358,166 @@ Vinac		ninpdc		ninp	AC=pVinac
         #finally, build PS and return
         ps = ProblemSetup(embedded_part, analyses)
         return ps
-    	
+
+    def uniFilter_Problem(self):
+        """
+        @description        
+          TBA
+        
+          Operating point driven
+          
+        @arguments
+          <<none>>          
+        
+        @return
+          ps -- ProblemSetup object
+        """
+        #settable parameters
+        vdd = 5
+        feature_size = 0.18e-06
+        nmos_modelname = 'N_18_MM'
+        pmos_modelname = 'P_18_MM'
+        
+        #build library
+        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vdd, self.approxMosModels())
+        library = OpLibrary(lib_ss)
+        
+        #build embedded part
+        # universalPassiveFilter has ports: In, Out
+        part = library.universalPassiveFilter()
+
+        #the keys of 'connections' are the external ports of 'part'
+        #the value corresponding to each key must be in the test_fixture_strings
+        # that are below
+        connections = {'In':'ninp', 'Out':'nout', 'gnd':'gnd'}
+
+        functions = {}
+        for varname in part.point_meta.keys():
+            functions[varname] = None #these need to get set ind-by-ind
+            
+        embedded_part = EmbeddedPart(part, connections, functions)
+
+        #we'll be building this up
+        analyses = []
+
+        #-------------------------------------------------------
+        #shared info between analyses
+        # (though any of this can be analysis-specific if we'd wanted
+        #  to set them there instead)
+        pwd = os.getenv('PWD')
+        if pwd[-1] != '/':
+            pwd += '/'
+        cir_file_path = pwd + 'problems/unifilter/'
+        max_simulation_time = 5 #in seconds
+        simulator_options_string = """
+.include %ssimulator_options.inc
+""" % cir_file_path
+        
+        models_string = """
+.include %smodels.inc
+""" % cir_file_path
+
+        #-------------------------------------------------------
+        #build ac analysis
+        if True:
+            d = {
+                 'pRload':5e-12,
+                 'pVdd':vdd,
+                 'pVdcin':vdd/2,
+                 'pTemp':25,
+                 }
+            ac_env_points = [EnvPoint(True, d)]
+            test_fixture_string = """
+Rload   nout    gnd pRload
+
+* biasing circuitry
+
+Vdd     ndd     gnd DC=pVdd
+Vss     gnd     0   DC=0
+Vindc       ninpdc      gnd DC=pVdcin
+Vinac       ninpdc      ninp1   AC=pVdd
+Vintran     ninp1       ninpx   DC=0 PWL(
++ 0     0
++ 0.1n   -0.2
++ 10.0n  -0.2 
++ 10.1n  0.2 
++ 30.0n  0.2
++ 30.1n  -.2 )
+
+* this measures the amount of feedback biasing there is
+EFBM fbmnode gnd volts='ABS(V(ninp)-V(ninpdc))'
+
+* simulation statements
+
+.op
+
+* temperature analysis
+.temp pTemp
+
+*.DC TEMP 25 25 10
+* ac decadic 50ppDecade 1Hz to 10MHz
+.ac dec 50  1.0e0   10.0e9
+* pole-zero analysis
+.pz v(nout) Vinac
+
+.probe ac V(nout)
+.probe ac V(ninp)
+.probe ac V(*)
+
+*.tran 100p 50n
+.probe tran V(nout)
+.probe tran V(ninp)
+.probe tran V(*)
+
+* Frequency-domain measurements
+.measure ac ampl       max vdb(nout) at=0
+.measure ac inampl max vdb(ninp) at=0
+.measure ac gain PARAM='ampl-inampl'
+.measure ac phase FIND vp(nout) WHEN vdb(nout)=0 CROSS=1
+.measure ac phasemargin PARAM='phase+180'
+.measure ac GBW WHEN vdb(nout)=0 CROSS=1
+.measure ac phase0 FIND vp(nout) at=1e5
+
+* power measurement
+EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
+
+"""
+            ac_metrics = [
+                          Metric('perc_DOCs_met', 0.9999, 1.0, False),
+                          Metric('gain', 10, float('Inf'), True),
+                          Metric('phase0', -10, 10, False),
+                          Metric('phasemargin', 65, 180, False),
+                          #Metric('gbw', 10.0e6, float('Inf'), False),
+                          Metric('pwrnode', float('-Inf'), 100.0e-3, True),
+                          #Metric('fbmnode', float('-Inf'), 50.0e-3, False),
+                          ]
+   
+            #if we use a .lis output like 'region' or 'vgs' even once in
+            # order to constrain DOCs via perc_DOCs_met, list it here
+            # (if you forget a measure, it _will_ complain)
+            doc_measures = ['region'] 
+            sim = Simulator({'ma0':['gain','phase0','phasemargin','gbw'],
+                             'ic0':['pwrnode','fbmnode'],
+                             'lis':['perc_DOCs_met']},
+                            cir_file_path,
+                            max_simulation_time,
+                            simulator_options_string,
+                            models_string,
+                            test_fixture_string,
+                            doc_measures)
+                            
+            ac_an = CircuitAnalysis(ac_env_points, ac_metrics, sim)
+            analyses.append(ac_an)
+
+        #-------------------------------------------------------
+        # no transient analysis
+       
+        #-------------------------------------------------------
+        #add function DOCs analysis
+        funcDOCs_an = FunctionAnalysis(embedded_part.functionDOCsAreFeasible, [EnvPoint(True)], 0.99, float('Inf'), False)
+        analyses.append(funcDOCs_an)
+        
+        #-------------------------------------------------------
+        #finally, build PS and return
+        ps = ProblemSetup(embedded_part, analyses)
+        return ps

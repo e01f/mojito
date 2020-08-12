@@ -692,7 +692,7 @@ class OpLibrary(Library):
         
     def capacitor(self):
         """
-        Description: resistor
+        Description: capacitor
         Ports: 1,2
         Variables: C
         """
@@ -4385,3 +4385,259 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
+    def inductor(self):
+        """
+        Description: inductor, where R's search space is lin-scaled
+        Ports: 1,2
+        Variables: L
+        """
+        name = whoami()
+        if self._parts.has_key(name):  return self._parts[name]
+        
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        pm['L'] = self.buildVarMeta('linscale_L', 'L')
+
+        #build the main part
+        part = AtomicPart('L', ['1','2'], pm, name=name)
+        self._parts[name] = part
+        return part
+
+    def wireOrRCL(self):
+        """
+        Description: 
+          
+        Ports: 1, 2
+        
+        Variables: Values of the R, C or L
+        
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        #parts to embed
+        wire_part = self.wire()
+        res_part = self.resistor()
+        cap_part = self.capacitor()
+        ind_part = self.inductor()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        res_varmeta_map = res_part.unityVarMap()
+        cap_varmeta_map = cap_part.unityVarMap()
+        ind_varmeta_map = ind_part.unityVarMap()
+        
+        pm = self.updatePointMeta(pm, res_part, res_varmeta_map)
+        pm = self.updatePointMeta(pm, cap_part, cap_varmeta_map)
+        pm = self.updatePointMeta(pm, ind_part, ind_varmeta_map)
+
+        #build functions
+        wire_functions = {}
+        res_functions = res_varmeta_map
+        cap_functions = cap_varmeta_map
+        ind_functions = ind_varmeta_map
+
+        # build the main part0
+        part = FlexPart(['1', '2'], pm, name)
+        part.addPartChoice(wire_part, {'1':'1','2':'2'}, wire_functions)
+        part.addPartChoice(res_part, {'1':'1','2':'2'}, res_functions)
+        part.addPartChoice(cap_part, {'1':'1','2':'2'}, cap_functions)
+        part.addPartChoice(ind_part, {'1':'1','2':'2'}, ind_functions)
+
+        # build a summaryStr
+        part.addToSummaryStr('0=wire,R,C,L: ','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
+    def ocOrRCL(self):
+        """
+        Description: 
+          
+        Ports: 1, 2
+        
+        Variables: Values of the R, C or L
+        
+        Variable breakdown:
+          
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        #parts to embed
+        oc_part = self.openCircuit()
+        res_part = self.resistor()
+        cap_part = self.capacitor()
+        ind_part = self.inductor()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        res_varmeta_map = res_part.unityVarMap()
+        cap_varmeta_map = cap_part.unityVarMap()
+        ind_varmeta_map = ind_part.unityVarMap()
+        
+        pm = self.updatePointMeta(pm, res_part, res_varmeta_map)
+        pm = self.updatePointMeta(pm, cap_part, cap_varmeta_map)
+        pm = self.updatePointMeta(pm, ind_part, ind_varmeta_map)
+
+        #build functions
+        oc_functions = {}
+        res_functions = res_varmeta_map
+        cap_functions = cap_varmeta_map
+        ind_functions = ind_varmeta_map
+
+        # build the main part0
+        part = FlexPart(['1', '2'], pm, name)
+        part.addPartChoice(oc_part, {'1':'1','2':'2'}, oc_functions)
+        part.addPartChoice(res_part, {'1':'1','2':'2'}, res_functions)
+        part.addPartChoice(cap_part, {'1':'1','2':'2'}, cap_functions)
+        part.addPartChoice(ind_part, {'1':'1','2':'2'}, ind_functions)
+
+        # build a summaryStr
+        part.addToSummaryStr('0=O.C.,R,C,L: ','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
+    def filterStage(self):
+        """
+        Description: 
+          
+        Ports: 1, 2, gnd
+        
+        Variables: Values of the embedded components
+        
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        #parts to embed
+        wire_part = self.wireOrRCL()
+        oc_part = self.ocOrRCL()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        wire_varmeta_map = wire_part.unityVarMap()
+        oc_varmeta_map = oc_part.unityVarMap()
+        
+        pm = self.updatePointMeta(pm, wire_part, wire_varmeta_map)
+        pm = self.updatePointMeta(pm, oc_part, oc_varmeta_map)
+
+        #build functions
+        wire_functions = wire_varmeta_map
+        oc_functions = oc_varmeta_map
+
+        # build the main part0
+        part = CompoundPart(['1', '2', 'gnd'], pm, name)
+        part.addPart(wire_part, {'1':'1','2':'2'}, wire_functions)
+        part.addPart(oc_part, {'1':'2','2':'gnd'}, oc_functions)
+
+        # build a summaryStr
+        part.addToSummaryStr('filterStage of wireOrRCL <-> ocOrRCL <-> GND')
+
+        self._parts[name] = part
+        return part
+
+    def twoStageFilter(self):
+        """
+        Description: two stage filter
+          
+        Ports: 1, 2, gnd
+        
+        Variables: Values of the embedded components
+        
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        #parts to embed
+        stage1_part = self.filterStage()
+        stage2_part = self.filterStage()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        stage1_varmeta_map = stage1_part.unityVarMap()
+        stage2_varmeta_map = stage2_part.unityVarMap()
+        
+        pm = self.updatePointMeta(pm, stage1_part, stage1_varmeta_map)
+        pm = self.updatePointMeta(pm, stage2_part, stage2_varmeta_map)
+
+        #build functions
+        stage1_functions = stage1_varmeta_map
+        stage2_functions = stage2_varmeta_map
+
+        # build the main part0
+        part = CompoundPart(['1', '2', 'gnd'], pm, name)
+
+        n1 = part.addInternalNode()
+
+        part.addPart(stage1_part, {'1':'1','2':n1,'gnd':'gnd'}, stage1_functions)
+        part.addPart(stage2_part, {'1':n1,'2':'2','gnd':'gnd'}, stage2_functions)
+
+        # build a summaryStr
+        part.addToSummaryStr('twoStageFilter of filterStage <-> filterStage')
+
+        self._parts[name] = part
+        return part
+
+    def universalPassiveFilter(self):
+        """
+        Description: a passive filter of arbitrary order
+          consisting of 0 to n L-shaped elements, where the
+          top element may be RLC or a wire and the bottom element
+          may be RLC or open circuit
+          
+        Ports: In, Out, gnd
+        
+        Variables: Values of the Rs, Cs and Is plus
+          chosen_part_index which decides the order (number of stages) of the passive filter
+        
+        Variable breakdown:
+          For overall part: chosen_part_index (=do_two_stage)
+            0 : no filtering
+            1 : first order
+            2 : second order
+            etc.
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        #parts to embed
+        oneStage_part = self.filterStage()
+        twoStage_part = self.twoStageFilter()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        oneStage_varmeta_map = oneStage_part.unityVarMap()
+        twoStage_varmeta_map = twoStage_part.unityVarMap()
+        
+        pm = self.updatePointMeta(pm, oneStage_part, oneStage_varmeta_map)
+        pm = self.updatePointMeta(pm, twoStage_part, twoStage_varmeta_map)
+
+        #build functions
+        oneStage_functions = oneStage_varmeta_map
+        twoStage_functions = twoStage_varmeta_map
+
+        # build the main part0
+        part = FlexPart(['In', 'Out', 'gnd'], pm, name)
+        part.addPartChoice(oneStage_part, {'1':'In','2':'Out','gnd':'gnd'}, oneStage_functions)
+        part.addPartChoice(twoStage_part, {'1':'In','2':'Out','gnd':'gnd'}, twoStage_functions)
+
+        #part.addPartChoice(onestage_part, onestage_part.unityPortMap(), onestage_varmap)
+
+        # build a summaryStr
+        part.addToSummaryStr('Order = Stages: ','chosen_part_index+1')
+
+        self._parts[name] = part
+        return part
