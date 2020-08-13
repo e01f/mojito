@@ -1421,7 +1421,7 @@ Vinac		ninpdc		ninp	AC=pVinac
         #build ac analysis
         if True:
             d = {
-                 'pRload':5e-12,
+                 'pRload':10000,
                  'pVdd':vdd,
                  'pVdcin':vdd/2,
                  'pTemp':25,
@@ -1433,7 +1433,7 @@ Rload   nout    gnd pRload
 * biasing circuitry
 
 Vdd     ndd     gnd DC=pVdd
-Vss     gnd     0   DC=0
+* Vss     gnd     0   DC=0
 Vindc       ninpdc      gnd DC=pVdcin
 Vinac       ninpdc      ninp1   AC=pVdd
 Vintran     ninp1       ninpx   DC=0 PWL(
@@ -1470,11 +1470,11 @@ EFBM fbmnode gnd volts='ABS(V(ninp)-V(ninpdc))'
 .probe tran V(*)
 
 * Frequency-domain measurements
-.measure AC passbandVavg AVG  V(nout) FROM=10 TO=800
-.measure AC stopbandVavg AVG  V(nout) FROM=1200 TO=10000000
+.measure AC passbandvavg AVG  V(nout) FROM=10 TO=800
+.measure AC stopbandvavg AVG  V(nout) FROM=1200 TO=10000000
 
-.measure AC passbandVpp PP  V(nout) FROM=10 TO=800
-.measure AC stopbandVpp PP  V(nout) FROM=1200 TO=10000000
+.measure AC passbandvpp PP  V(nout) FROM=10 TO=800
+.measure AC stopbandvpp PP  V(nout) FROM=1200 TO=10000000
 
 *.measure ac ampl        max vdb(nout) at=0
 *.measure ac inampl      max vdb(ninp) at=0
@@ -1489,11 +1489,11 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
 
 """
             ac_metrics = [
-                          Metric('perc_DOCs_met', 0.9999, 1.0, False),
-                          Metric('passbandVavg', 1.0, float('Inf'), True),
-                          Metric('stopbandVavg', float('-Inf'), 1.0, True),
-                          Metric('passbandVpp', float('-Inf'), 1.0, True),
-                          Metric('stopbandVpp', float('-Inf'), 1.0, True),
+                          #Metric('perc_DOCs_met', 0.9999, 1.0, False),
+                          Metric('passbandvavg', 1.0, float('Inf'), True),
+                          Metric('stopbandvavg', float('-Inf'), 1.0, True),
+                          Metric('passbandvpp', float('-Inf'), 1.0, True),
+                          Metric('stopbandvpp', float('-Inf'), 1.0, True),
                           #Metric('gain', 10, float('Inf'), True),
                           #Metric('phase0', -10, 10, False),
                           #Metric('phasemargin', 65, 180, False),
@@ -1507,10 +1507,11 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
             # (if you forget a measure, it _will_ complain)
             doc_measures = ['region'] 
             sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
-                             'ma0':['passbandVavg','stopbandVavg','passbandVpp','stopbandVpp'],
+                             'ma0':['passbandvavg','stopbandvavg','passbandvpp','stopbandvpp'],
                              #'ic0':['pwrnode','fbmnode'],
-                             'ic0':['pwrnode'],
-                             'lis':['perc_DOCs_met']},
+                             'ic0':['pwrnode']
+                             #'lis':['perc_DOCs_met']
+                             },
                             cir_file_path,
                             max_simulation_time,
                             simulator_options_string,
