@@ -259,6 +259,10 @@ class OpLibraryStrategy:
         self.min_C = 1 * pico
         self.max_C = 10 * micro
 
+        #inductance
+        self.min_L = 100 * nano
+        self.max_L = 10 * micro
+
         # Bounds on the current in a branch
         self.min_Ids = 10 * nano
         self.max_Ids = 10 * milli
@@ -368,6 +372,9 @@ class OpLibrary(Library):
         
         mn, mx = math.log10(float(ss.min_C)), math.log10(float(ss.max_C))
         rvm['C'] = ContinuousVarMeta(True, mn, mx, 'C')
+
+        min_L, max_L = float(ss.min_L), float(ss.max_L)
+        rvm['linscale_L'] = ContinuousVarMeta(False, min_L, max_L, 'linscale_L')
 
         rvm['Ids'] = ContinuousVarMeta(False, self.ss.min_Ids,
                                         self.ss.max_Ids, 'Ids', False)
@@ -4476,9 +4483,9 @@ class OpLibrary(Library):
         #build the point_meta (pm)
         pm = PointMeta({})
 
-        res_varmeta_map = res_part.unityVarMap()
-        cap_varmeta_map = cap_part.unityVarMap()
-        ind_varmeta_map = ind_part.unityVarMap()
+        res_varmeta_map = {'V':'oc_V','I':'oc_I'};
+        cap_varmeta_map = {'C':'oc_C'};
+        ind_varmeta_map = {'L':'oc_L'};
         
         pm = self.updatePointMeta(pm, res_part, res_varmeta_map)
         pm = self.updatePointMeta(pm, cap_part, cap_varmeta_map)
@@ -4525,7 +4532,9 @@ class OpLibrary(Library):
         pm = PointMeta({})
 
         wire_varmeta_map = wire_part.unityVarMap()
+        wire_varmeta_map['chosen_part_index'] = 'chosen_part_index_wire';
         oc_varmeta_map = oc_part.unityVarMap()
+        oc_varmeta_map['chosen_part_index'] = 'chosen_part_index_oc';
         
         pm = self.updatePointMeta(pm, wire_part, wire_varmeta_map)
         pm = self.updatePointMeta(pm, oc_part, oc_varmeta_map)
@@ -4540,7 +4549,7 @@ class OpLibrary(Library):
         part.addPart(oc_part, {'1':'2','2':'gnd'}, oc_functions)
 
         # build a summaryStr
-        part.addToSummaryStr('filterStage of wireOrRCL <-> ocOrRCL <-> GND')
+        #part.addToSummaryStr('filterStage of wireOrRCL <-> ocOrRCL <-> GND')
 
         self._parts[name] = part
         return part
@@ -4568,6 +4577,8 @@ class OpLibrary(Library):
 
         stage1_varmeta_map = stage1_part.unityVarMap()
         stage2_varmeta_map = stage2_part.unityVarMap()
+        for key in stage2_varmeta_map:
+            stage2_varmeta_map[key] = stage2_varmeta_map[key] + '_2'
         
         pm = self.updatePointMeta(pm, stage1_part, stage1_varmeta_map)
         pm = self.updatePointMeta(pm, stage2_part, stage2_varmeta_map)
@@ -4585,7 +4596,7 @@ class OpLibrary(Library):
         part.addPart(stage2_part, {'1':n1,'2':'2','gnd':'gnd'}, stage2_functions)
 
         # build a summaryStr
-        part.addToSummaryStr('twoStageFilter of filterStage <-> filterStage')
+        #part.addToSummaryStr('twoStageFilter of filterStage <-> filterStage')
 
         self._parts[name] = part
         return part
@@ -4621,6 +4632,8 @@ class OpLibrary(Library):
 
         oneStage_varmeta_map = oneStage_part.unityVarMap()
         twoStage_varmeta_map = twoStage_part.unityVarMap()
+        for key in twoStage_varmeta_map:
+            twoStage_varmeta_map[key] = 'twoStage_' + twoStage_varmeta_map[key]
         
         pm = self.updatePointMeta(pm, oneStage_part, oneStage_varmeta_map)
         pm = self.updatePointMeta(pm, twoStage_part, twoStage_varmeta_map)

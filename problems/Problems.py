@@ -1373,7 +1373,7 @@ Vinac		ninpdc		ninp	AC=pVinac
           ps -- ProblemSetup object
         """
         #settable parameters
-        vdd = 5
+        vdd = 5.0
         feature_size = 0.18e-06
         nmos_modelname = 'N_18_MM'
         pmos_modelname = 'P_18_MM'
