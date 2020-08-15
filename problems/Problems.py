@@ -1436,7 +1436,7 @@ Vdd     ndd     gnd DC=pVdd
 * Vss     gnd     0   DC=0
 Vindc       ninpdc      gnd     DC=pVdcin
 Vinac       ninpdc      ninp1   AC=pVdd
-Vintran     ninp1       ninpx   DC=0 PWL(
+Vintran     ninp1       ninp   DC=0 PWL(
 + 0     0
 + 0.1n   -0.2
 + 10.0n  -0.2 
