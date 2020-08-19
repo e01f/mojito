@@ -4554,9 +4554,9 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-    def twoStageFilter(self):
+    def threeStageFilter(self):
         """
-        Description: two stage filter
+        Description: three stage filter
           
         Ports: 1, 2, gnd
         
@@ -4571,6 +4571,7 @@ class OpLibrary(Library):
         #parts to embed
         stage1_part = self.filterStage()
         stage2_part = self.filterStage()
+        stage3_part = self.filterStage()
 
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -4579,24 +4580,72 @@ class OpLibrary(Library):
         stage2_varmeta_map = stage2_part.unityVarMap()
         for key in stage2_varmeta_map:
             stage2_varmeta_map[key] = stage2_varmeta_map[key] + '_2'
+        stage3_varmeta_map = stage3_part.unityVarMap()
+        for key in stage3_varmeta_map:
+            stage3_varmeta_map[key] = stage3_varmeta_map[key] + '_3'
         
         pm = self.updatePointMeta(pm, stage1_part, stage1_varmeta_map)
         pm = self.updatePointMeta(pm, stage2_part, stage2_varmeta_map)
+        pm = self.updatePointMeta(pm, stage3_part, stage3_varmeta_map)
 
         #build functions
         stage1_functions = stage1_varmeta_map
         stage2_functions = stage2_varmeta_map
+        stage3_functions = stage3_varmeta_map
 
         # build the main part0
         part = CompoundPart(['1', '2', 'gnd'], pm, name)
 
         n1 = part.addInternalNode()
+        n2 = part.addInternalNode()
 
         part.addPart(stage1_part, {'1':'1','2':n1,'gnd':'gnd'}, stage1_functions)
-        part.addPart(stage2_part, {'1':n1,'2':'2','gnd':'gnd'}, stage2_functions)
+        part.addPart(stage2_part, {'1':n1,'2':n2,'gnd':'gnd'}, stage2_functions)
+        part.addPart(stage3_part, {'1':n2,'2':'2','gnd':'gnd'}, stage3_functions)
 
         # build a summaryStr
-        #part.addToSummaryStr('twoStageFilter of filterStage <-> filterStage')
+        #part.addToSummaryStr('threeStageFilter of filterStage <-//-> filterStage')
+
+        self._parts[name] = part
+        return part
+
+    def paralleledFilterStages(self):
+        """
+        Description: 
+          
+        Ports: 1, 2, gnd
+        
+        Variables: Values of the embedded components
+        
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        #parts to embed
+        tsf1_part = self.threeStageFilter()
+        tsf2_part = self.threeStageFilter()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        tsf1_varmeta_map = tsf1_part.unityVarMap()
+        tsf2_varmeta_map = tsf2_part.unityVarMap()
+        for key in tsf2_varmeta_map:
+            tsf2_varmeta_map[key] = tsf2_varmeta_map[key] + '_par'
+        
+        pm = self.updatePointMeta(pm, tsf1_part, tsf1_varmeta_map)
+        pm = self.updatePointMeta(pm, tsf2_part, tsf2_varmeta_map)
+
+        #build functions
+        tsf1_functions = tsf1_varmeta_map
+        tsf2_functions = tsf2_varmeta_map
+
+        # build the main part0
+        part = CompoundPart(['1', '2', 'gnd'], pm, name)
+        part.addPart(tsf1_part, {'1':'1','2':'2'}, tsf1_functions)
+        part.addPart(tsf2_part, {'1':'1','2':'2'}, tsf2_functions)
 
         self._parts[name] = part
         return part
@@ -4611,46 +4660,42 @@ class OpLibrary(Library):
         Ports: In, Out, gnd
         
         Variables: Values of the Rs, Cs and Is plus
-          chosen_part_index which decides the order (number of stages) of the passive filter
+          chosen_part_index which decides the structure of the passive filter
         
         Variable breakdown:
-          For overall part: chosen_part_index (=do_two_stage)
-            0 : no filtering
-            1 : first order
-            2 : second order
-            etc.
+          tba
         """
         name = whoami()
         if self._parts.has_key(name): return self._parts[name]
 
         #parts to embed
-        oneStage_part = self.filterStage()
-        twoStage_part = self.twoStageFilter()
+        plain_part = self.threeStageFilter()
+        parll_part = self.paralleledFilterStages()
 
         #build the point_meta (pm)
         pm = PointMeta({})
 
-        oneStage_varmeta_map = oneStage_part.unityVarMap()
-        twoStage_varmeta_map = twoStage_part.unityVarMap()
-        for key in twoStage_varmeta_map:
-            twoStage_varmeta_map[key] = 'twoStage_' + twoStage_varmeta_map[key]
+        plain_varmeta_map = plain_part.unityVarMap()
+        parll_varmeta_map = parll_part.unityVarMap()
+        for key in parll_varmeta_map:
+            parll_varmeta_map[key] = 'parll_' + parll_varmeta_map[key]
         
-        pm = self.updatePointMeta(pm, oneStage_part, oneStage_varmeta_map)
-        pm = self.updatePointMeta(pm, twoStage_part, twoStage_varmeta_map)
+        pm = self.updatePointMeta(pm, plain_part, plain_varmeta_map)
+        pm = self.updatePointMeta(pm, parll_part, parll_varmeta_map)
 
         #build functions
-        oneStage_functions = oneStage_varmeta_map
-        twoStage_functions = twoStage_varmeta_map
+        plain_functions = plain_varmeta_map
+        parll_functions = parll_varmeta_map
 
         # build the main part0
         part = FlexPart(['In', 'Out', 'gnd'], pm, name)
-        part.addPartChoice(oneStage_part, {'1':'In','2':'Out','gnd':'gnd'}, oneStage_functions)
-        part.addPartChoice(twoStage_part, {'1':'In','2':'Out','gnd':'gnd'}, twoStage_functions)
+        part.addPartChoice(plain_part, {'1':'In','2':'Out','gnd':'gnd'}, plain_functions)
+        part.addPartChoice(parll_part, {'1':'In','2':'Out','gnd':'gnd'}, parll_functions)
 
         #part.addPartChoice(onestage_part, onestage_part.unityPortMap(), onestage_varmap)
 
         # build a summaryStr
-        part.addToSummaryStr('Order = Stages: ','chosen_part_index+1')
+        part.addToSummaryStr('universalPassiveFilter with choice: ','chosen_part_index')
 
         self._parts[name] = part
         return part
