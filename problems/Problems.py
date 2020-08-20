@@ -1470,14 +1470,14 @@ EFBM fbmnode gnd volts='ABS(V(ninp)-V(ninpdc))'
 .probe tran V(*)
 
 * Frequency-domain measurements
-.measure AC passbandvavg AVG  V(nout) FROM=10   TO=800
-.measure AC stopbandvavg AVG  V(nout) FROM=1200 TO=10000000
-.measure AC passbandgvpp PP   V(nout) FROM=10   TO=800
-.measure AC stopbandgvpp PP   V(nout) FROM=1200 TO=10000000
-.measure    passbandvavgg     PARAM='passbandvavg/pVdd'
-.measure    stopbandvavgg     PARAM='stopbandvavg/pVdd'
-.measure    passbandgvppg     PARAM='passbandgvpp/pVdd'
-.measure    stopbandgvppg     PARAM='stopbandgvpp/pVdd'
+.measure AC passbandvavg  AVG  V(nout) FROM=10   TO=800
+.measure AC stopbandvavg  AVG  V(nout) FROM=1200 TO=45000
+.measure AC passbandgvpp  PP   V(nout) FROM=10   TO=800
+.measure AC stopbandgvmax MAX  V(nout) FROM=1200 TO=45000
+.measure    passbandvavgg      PARAM='passbandvavg/pVdd'
+.measure    stopbandvavgg      PARAM='stopbandvavg/pVdd'
+.measure    passbandgvppg      PARAM='passbandgvpp/pVdd'
+.measure    stopbandgvmaxg     PARAM='stopbandgvmax/pVdd'
 
 *.measure ac ampl        max vdb(nout) at=0
 *.measure ac inampl      max vdb(ninp) at=0
@@ -1496,7 +1496,7 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
                           Metric('passbandvavgg', 0.8, float('Inf'), True),
                           Metric('stopbandvavgg', float('-Inf'), 0.2, True),
                           Metric('passbandgvppg', float('-Inf'), 0.1, True),
-                          Metric('stopbandgvppg', float('-Inf'), 0.1, True),
+                          Metric('stopbandgvmaxg', float('-Inf'), 0.1, True),
                           #Metric('gain', 10, float('Inf'), True),
                           #Metric('phase0', -10, 10, False),
                           #Metric('phasemargin', 65, 180, False),
@@ -1510,7 +1510,7 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
             # (if you forget a measure, it _will_ complain)
             doc_measures = ['region'] 
             sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
-                             'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvppg'],
+                             'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvmaxg'],
                              #'ic0':['pwrnode','fbmnode'],
                              'ic0':['pwrnode']
                              #'lis':['perc_DOCs_met']

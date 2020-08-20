@@ -4609,6 +4609,58 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
+    def nStageFilter(self, nStages):
+        """
+        Description: three stage filter
+          
+        Ports: 1, 2, gnd
+        
+        Variables: Values of the embedded components
+        
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+        
+        pm = PointMeta({})
+
+        nStage_parts = []
+        nStage_vmms = []
+        for i in xrange(nStages):
+            #parts to embed
+            stageI_part = self.filterStage()
+            nStage_parts.append(stageI_part)
+
+            #build the point_meta (pm)
+            stageI_vmm = stageI_part.unityVarMap()
+            for key in stageI_vmm:
+                stageI_vmm[key] = stageI_vmm[key] + '_' + str(i)
+            pm = self.updatePointMeta(pm, stageI_part, stageI_vmm)
+            nStage_vmms.append(stageI_vmm)
+
+        # build the main part
+        part = CompoundPart(['1', '2', 'gnd'], pm, name)
+
+        tmp_node = '2'
+        tmp_node_prev = '1'
+
+        for i in xrange(nStages):
+            #build functions
+            stageI_functions = nStage_vmms[i]
+            if i < nStages - 1:
+                tmp_node = part.addInternalNode()
+            else:
+                tmp_node = '2'
+            part.addPart(nStage_parts[i], {'1':tmp_node_prev,'2':tmp_node,'gnd':'gnd'}, stageI_functions)
+            tmp_node_prev = tmp_node
+
+        # build a summaryStr
+        #part.addToSummaryStr('nStageFilter of filterStage <-//-> filterStage')
+
+        self._parts[name] = part
+        return part
+
     def paralleledFilterStages(self):
         """
         Description: 
@@ -4625,7 +4677,7 @@ class OpLibrary(Library):
 
         #parts to embed
         tsf1_part = self.threeStageFilter()
-        tsf2_part = self.threeStageFilter()
+        tsf2_part = self.nStageFilter(18)
 
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -4644,8 +4696,8 @@ class OpLibrary(Library):
 
         # build the main part0
         part = CompoundPart(['1', '2', 'gnd'], pm, name)
-        part.addPart(tsf1_part, {'1':'1','2':'2'}, tsf1_functions)
-        part.addPart(tsf2_part, {'1':'1','2':'2'}, tsf2_functions)
+        part.addPart(tsf1_part, {'1':'1','2':'2','gnd':'gnd'}, tsf1_functions)
+        part.addPart(tsf2_part, {'1':'1','2':'2','gnd':'gnd'}, tsf2_functions)
 
         self._parts[name] = part
         return part
@@ -4669,7 +4721,7 @@ class OpLibrary(Library):
         if self._parts.has_key(name): return self._parts[name]
 
         #parts to embed
-        plain_part = self.threeStageFilter()
+        plain_part = self.nStageFilter(18)
         parll_part = self.paralleledFilterStages()
 
         #build the point_meta (pm)
