@@ -251,6 +251,9 @@ class OpLibraryStrategy:
         self.min_K = 1 
         self.max_K = 10
 
+        # e series
+        self.eseries = 24
+
         #resistance
         self.min_R = 1
         self.max_R = 10 * mega
@@ -369,6 +372,7 @@ class OpLibrary(Library):
         rvm['logscale_R'] = ContinuousVarMeta(True, math.log10(min_R),
                                               math.log10(max_R), 'logscale_R')
         rvm['linscale_R'] = ContinuousVarMeta(False, min_R, max_R, 'linscale_R')
+        rvm['escale_R'] = DiscreteVarMeta([eSeriesValue(ss.eseries, i) for i in range(int(math.log10(max_R)) * ss.eseries + 1)], 'escale_R')
         
         mn, mx = math.log10(float(ss.min_C)), math.log10(float(ss.max_C))
         rvm['C'] = ContinuousVarMeta(True, mn, mx, 'C')
@@ -661,6 +665,57 @@ class OpLibrary(Library):
         #build the point_meta (pm)
         pm = PointMeta({})
         pm['R'] = self.buildVarMeta('linscale_R', 'R')
+
+        #build the main part
+        part = AtomicPart('R', ['1','2'], pm, name=name)
+        self._parts[name] = part
+        return part
+
+    def eSeriesValue(self, n, m):
+        n = float(n)
+        m = float(m)
+        modCycle = int(math.floor(m / n))
+
+        # default formula, also known as the renard series
+        s_res = (10 ** (1 / n)) ** m
+        
+        # apply standard-compliant special values for E24 and E192 series
+        mul = 10 ** modCycle
+        if n == 24:
+            if m % n == 22:
+                s_res = 8.2 * mul
+            elif m % n == 16:
+                s_res = 4.7 * mul
+            elif m % n == 15:
+                s_res = 4.3 * mul
+            elif m % n == 14:
+                s_res = 3.9 * mul
+            elif m % n == 13:
+                s_res = 3.6 * mul
+            elif m % n == 12:
+                s_res = 3.3 * mul
+            elif m % n == 11:
+                s_res = 3.0 * mul
+            elif m % n == 10:
+                s_res = 2.7 * mul
+        elif n == 192:
+            if m % n == 185:
+                s_res = 9.20 * mul
+
+        return round(s_res, 1 - modCycle)
+
+    def eSeriesResistor(self):
+        """
+        Description: resistor, where R's search space is according to the industry standard e-series
+        Ports: 1,2
+        Variables: R
+        """
+        name = whoami()
+        if self._parts.has_key(name):  return self._parts[name]
+        
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        pm['R'] = self.buildVarMeta('escale_R', 'R')
 
         #build the main part
         part = AtomicPart('R', ['1','2'], pm, name=name)
