@@ -372,13 +372,15 @@ class OpLibrary(Library):
         rvm['logscale_R'] = ContinuousVarMeta(True, math.log10(min_R),
                                               math.log10(max_R), 'logscale_R')
         rvm['linscale_R'] = ContinuousVarMeta(False, min_R, max_R, 'linscale_R')
-        rvm['escale_R'] = DiscreteVarMeta([eSeriesValue(ss.eseries, i) for i in range(int(math.log10(max_R)) * ss.eseries + 1)], 'escale_R')
+        rvm['escale_R'] = DiscreteVarMeta(self.eSeriesRange(ss.eseries, ss.min_R, ss.max_R), 'escale_R')
         
         mn, mx = math.log10(float(ss.min_C)), math.log10(float(ss.max_C))
-        rvm['C'] = ContinuousVarMeta(True, mn, mx, 'C')
+        rvm['logscale_C'] = ContinuousVarMeta(True, mn, mx, 'logscale_C')
+        rvm['escale_C'] = DiscreteVarMeta(self.eSeriesRange(ss.eseries, ss.min_C, ss.max_C), 'escale_C')
 
         min_L, max_L = float(ss.min_L), float(ss.max_L)
         rvm['linscale_L'] = ContinuousVarMeta(False, min_L, max_L, 'linscale_L')
+        rvm['escale_L'] = DiscreteVarMeta(self.eSeriesRange(ss.eseries, ss.min_L, ss.max_L), 'escale_L')
 
         rvm['Ids'] = ContinuousVarMeta(False, self.ss.min_Ids,
                                         self.ss.max_Ids, 'Ids', False)
@@ -704,6 +706,9 @@ class OpLibrary(Library):
 
         return round(s_res, 1 - modCycle)
 
+    def eSeriesRange(self, eSeries, minVal, maxVal):
+        return [self.eSeriesValue(eSeries, i) for i in range(int(math.log10(minVal) * eSeries), int(math.ceil(math.log10(maxVal) * eSeries)) + 1)]
+
     def eSeriesResistor(self):
         """
         Description: resistor, where R's search space is according to the industry standard e-series
@@ -752,6 +757,23 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
         
+    def eSeriesCapacitor(self):
+        """
+        Description: capacitor
+        Ports: 1,2
+        Variables: C
+        """
+        name = whoami()
+        if self._parts.has_key(name):  return self._parts[name]
+
+        pm = PointMeta({})
+        pm['C'] = self.buildVarMeta('escale_C', 'C')
+
+        part = AtomicPart('C', ['1','2'], pm, name=name)
+
+        self._parts[name] = part
+        return part
+
     def capacitor(self):
         """
         Description: capacitor
@@ -760,7 +782,11 @@ class OpLibrary(Library):
         """
         name = whoami()
         if self._parts.has_key(name):  return self._parts[name]
-        part = AtomicPart('C', ['1','2'], self.buildPointMeta(['C']), name=name)
+
+        pm = PointMeta({})
+        pm['C'] = self.buildVarMeta('logscale_C', 'C')
+
+        part = AtomicPart('C', ['1','2'], pm, name=name)
         self._parts[name] = part
         return part        
 
@@ -4447,6 +4473,24 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
+    def eSeriesInductor(self):
+        """
+        Description: inductor, where R's search space is e-scaled
+        Ports: 1,2
+        Variables: L
+        """
+        name = whoami()
+        if self._parts.has_key(name):  return self._parts[name]
+        
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        pm['L'] = self.buildVarMeta('escale_L', 'L')
+
+        #build the main part
+        part = AtomicPart('L', ['1','2'], pm, name=name)
+        self._parts[name] = part
+        return part
+
     def inductor(self):
         """
         Description: inductor, where R's search space is lin-scaled
@@ -4481,9 +4525,9 @@ class OpLibrary(Library):
 
         #parts to embed
         wire_part = self.wire()
-        res_part = self.resistor()
-        cap_part = self.capacitor()
-        ind_part = self.inductor()
+        res_part = self.eSeriesResistor()
+        cap_part = self.eSeriesCapacitor()
+        ind_part = self.eSeriesInductor()
 
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -4531,14 +4575,14 @@ class OpLibrary(Library):
 
         #parts to embed
         oc_part = self.openCircuit()
-        res_part = self.resistor()
-        cap_part = self.capacitor()
-        ind_part = self.inductor()
+        res_part = self.eSeriesResistor()
+        cap_part = self.eSeriesCapacitor()
+        ind_part = self.eSeriesInductor()
 
         #build the point_meta (pm)
         pm = PointMeta({})
 
-        res_varmeta_map = {'V':'oc_V','I':'oc_I'};
+        res_varmeta_map = {'R':'oc_R'};
         cap_varmeta_map = {'C':'oc_C'};
         ind_varmeta_map = {'L':'oc_L'};
         
@@ -4732,7 +4776,7 @@ class OpLibrary(Library):
 
         #parts to embed
         tsf1_part = self.threeStageFilter()
-        tsf2_part = self.nStageFilter(18)
+        tsf2_part = self.nStageFilter(3)
 
         #build the point_meta (pm)
         pm = PointMeta({})
@@ -4776,7 +4820,7 @@ class OpLibrary(Library):
         if self._parts.has_key(name): return self._parts[name]
 
         #parts to embed
-        plain_part = self.nStageFilter(18)
+        plain_part = self.nStageFilter(3)
         parll_part = self.paralleledFilterStages()
 
         #build the point_meta (pm)
