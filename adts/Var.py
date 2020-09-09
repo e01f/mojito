@@ -554,6 +554,7 @@ class DiscreteVarMeta(VarMeta):
           Is this Discrete VarMeta a 'choice' var?>
           ie are its possible values integers that are identical to it indices?
           i.e. are its possible values [0,1,2,...,n-1] ?
+          or otherwise, are they ordered and of integral type?
 
           Auto-detects based on its possible values.
         
@@ -570,11 +571,16 @@ class DiscreteVarMeta(VarMeta):
             return self._is_choice_var
         
         self._is_choice_var = True
+        lastel = self.possible_values[0]
         for index, poss_value in enumerate(self.possible_values):
-            if not isinstance(poss_value, types.IntType) or \
-               poss_value != index:
+            if not isinstance(poss_value, types.IntType) and \
+               not isinstance(poss_value, types.FloatType):
                 self._is_choice_var = False
                 break
+            if (poss_value != index) and (poss_value < lastel):
+                self._is_choice_var = False
+                break
+            lastel = poss_value
 
         return self._is_choice_var
 
