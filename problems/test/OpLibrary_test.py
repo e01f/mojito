@@ -77,8 +77,7 @@ class OpLibraryTest(unittest.TestCase):
         err=abs(w-target_w)/target_w
         
         if (err>self.max_approx_error_relative):
-            print "Sizing error too big: point=%s, w=%e, target_w=%e, err=%f" %\
-                (point,w,target_w,err)    
+            print("Sizing error too big: point=%s, w=%e, target_w=%e, err=%f" % (point,w,target_w,err))
             return False
         
         return True;
@@ -88,8 +87,7 @@ class OpLibraryTest(unittest.TestCase):
         err=abs(w-target_w)/target_w
         
         if (err>self.max_approx_error_relative):
-            print "Sizing error too big: point=%s, w=%e, target_w=%e, err=%f" %\
-                (point,w,target_w,err)    
+            print("Sizing error too big: point=%s, w=%e, target_w=%e, err=%f" % (point,w,target_w,err))
             return False
         
         return True;
@@ -126,7 +124,7 @@ class OpLibraryTest(unittest.TestCase):
         
         lookups_per_sec=10*cnt / elapsed
         
-        print "NMOS: %d lookups took %f seconds (%d lookups/sec)" % ( 10* cnt, elapsed, lookups_per_sec)
+        print("NMOS: %d lookups took %f seconds (%d lookups/sec)" % ( 10* cnt, elapsed, lookups_per_sec))
                 
         cnt=0
         starttime=time.time()
@@ -147,7 +145,7 @@ class OpLibraryTest(unittest.TestCase):
         
         lookups_per_sec=10*cnt / elapsed
         
-        print "PMOS: %d lookups took %f seconds (%d lookups/sec)" % ( 10* cnt, elapsed, lookups_per_sec)
+        print("PMOS: %d lookups took %f seconds (%d lookups/sec)" % ( 10* cnt, elapsed, lookups_per_sec))
                 
                 
     #=================================================================
@@ -303,7 +301,7 @@ class OpLibraryTest(unittest.TestCase):
         if status != 0:
           got_results = True;
           bad_result = True;
-          print 'System call with bad result.  Command was: %s' % command
+          print('System call with bad result.  Command was: %s' % command)
         
         self.max_simulation_time=5
         
@@ -1590,7 +1588,7 @@ R3 Vdd Iout  R=%g
 <<rest of netlist should go here>>
 """
         actual_str = instance.spiceNetlistStr()
-        print actual_str
+        print(actual_str)
         
         #self._compareStrings3(target_str, actual_str)
         

@@ -226,7 +226,7 @@ class Point(dict):
     """
     
     # Each point created get a unique ID
-    _ID_counter = 0L
+    _ID_counter = 0
     
     def __init__(self, is_scaled, *args):
         """        
@@ -261,7 +261,7 @@ class EnvPoint(Point):
       that an EnvPoint may have the same ID as another non-EnvPoint;
       but it does not make them the same point!
     """ 
-    _ID_counter = 0L
+    _ID_counter = 0
     
 class RndPoint(Point):
     """
@@ -273,5 +273,5 @@ class RndPoint(Point):
       that an RndPoint may have the same ID as another non-RndPoint;
       but it does not make them the same point!
     """
-    _ID_counter = 0L
+    _ID_counter = 0
 

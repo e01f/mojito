@@ -291,7 +291,7 @@ class ContinuousVarMeta(VarMeta):
         @description
           Unscales the unscaled var.
           -If self.logscale is False, returns scaled_var_value
-          -If self.logscale is True, returns log10(unscaled_var_value)
+          -If self.logscale is True, returns log10(scaled_var_value)
         
         @arguments
           scaled_var_value -- float or int
@@ -652,7 +652,7 @@ class VarMetaNameFactory:
       name (but does NOT compare to manually generated names)
     """
     
-    _name_counter = 0L
+    _name_counter = 0
     def __init__(self):
         pass
 

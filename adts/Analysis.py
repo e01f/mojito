@@ -47,7 +47,7 @@ class Analysis:
     """
     
     # Each analysis created get a unique ID
-    _ID_counter = 0L
+    _ID_counter = 0
     
     def __init__(self, env_points):
         """        

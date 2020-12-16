@@ -304,7 +304,7 @@ class Part:
         __str__() : string
         str2(tabdepth) : string
     """ 
-    _ID_counter = 0L
+    _ID_counter = 0
             
     def __init__(self, external_portnames, point_meta, name=None):
         """        
@@ -1444,7 +1444,7 @@ class EmbeddedPart:
 
         #reset part and node names (need this for checking unique netlists)
         self.__class__._partnum = 0 
-        NodeNameFactory._port_counter = 0L 
+        NodeNameFactory._port_counter = 0
 
         #do actual work
         netlist = self.spiceNetlistStr_helper(scaled_point,
@@ -1452,7 +1452,7 @@ class EmbeddedPart:
 
         #reset (for safety)
         self.__class__._partnum = 0 
-        NodeNameFactory._port_counter = 0L 
+        NodeNameFactory._port_counter = 0
         
         if add_infostring:
             netlist = self.part.summaryStr(scaled_point) + netlist
@@ -1934,7 +1934,7 @@ class NodeNameFactory:
       node names.
     """
 
-    _port_counter = 0L
+    _port_counter = 0
     def __init__(self):
         pass
 

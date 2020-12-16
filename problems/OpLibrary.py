@@ -4426,21 +4426,21 @@ class OpLibrary(Library):
         for new_name in onestage_part.point_meta.keys():
             old_name = 'stage1_' + new_name
             onestage_varmap[new_name] = old_name
-	
-	# if the stage1_part of the 2 stage has loadrail_is_vdd,
-	# we should keep it that way when switching over to one stage.
-	# remove chosen_part_index from the onestage from the varmap as \
-	# it does not have to be in the pm for this part. it is equal to
-	# the stage1_loadrail_is_vdd of the 2 stage parameter.
-	del onestage_varmap['chosen_part_index']
-	
+
+        # if the stage1_part of the 2 stage has loadrail_is_vdd,
+        # we should keep it that way when switching over to one stage.
+        # remove chosen_part_index from the onestage from the varmap as \
+        # it does not have to be in the pm for this part. it is equal to
+        # the stage1_loadrail_is_vdd of the 2 stage parameter.
+        del onestage_varmap['chosen_part_index']
+        
         pm = self.updatePointMeta(pm, twostage_part, twostage_varmap)
-	
-	# make sure the chosen_part_index from the onestage is connected
-	# right
-	onestage_functions=onestage_varmap;
-	onestage_functions['chosen_part_index']='stage1_loadrail_is_vdd'
-	
+        
+        # make sure the chosen_part_index from the onestage is connected
+        # right
+        onestage_functions=onestage_varmap;
+        onestage_functions['chosen_part_index']='stage1_loadrail_is_vdd'
+
         #build the main part
         part = FlexPart(['Vin1', 'Vin2', 'Iout', 'Vdd', 'gnd'], pm, name)
 
@@ -4448,7 +4448,7 @@ class OpLibrary(Library):
                             onestage_varmap)
         part.addPartChoice( twostage_part, twostage_part.unityPortMap(),
                             twostage_varmap)
- 	#build a summaryStr
+        #build a summaryStr
         part.addToSummaryStr('Number of stages Stages: ','chosen_part_index+1')
         part.addToSummaryStr('Stage 1: loadrail=vdd?   ','stage1_loadrail_is_vdd')
         part.addToSummaryStr('Stage 1: input=pmos?     ','stage1_input_is_pmos')
@@ -4460,7 +4460,7 @@ class OpLibrary(Library):
         part.addToSummaryStr('Stage 1: cascoded?       ','1-stage1_inputcascode_is_wire')
         part.addToSummaryStr('Stage 1: frac Virt. gnd  ','stage1_fracVgnd')
         part.addToSummaryStr('Stage 1: frac Amplifier  ','stage1_fracAmp')
-	
+        
         part.addToSummaryStr('Stage 2: loadrail=vdd?   ','stage2_loadrail_is_vdd')
         part.addToSummaryStr('Stage 2: input=pmos?     ','stage2_input_is_pmos')
         part.addToSummaryStr('Stage 2: folded?         ','stage2_input_is_pmos==stage2_loadrail_is_vdd')
@@ -4469,7 +4469,7 @@ class OpLibrary(Library):
         part.addToSummaryStr('Stage 2: Ibias2          ','stage2_Ibias2')
         part.addToSummaryStr('Stage 2: load type       ','stage2_load_part_index')
         part.addToSummaryStr('Stage 2: cascoded?       ','1-stage2_inputcascode_is_wire')
-	       
+              
         self._parts[name] = part
         return part
 
