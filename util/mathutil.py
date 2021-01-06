@@ -87,7 +87,7 @@ def allEntriesAreNumbers( xs ):
 def randIndex( biases ):
     """
     @description
-      Randomly chooses an int in range {0,1,....,len(biases)-1), where
+      Randomly chooses an int in range {0,1,....,len(biases)-1),
       with a bias towards higher values of biases
       
     @arguments

@@ -345,8 +345,7 @@ class SynthEngine:
         # next round of selection etc.
         migrants = self.retrieveMigrants()
         for migrant in migrants:
-            age_layer_i = self.ss.lowestAllowedAgeLayerOfMigrant( \
-                migrant.genetic_age, R_per_age_layer.numAgeLayers())
+            age_layer_i = self.ss.lowestAllowedAgeLayerOfMigrant(migrant.genetic_age, R_per_age_layer.numAgeLayers())
             if age_layer_i == 0:
                 if R_per_age_layer.numAgeLayers() > 1:
                     R_per_age_layer[1].append(migrant)
@@ -364,12 +363,10 @@ class SynthEngine:
         for age_layer_i in range(R_per_age_layer.numAgeLayers()):
             log.info('---------------------------------------------------------')
             log.info('---------------------------------------------------------')
-            s = 'Gen=%d / age_layer=%d: select, nondom-sort, create children' %\
-                (self.state.generation, age_layer_i)
+            s = 'Gen=%d / age_layer=%d: select, nondom-sort, create children' % (self.state.generation, age_layer_i)
             log.info(s + ': begin')
             R_per_age_layer[age_layer_i] += elder_inds
-            new_R, elder_inds = self._updateR(R_per_age_layer, age_layer_i,
-                                              minmax_metrics)
+            new_R, elder_inds = self._updateR(R_per_age_layer, age_layer_i, minmax_metrics)
             new_R_per_age_layer.append(new_R)
             log.info(s + ': done')
 
@@ -383,14 +380,14 @@ class SynthEngine:
         @description
         
           Update R = R_per_age_layer[age_layer_i] using the following steps:
-            1. Chooses candidate parents using ALPS rules on layer i and age.
+            1. Chooses candidate parents using ALPS rules on layer i and age
             2. Nondominated-sorts the candidate parents
             3. Selects parents using NSGA-II style selection
             4. Creates offspring from parents
             5. Returns offspring + parents, both aged accordingly
         
         @arguments
-          R_per_age_layer -- list of list_of_NsgaInd -- one list per age layer.
+          R_per_age_layer -- list of list_of_NsgaInd -- one list per age layer
           age_layer_i -- int -- the age layer of interest
           minmax_metrics -- metrics bounds -- see minMaxMetrics for details
         
@@ -402,13 +399,10 @@ class SynthEngine:
         N = self.ss.num_inds_per_age_layer
 
         #get candidate parents
-        cand_parents, elder_inds = self._alpsCandidateParents(R_per_age_layer,
-                                                              age_layer_i)
+        cand_parents, elder_inds = self._alpsCandidateParents(R_per_age_layer, age_layer_i)
         
         #cand_F = F[0] + F[1] + ... = nondominated layers
-        cand_F = fastNondominatedSort(cand_parents, minmax_metrics,
-                                      max_num_inds=N,
-                                      metric_weights=self.ss.metric_weights)
+        cand_F = fastNondominatedSort(cand_parents, minmax_metrics, max_num_inds=N, metric_weights=self.ss.metric_weights)
 
         #output state
         self.doStatusOutput(age_layer_i, cand_F)
@@ -436,11 +430,11 @@ class SynthEngine:
             'inds at layer i can only breed with inds at i and i-1'
          
           Other restrictions:
-          -ind must be young enough (otherwise it'll be an elder_ind)
-          -all cand parents must be unique (in performance too)
+          - ind must be young enough (otherwise it'll be an elder_ind)
+          - all cand parents must be unique (in performance too)
         
         @arguments
-          R_per_age_layer -- list of list_of_NsgaInd -- one list per age layer.
+          R_per_age_layer -- list of list_of_NsgaInd -- one list per age layer
           age_layer_i -- int -- the age layer of interest
         
         @return
@@ -454,28 +448,23 @@ class SynthEngine:
 
         #add from layer i
         for ind in uniqueIndsByPerformance(R):
-            if self.ss.allowIndInAgeLayer(age_layer_i, ind.genetic_age,
-                                          R_per_age_layer.numAgeLayers()):
+            if self.ss.allowIndInAgeLayer(age_layer_i, ind.genetic_age, R_per_age_layer.numAgeLayers()):
                 cand_parents.append(ind)
             else:
                 elder_inds.append(ind)
         num_from_layer_i = len(cand_parents)
-        log.debug('From age layer %d, %d/%d inds are candidate parents' %
-                  (age_layer_i, num_from_layer_i, len(R)))
+        log.debug('From age layer %d, %d/%d inds are candidate parents' % (age_layer_i, num_from_layer_i, len(R)))
 
         #add from layer i-1
         if age_layer_i > 0:
-            tabu_perfs = [cand_parent.worstCaseMetricValuesStr()
-                          for cand_parent in cand_parents]
+            tabu_perfs = [cand_parent.worstCaseMetricValuesStr() for cand_parent in cand_parents]
             R1 = R_per_age_layer[age_layer_i-1]
             for ind in R1:
                 ind_str = ind.worstCaseMetricValuesStr()
                 if ind_str not in tabu_perfs:
                     cand_parents.append(ind)
                     tabu_perfs.append(ind_str)
-            log.debug('From age layer %d, %d/%d inds are candidate parents' %
-                      (age_layer_i-1, len(cand_parents) - num_from_layer_i,
-                       len(R1)))
+            log.debug('From age layer %d, %d/%d inds are candidate parents' % (age_layer_i-1, len(cand_parents) - num_from_layer_i, len(R1)))
 
         #done
         return cand_parents, elder_inds
@@ -649,8 +638,7 @@ class SynthEngine:
         Q = []
         parent_index = 0
         while len(Q) < self.ss.num_inds_per_age_layer:
-            s_Q ="Generating child pop: current #children=%d; target size=%d" %\
-                  (len(Q), self.ss.num_inds_per_age_layer)
+            s_Q = "Generating child pop: current #children=%d; target size=%d" % (len(Q), self.ss.num_inds_per_age_layer)
             s_Q += " (generation=%d)" % self.state.generation
             log.info(s_Q)
             par1 = parents[parent_index]
@@ -660,9 +648,7 @@ class SynthEngine:
                 par2 = parents[parent_index+1]
 
             while True:
-                success, child1, child2 = \
-                         self.varyParentsToGetGoodChildren(par1, par2,
-                                                           tabu_perfs, s_Q)
+                success, child1, child2 = self.varyParentsToGetGoodChildren(par1, par2, tabu_perfs, s_Q)
                 if success:
                     child1_perf = child1.worstCaseMetricValuesStr()
                     child2_perf = child2.worstCaseMetricValuesStr()
@@ -1097,8 +1083,7 @@ class SynthEngine:
                     child_perfs.append(child2_perf)
                     log.info("Success: keep cand_child2")  
             
-        log.info('Success: took %d ind evals to generate 2 unique children' %
-                 (self.state.tot_num_inds - init_num_inds))
+        log.info('Success: took %d ind evals to generate 2 unique children' % (self.state.tot_num_inds - init_num_inds))
         log.debug('Vary parents to get two good, unique children: done')
         return True, child1, child2
         
@@ -1220,8 +1205,7 @@ class SynthEngine:
         assert len(cand_info_list) > 0, "vars should affect some parts"
         sub_part_info = random.choice(cand_info_list)
         (sub_emb_part, sub_scaled_point, vars_affecting) = sub_part_info
-        log.debug('Crossover: sub_emb_part=%s, vars_affecting=%s' %
-                  (sub_emb_part.part.name, vars_affecting))
+        log.debug('Crossover: sub_emb_part=%s, vars_affecting=%s' % (sub_emb_part.part.name, vars_affecting))
 
         #build up dicts
         child1_dict, child2_dict = {}, {}
@@ -1278,8 +1262,7 @@ class SynthEngine:
             else:           vars_to_mutate = point_meta.keys()
             
             for var in vars_to_mutate:
-                child_dict[var] = point_meta[var].mutate(child_dict[var],
-                                                         self.ss.mutate_stddev)
+                child_dict[var] = point_meta[var].mutate(child_dict[var], self.ss.mutate_stddev)
 
         #build Ind
         child_genotype = Genotype()
