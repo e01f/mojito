@@ -27,8 +27,13 @@ cd SYNTH_DIR
 
 for i in $(seq 1 $NUMPROCS);
 do
-    ./synth.py $PROBLEM_NUMBER $POPSIZE "$RESULT_BASE_DIR/$RESULT_PREFIX-localhost-$i" "$POOL_DATABASE_FILE" 2> /dev/null 1> /dev/null &
-    echo "Starting process $i..."
+	LAST_STATE_FILE=`ls -1 "$RESULT_BASE_DIR/$RESULT_PREFIX-localhost-$i/state"* 2> /dev/null | tail -n1`
+	echo "Starting process $i ($LAST_STATE_FILE)..."
+	if [ "$LAST_STATE_FILE" = "" ]; then  
+		./synth.py $PROBLEM_NUMBER $POPSIZE "$RESULT_BASE_DIR/$RESULT_PREFIX-localhost-$i" "$POOL_DATABASE_FILE" 2> /dev/null 1> /dev/null &
+	else
+		./synth.py $PROBLEM_NUMBER $POPSIZE "$RESULT_BASE_DIR/$RESULT_PREFIX-localhost-$i" "$POOL_DATABASE_FILE" "$LAST_STATE_FILE" 2> /dev/null 1> /dev/null &
+	fi
     echo "$RESULT_BASE_DIR/$RESULT_PREFIX-localhost-$i" >> $POOL_DIRLIST_FILE
 done
 
