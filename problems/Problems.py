@@ -35,6 +35,7 @@ class ProblemFactory:
         1  - maximizePartCountProblem
         2  - maxPartCount_minArea_Problem
         101 - universal filter problem
+        1001 - resdiv problem
         --------------------
         Legend:
         -SS  = single-ended-in, single-ended out, 1 stage amp
@@ -62,7 +63,8 @@ class ProblemFactory:
                                  51,52,
                                  61,62,
                                  71,72,
-                                 81,101]
+                                 81,101,
+                                 1001]
         problem = None #fill this in
         if problem_choice == 1:
             problem = self.maximizePartCount_Problem()
@@ -103,6 +105,8 @@ class ProblemFactory:
                                                      target_waveform)
         elif problem_choice == 101:
             problem = self.uniFilter_Problem()
+        elif problemDescriptions == 1001:
+            problem = self.resistiveDivider_Problem()
         elif problem_choice in known_problem_choices:
             raise ValueError('problem_choice=%d is not implemented yet' %
                              problem_choice)	    
@@ -1524,6 +1528,128 @@ EPWR1 pwrnode gnd volts='-pVdd*I(Vdd)'
                             
             ac_an = CircuitAnalysis(ac_env_points, ac_metrics, sim)
             analyses.append(ac_an)
+
+        #-------------------------------------------------------
+        # no transient analysis
+       
+        #-------------------------------------------------------
+        #add function DOCs analysis
+        funcDOCs_an = FunctionAnalysis(embedded_part.functionDOCsAreFeasible, [EnvPoint(True)], 0.99, float('Inf'), False)
+        analyses.append(funcDOCs_an)
+        
+        #-------------------------------------------------------
+        #finally, build PS and return
+        ps = ProblemSetup(embedded_part, analyses)
+        return ps
+
+
+def resistiveDivider_Problem(self):
+        """
+        @description        
+          TBA
+        
+          Operating point driven
+          
+        @arguments
+          <<none>>          
+        
+        @return
+          ps -- ProblemSetup object
+        """
+        #settable parameters
+        vdd = 5.0
+        feature_size = 0.18e-06
+        nmos_modelname = 'N_18_MM'
+        pmos_modelname = 'P_18_MM'
+        
+        #build library
+        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vdd, self.approxMosModels())
+        library = OpLibrary(lib_ss)
+        
+        #build embedded part
+        # resistiveDivider has ports: 1, 2, 3
+        part = library.resistiveDivider()
+
+        #the keys of 'connections' are the external ports of 'part'
+        #the value corresponding to each key must be in the test_fixture_strings
+        # that are below
+        connections = {'1':'ninpdc', '2':'nout', '3':'gnd'}
+
+        functions = {}
+        for varname in part.point_meta.keys():
+            functions[varname] = None #these need to get set ind-by-ind
+            
+        embedded_part = EmbeddedPart(part, connections, functions)
+
+        #we'll be building this up
+        analyses = []
+
+        #-------------------------------------------------------
+        #shared info between analyses
+        # (though any of this can be analysis-specific if we'd wanted
+        #  to set them there instead)
+        pwd = os.getenv('PWD')
+        if pwd[-1] != '/':
+            pwd += '/'
+        cir_file_path = pwd + 'problems/resdiv/'
+        max_simulation_time = 5 #in seconds
+        simulator_options_string = """
+.include %ssimulator_options.inc
+""" % cir_file_path
+        
+        models_string = """
+.include %smodels.inc
+""" % cir_file_path
+
+        #-------------------------------------------------------
+        #build op analysis
+        if True:
+            d = {
+                 'pRload':100000,
+                 'pVdcin':vdd
+                 }
+            op_env_points = [EnvPoint(True, d)]
+            test_fixture_string = """
+Rload   nout    gnd pRload
+
+* biasing circuitry
+
+Vindc       ninpdc      gnd     DC=pVdcin
+
+
+* this measures the amount of feedback biasing there is
+
+* simulation statements
+.op
+
+* power measurement
+EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
+
+"""
+            op_metrics = [
+                          Metric('pwrnode', float('-Inf'), 100.0e-3, True)
+                          ]
+   
+            #if we use a .lis output like 'region' or 'vgs' even once in
+            # order to constrain DOCs via perc_DOCs_met, list it here
+            # (if you forget a measure, it _will_ complain)
+            doc_measures = [] 
+            sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
+                             #'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvmaxg'],
+                             #'ic0':['pwrnode','fbmnode'],
+                             'ic0':['pwrnode'],
+                             #'lis':['perc_DOCs_met']
+                             'lis':['V(nout)']
+                             },
+                            cir_file_path,
+                            max_simulation_time,
+                            simulator_options_string,
+                            models_string,
+                            test_fixture_string,
+                            doc_measures)
+                            
+            op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
+            analyses.append(op_an)
 
         #-------------------------------------------------------
         # no transient analysis

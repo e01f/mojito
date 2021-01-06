@@ -4850,3 +4850,27 @@ class OpLibrary(Library):
 
         self._parts[name] = part
         return part
+
+    def resistiveDivider(self):
+        name = whoami()
+        if self._parts.has_key(name): return self._parts[name]
+
+        r1 = self.eSeriesResistor()
+        r2 = self.eSeriesResistor()
+
+        r1uVM = r1.unityVarMap()
+        r2uVM = r2.unityVarMap()
+
+        pm = PointMeta({})
+
+        pm = self.updatePointMeta(pm, r1, r1uVM)
+        pm = self.updatePointMeta(pm, r2, r2uVM)
+
+        part = CompoundPart(['1', '2', '3'], pm, name)
+        part.addPart(r1, {'1':'1','2':'2'}, r1uVM)
+        part.addPart(r2, {'2':'2','3':'3'}, r2uVM)
+
+        part.addToSummaryStr('resistiveDivider','')
+
+        self._parts[name] = part
+        return part
