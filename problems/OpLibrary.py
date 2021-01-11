@@ -4874,3 +4874,92 @@ class OpLibrary(Library):
 
         self._parts[name] = part
         return part
+
+    def lf411(self):
+        """
+        Description: LF411C OpAmp
+        Ports: IN+, IN-, VCC, VEE, OUT
+        Variables: None
+        
+        Note: 
+        """
+        name = whoami()
+        if name in self._parts:  return self._parts[name]
+        part = AtomicPart('X', ['IN+', 'IN-', 'VCC', 'VEE', 'OUT'], self.buildPointMeta([]), 'LF411C', name)
+        
+        #add DOCs
+        # first the DOC's that can be measured pre-simulation (FunctionDOC's)
+        #metric = Metric('NearMaxWidth', 0 , self.ss.max_W * self.ss.max_M * 0.99 , False)
+        #function = 'W*M'
+        
+        #doc = FunctionDOC(metric, function)
+        
+        #part.addFunctionDOC(doc)
+
+        self._parts[name] = part
+        return part
+
+    def lmc6482(self):
+        """
+        Description: LMC6482 OpAmp
+        Ports: IN+, IN-, VCC, VEE, OUT
+        Variables: None
+        
+        Note: 
+        """
+        name = whoami()
+        if name in self._parts:  return self._parts[name]
+        part = AtomicPart('X', ['IN+', 'IN-', 'VCC', 'VEE', 'OUT'], self.buildPointMeta([]), 'LMC6482', name)
+
+        self._parts[name] = part
+        return part
+
+    def lm393(self):
+        """
+        Description: LM393 Comparator
+        Ports: IN+, IN-, VCC, VEE, OUT
+        Variables: None
+        
+        Note: 
+        """
+        name = whoami()
+        if name in self._parts:  return self._parts[name]
+        part = AtomicPart('X', ['IN+', 'IN-', 'VCC', 'VEE', 'OUT'], self.buildPointMeta([]), 'LM393', name)
+
+        self._parts[name] = part
+        return part
+
+    def opvCircuit(self):
+        """
+        Description: OpAmp Circuit
+        Ports: In, Out, Vcc, Vee
+        Variables: None
+        
+        Note: Only inverting amplifier is implemented as of now
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        opv1 = self.lf411()
+        r1 = self.wireOrRCL()
+        r2 = self.wireOrRCL()
+
+        r1uVM = {'R' : 'R1'}
+        r2uVM = {'R' : 'R2'}
+
+        pm = PointMeta({})
+
+        pm = self.updatePointMeta(pm, r1, r1uVM)
+        pm = self.updatePointMeta(pm, r2, r2uVM)
+
+        n1 = part.addInternalNode()
+
+        part = CompoundPart(['In', 'Out', 'Vcc', 'Vee'], pm, name)
+        part.addPart(opv1, {'IN+':'gnd','IN-': n1, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': 'Out'}, {})
+        part.addPart(r1, {'1':'In','2': n1}, r1uVM)
+        part.addPart(r2, {'1': n1,'2': 'Out'}, r2uVM)
+
+        part.addToSummaryStr('opvCircuit','')
+
+        self._parts[name] = part
+        return part

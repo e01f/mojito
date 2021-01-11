@@ -35,6 +35,7 @@ class ProblemFactory:
         1  - maximizePartCountProblem
         2  - maxPartCount_minArea_Problem
         101 - universal filter problem
+        102 - zero-crossing detector problem
         1001 - resdiv problem
         --------------------
         Legend:
@@ -63,7 +64,8 @@ class ProblemFactory:
                                  51,52,
                                  61,62,
                                  71,72,
-                                 81,101,
+                                 81,
+                                 101,102,
                                  1001]
         problem = None #fill this in
         if problem_choice == 1:
@@ -105,6 +107,8 @@ class ProblemFactory:
                                                      target_waveform)
         elif problem_choice == 101:
             problem = self.uniFilter_Problem()
+        elif problem_choice == 102:
+            problem = self.zcd_Problem()
         elif problem_choice == 1001:
             problem = self.resistiveDivider_Problem()
         elif problem_choice in known_problem_choices:
@@ -1640,6 +1644,132 @@ Vindc       ninpdc      gnd     DC=pVdcin
 
 * power measurement
 EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
+
+"""
+            op_metrics = [
+                          Metric('pwrnode', float('-Inf'), 10.0e-3, False),
+                          Metric('nout', 2.4, 2.6, True)
+                          ]
+   
+            #if we use a .lis output like 'region' or 'vgs' even once in
+            # order to constrain DOCs via perc_DOCs_met, list it here
+            # (if you forget a measure, it _will_ complain)
+            doc_measures = ['test']
+            sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
+                             #'ma0':['passbandvavgg','stopbandvavgg','passbandgvppg','stopbandgvmaxg'],
+                             #'ic0':['pwrnode','fbmnode'],
+                             'ic0':['pwrnode', 'nout']
+                             #'lis':['perc_DOCs_met']
+                             },
+                            cir_file_path,
+                            max_simulation_time,
+                            simulator_options_string,
+                            models_string,
+                            test_fixture_string,
+                            doc_measures)
+                            
+            op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
+            analyses.append(op_an)
+
+        #-------------------------------------------------------
+        # no transient analysis
+       
+        #-------------------------------------------------------
+        #add function DOCs analysis
+        funcDOCs_an = FunctionAnalysis(embedded_part.functionDOCsAreFeasible, [EnvPoint(True)], 0.99, float('Inf'), False)
+        analyses.append(funcDOCs_an)
+        
+        #-------------------------------------------------------
+        #finally, build PS and return
+        ps = ProblemSetup(embedded_part, analyses)
+        return ps
+
+    def zcd_Problem(self):
+        """
+        @description        
+          TBA
+        
+          Operating point driven
+          
+        @arguments
+          <<none>>          
+        
+        @return
+          ps -- ProblemSetup object
+        """
+        #settable parameters
+        vcc = 10.0
+        vee = -10.0
+        feature_size = 0.18e-06
+        nmos_modelname = 'N_18_MM'
+        pmos_modelname = 'P_18_MM'
+        
+        #build library
+        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vdd, self.approxMosModels())
+        library = OpLibrary(lib_ss)
+        
+        #build embedded part
+        # opvCircuit has ports: In, Out, Vcc, Vee
+        part = library.opvCircuit()
+
+        #the keys of 'connections' are the external ports of 'part'
+        #the value corresponding to each key must be in the test_fixture_strings
+        # that are below
+        connections = {'In': 'nVin', 'Out': 'nout', 'Vcc': 'nVcc', 'Vee': 'nVee'}
+
+        functions = {}
+        for varname in part.point_meta.keys():
+            functions[varname] = None #these need to get set ind-by-ind
+            
+        embedded_part = EmbeddedPart(part, connections, functions)
+
+        #we'll be building this up
+        analyses = []
+
+        #-------------------------------------------------------
+        #shared info between analyses
+        # (though any of this can be analysis-specific if we'd wanted
+        #  to set them there instead)
+        pwd = os.getenv('PWD')
+        if pwd is None:
+            pwd = os.getcwd()
+        if pwd[-1] != '/':
+            pwd += '/'
+        cir_file_path = pwd + 'problems/zcd/'
+        max_simulation_time = 5 #in seconds
+        simulator_options_string = """
+.include %ssimulator_options.inc
+""" % cir_file_path
+        
+        models_string = """
+.include %smodels.inc
+""" % cir_file_path
+
+        #-------------------------------------------------------
+        #build op analysis
+        if True:
+            d = {
+                 'pRload': 10000000,
+                 'pVcc': vcc,
+                 'pVee': vee,
+                 }
+            op_env_points = [EnvPoint(True, d)]
+            test_fixture_string = """
+Rload   nout    gnd pRload
+
+* biasing circuitry
+Vcc         nVcc        gnd     DC=pVcc
+Vee         nVee        gnd     DC=pVee
+Vin         nVin        gnd     DC=0.5
+
+
+* this measures the amount of feedback biasing there is
+
+* simulation statements
+.op
+
+* power measurement
+EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
 
 """
             op_metrics = [
