@@ -1504,7 +1504,6 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-
     def viFeedback_levelShifter(self):
         """
         Description: voltage-current feedback implemented
@@ -1658,7 +1657,6 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-
     def cascodeDevice(self):
         """
         Description: biasedMos OR gainBoostedMos.  Used in an inputCascodeStage.
@@ -1702,7 +1700,6 @@ class OpLibrary(Library):
                 
         self._parts[name] = part
         return part
-
     
     def cascodeDeviceOrWire(self):
         """
@@ -1987,7 +1984,6 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-
     def inputCascodeFlex(self):
         """
         Description: choose between folded or stacked input cascode stage.
@@ -2044,7 +2040,6 @@ class OpLibrary(Library):
         
         self._parts[name] = part
         return part
-
 
     def inputCascodeStage(self):
         """
@@ -2226,7 +2221,6 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-
     def ssIiLoad(self):
         """
         Description: single-ended I in, single-ended I out load.
@@ -2302,7 +2296,6 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-
     def ssViAmp1(self):
         """
         Description: single-ended V in, single-ended I out, 1-stage
@@ -2371,9 +2364,8 @@ class OpLibrary(Library):
         pm = self.updatePointMeta(pm, input_part, input_varmeta_map, True)
         pm = self.updatePointMeta(pm, load_part, load_varmeta_map, True)
         
-
-#         del pm['load_part_index']
-#         load_varmeta_map['chosen_part_index']=1
+        # del pm['load_part_index']
+        # load_varmeta_map['chosen_part_index']=1
 
         #build functions
         input_functions = input_varmeta_map
@@ -2472,8 +2464,8 @@ class OpLibrary(Library):
         part.addToSummaryStr('Ibias','Ibias')
         part.addToSummaryStr('Ibias2','Ibias2')
         part.addToSummaryStr('degen_choice (0=wire,1=resistor)', 'degen_choice')
-#         part.addToSummaryStr('load type (0=resistor,1=biasedMos,'
-#                              '2=ssIiLoad_Cascoded)', 'load_part_index')
+        # part.addToSummaryStr('load type (0=resistor,1=biasedMos,'
+        #                      '2=ssIiLoad_Cascoded)', 'load_part_index')
         
         self._parts[name] = part
         return part
@@ -2669,13 +2661,13 @@ class OpLibrary(Library):
 
         #build a summaryStr
         part.addToSummaryStr('loadrail is vdd','chosen_part_index')
-#         part.addToSummaryStr('input is pmos (rather than nmos)', 'input_is_pmos')
-#         part.addToSummaryStr('folded', 'chosen_part_index == input_is_pmos')
+        # part.addToSummaryStr('input is pmos (rather than nmos)', 'input_is_pmos')
+        # part.addToSummaryStr('folded', 'chosen_part_index == input_is_pmos')
         part.addToSummaryStr('Ibias','Ibias')
-#         part.addToSummaryStr('Ibias2','Ibias2')
+        # part.addToSummaryStr('Ibias2','Ibias2')
         part.addToSummaryStr('degen_choice (0=wire,1=resistor)', 'degen_choice')
-#         part.addToSummaryStr('load type (0=resistor,1=biasedMos,'
-#                              '2=ssIiLoad_Cascoded)', 'load_part_index')
+        # part.addToSummaryStr('load type (0=resistor,1=biasedMos,'
+        #                      '2=ssIiLoad_Cascoded)', 'load_part_index')
         
         self._parts[name] = part
         return part
@@ -2735,8 +2727,7 @@ class OpLibrary(Library):
         
         self._parts[name] = part
         return part
-        
-        
+
     def currentMirror_Simple(self):
         """
         Description: simple 2-transistor current mirror
@@ -2867,7 +2858,6 @@ class OpLibrary(Library):
         
         self._parts[name] = part
         return part
-
 
     def currentMirror_LowVoltageA(self):
         """
@@ -3090,7 +3080,7 @@ class OpLibrary(Library):
         ssvi_functions = ssvi_varmap
         bias_functions = bias_varmap
         
-#        Vi = '(Vs + Vds2 * fracVgnd * (1 - 2 * (input_is_pmos==1)))'
+        # Vi = '(Vs + Vds2 * fracVgnd * (1 - 2 * (input_is_pmos==1)))'
         Vi_nmos = str(self.ss.vdd) + '* fracVgnd'
         Vi_pmos = str(self.ss.vdd) + '* (1-fracVgnd)'
                         
@@ -3165,8 +3155,8 @@ class OpLibrary(Library):
         ssvi_functions = ssvi_varmap
         bias_functions = bias_varmap
         
-#        Vi_nmos = '(Vs + ('+str(self.ss.vdd)+'-Vs) * fracVgnd)'
-#        Vi_pmos = '(Vs - (Vs-'+str(self.ss.vss)+') * fracVgnd)'
+        # Vi_nmos = '(Vs + ('+str(self.ss.vdd)+'-Vs) * fracVgnd)'
+        # Vi_pmos = '(Vs - (Vs-'+str(self.ss.vss)+') * fracVgnd)'
         Vi_nmos = str(self.ss.vdd) + '* fracVgnd'
         Vi_pmos = str(self.ss.vdd) + '* (1-fracVgnd)'
                 
@@ -3584,8 +3574,7 @@ class OpLibrary(Library):
                             
         self._parts[name] = part
         return part
-        
-        
+
     def dsViAmp1b_VddGndPorts(self):
         """
         ##HACK: the normal dsViAmp1_VddGndPorts has its output voltage fixed on 0.9
@@ -3744,8 +3733,6 @@ class OpLibrary(Library):
         
         self._parts[name] = part
         return part
-
-
 
     def ddViAmp1_VddGndPorts(self):
         """
@@ -4015,7 +4002,7 @@ class OpLibrary(Library):
         #parts to embed
         stage1_part = self.dsViAmp1b_VddGndPorts()
         stage2_part = self.ssViAmp1b_VddGndPorts()
-#        shifter_part = self.levelShifterOrWire_VddGndPorts()
+        # shifter_part = self.levelShifterOrWire_VddGndPorts()
         feedback_part = self.capacitor() #note the HACK for just capacitor
 
         #build the point_meta (pm)
@@ -4026,9 +4013,9 @@ class OpLibrary(Library):
         stage2_varmap = {}
         for old_name in  stage2_part.point_meta.keys():
             stage2_varmap[old_name] = 'stage2_' + old_name
-#        shifter_varmap = {}
-#        for old_name in  shifter_part.point_meta.keys():
-#            shifter_varmap[old_name] = 'shifter_' + old_name
+        # shifter_varmap = {}
+        # for old_name in  shifter_part.point_meta.keys():
+        #     shifter_varmap[old_name] = 'shifter_' + old_name
         feedback_varmap = {}
         for old_name in  feedback_part.point_meta.keys():
             feedback_varmap[old_name] = 'feedback_' + old_name
@@ -4044,10 +4031,10 @@ class OpLibrary(Library):
         pm['stage2_loadrail_is_vdd']= self.buildVarMeta('bool_var',
                                                         'stage2_loadrail_is_vdd')
         
-#       pm = self.updatePointMeta(pm, shifter_part, shifter_varmap)
-#       del pm['shifter_chosen_part_index']
-#        pm['shifter_Drail_is_vdd'] = self.buildVarMeta('bool_var',
-#                                                       'shifter_Drail_is_vdd')
+        # pm = self.updatePointMeta(pm, shifter_part, shifter_varmap)
+        # del pm['shifter_chosen_part_index']
+        # pm['shifter_Drail_is_vdd'] = self.buildVarMeta('bool_var',
+        #                                                 'shifter_Drail_is_vdd')
         
         del pm['stage2_Vout']
         
@@ -4060,11 +4047,11 @@ class OpLibrary(Library):
         stage2_functions = stage2_varmap
         stage2_functions['chosen_part_index'] = 'stage2_loadrail_is_vdd'
         
-#         stage2_functions['Vin'] = "switchAndEval(shifter_use_wire, {1:'stage1_Vout', 0:'shifter_Vout'})"
+        # stage2_functions['Vin'] = "switchAndEval(shifter_use_wire, {1:'stage1_Vout', 0:'shifter_Vout'})"
         stage2_functions['Vout'] = '0.9'
         
-#        shifter_functions = shifter_varmap
-#        shifter_functions['chosen_part_index'] = 'shifter_Drail_is_vdd'
+        # shifter_functions = shifter_varmap
+        # shifter_functions['chosen_part_index'] = 'shifter_Drail_is_vdd'
         
          
         feedback_functions = feedback_varmap
@@ -4073,27 +4060,27 @@ class OpLibrary(Library):
         part = CompoundPart(['Vin1','Vin2', 'Iout', 'Vdd', 'gnd'], pm, name)
 
         stage1_out = part.addInternalNode()
-#        stage2_in = part.addInternalNode()
+        # stage2_in = part.addInternalNode()
 
-#        part.addPart( stage1_part,
-#                      {'Vin1':'Vin1', 'Vin2':'Vin2',
-#                       'Iout':stage1_out, 'Vdd':'Vdd', 'gnd':'gnd'},
-#                     stage1_functions)
-# switch the inputs to make the noninverting amplifier inverting
+        # part.addPart( stage1_part,
+        #              {'Vin1':'Vin1', 'Vin2':'Vin2',
+        #               'Iout':stage1_out, 'Vdd':'Vdd', 'gnd':'gnd'},
+        #                stage1_functions)
+        # switch the inputs to make the noninverting amplifier inverting
         part.addPart( stage1_part,
                       {'Vin1':'Vin2', 'Vin2':'Vin1',
                        'Iout':stage1_out, 'Vdd':'Vdd', 'gnd':'gnd'},
                       stage1_functions)
 
         part.addPart( stage2_part,
-#                       {'Vin':stage2_in, 'Iout':'Iout',
+        #             {'Vin':stage2_in, 'Iout':'Iout',
                        {'Vin':stage1_out, 'Iout':'Iout',
                        'Vdd':'Vdd', 'gnd':'gnd'},
                       stage2_functions)
-#         part.addPart( shifter_part,
-#                       {'Vin':stage1_out, 'Vout':stage2_in,
-#                        'Vdd':'Vdd', 'gnd':'gnd'},
-#                       shifter_functions)
+        # part.addPart( shifter_part,
+        #               {'Vin':stage1_out, 'Vout':stage2_in,
+        #                'Vdd':'Vdd', 'gnd':'gnd'},
+        #                 shifter_functions)
 
         #Note: this is a HACK for just capacitor!
         part.addPart( feedback_part, {'1':'Iout','2':stage1_out},
@@ -4305,8 +4292,8 @@ class OpLibrary(Library):
             del pm['stage2_load_fracLoad']
             varmap['stage2_load_fracLoad']='0.5'
             
-#             del pm['stage2_loadrail_is_vdd']
-#             varmap['stage2_loadrail_is_vdd']=''
+        # del pm['stage2_loadrail_is_vdd']
+        # varmap['stage2_loadrail_is_vdd']=''
   
           
         ## Level shifter
@@ -4337,8 +4324,8 @@ class OpLibrary(Library):
         varmap['shifter_cascode_D_L']='0'
 
         ## Feedback
-#         del pm['feedback_C']
-#         varmap['feedback_C']='0'
+        # del pm['feedback_C']
+        # varmap['feedback_C']='0'
 
                             
         #build the main part
@@ -4416,7 +4403,7 @@ class OpLibrary(Library):
 
         #parts to embed
         onestage_part = self.dsViAmp1_VddGndPorts()
-#        twostage_part = self.dsViAmp2_VddGndPorts()
+        # twostage_part = self.dsViAmp2_VddGndPorts()
         twostage_part = self.dsViAmp2_SingleEndedMiddle_VddGndPorts() # FIXME: DDS amp is ruled out here.
 
         #build the point_meta (pm)
@@ -4509,7 +4496,7 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-    def wireOrRCL(self):
+    def rcl(self):
         """
         Description: 
           
@@ -4518,13 +4505,15 @@ class OpLibrary(Library):
         Variables: Values of the R, C or L
         
         Variable breakdown:
+            R - resistance
+            C - capacitance
+            L - inductance
 
         """
         name = whoami()
         if name in self._parts: return self._parts[name]
 
         #parts to embed
-        wire_part = self.wire()
         res_part = self.eSeriesResistor()
         cap_part = self.eSeriesCapacitor()
         ind_part = self.eSeriesInductor()
@@ -4546,12 +4535,55 @@ class OpLibrary(Library):
         cap_functions = cap_varmeta_map
         ind_functions = ind_varmeta_map
 
-        # build the main part0
+        # build the main part
         part = FlexPart(['1', '2'], pm, name)
-        part.addPartChoice(wire_part, {'1':'1','2':'2'}, wire_functions)
         part.addPartChoice(res_part, {'1':'1','2':'2'}, res_functions)
         part.addPartChoice(cap_part, {'1':'1','2':'2'}, cap_functions)
         part.addPartChoice(ind_part, {'1':'1','2':'2'}, ind_functions)
+
+        # build a summaryStr
+        part.addToSummaryStr('0=R,C,L: ','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
+    def wireOrRCL(self):
+        """
+        Description: 
+          
+        Ports: 1, 2
+        
+        Variables: Values of the R, C or L
+        
+        Variable breakdown:
+            chosen_part_index = 0 -> wire
+            chosen_part_index = 1..3 -> RCL
+                R - resistance
+                C - capacitance
+                L - inductance
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wire_part = self.wire()
+        res_part = self.eSeriesResistor()
+        cap_part = self.eSeriesCapacitor()
+        ind_part = self.eSeriesInductor()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        
+        pm = self.updatePointMeta(pm, res_part, res_part.unityVarMap())
+        pm = self.updatePointMeta(pm, cap_part, cap_part.unityVarMap())
+        pm = self.updatePointMeta(pm, ind_part, ind_part.unityVarMap())
+
+        # build the main part
+        part = FlexPart(['1', '2'], pm, name)
+        part.addPartChoice(wire_part, {'1':'1','2':'2'}, {})
+        part.addPartChoice(res_part, {'1':'1','2':'2'}, res_part.unityVarMap())
+        part.addPartChoice(cap_part, {'1':'1','2':'2'}, cap_part.unityVarMap())
+        part.addPartChoice(ind_part, {'1':'1','2':'2'}, ind_part.unityVarMap())
 
         # build a summaryStr
         part.addToSummaryStr('0=wire,R,C,L: ','chosen_part_index')
@@ -4568,6 +4600,11 @@ class OpLibrary(Library):
         Variables: Values of the R, C or L
         
         Variable breakdown:
+            chosen_part_index = 0 -> open circuit
+            chosen_part_index = 1..3 -> RCL
+                R - resistance
+                C - capacitance
+                L - inductance
           
         """
         name = whoami()
@@ -4581,30 +4618,222 @@ class OpLibrary(Library):
 
         #build the point_meta (pm)
         pm = PointMeta({})
-
-        res_varmeta_map = {'R':'oc_R'};
-        cap_varmeta_map = {'C':'oc_C'};
-        ind_varmeta_map = {'L':'oc_L'};
         
-        pm = self.updatePointMeta(pm, res_part, res_varmeta_map)
-        pm = self.updatePointMeta(pm, cap_part, cap_varmeta_map)
-        pm = self.updatePointMeta(pm, ind_part, ind_varmeta_map)
+        pm = self.updatePointMeta(pm, res_part, res_part.unityVarMap())
+        pm = self.updatePointMeta(pm, cap_part, cap_part.unityVarMap())
+        pm = self.updatePointMeta(pm, ind_part, ind_part.unityVarMap())
 
-        #build functions
-        oc_functions = {}
-        res_functions = res_varmeta_map
-        cap_functions = cap_varmeta_map
-        ind_functions = ind_varmeta_map
-
-        # build the main part0
+        # build the main part
         part = FlexPart(['1', '2'], pm, name)
-        part.addPartChoice(oc_part, {'1':'1','2':'2'}, oc_functions)
-        part.addPartChoice(res_part, {'1':'1','2':'2'}, res_functions)
-        part.addPartChoice(cap_part, {'1':'1','2':'2'}, cap_functions)
-        part.addPartChoice(ind_part, {'1':'1','2':'2'}, ind_functions)
+        part.addPartChoice(oc_part, {'1':'1','2':'2'}, {})
+        part.addPartChoice(res_part, {'1':'1','2':'2'}, res_part.unityVarMap())
+        part.addPartChoice(cap_part, {'1':'1','2':'2'}, cap_part.unityVarMap())
+        part.addPartChoice(ind_part, {'1':'1','2':'2'}, ind_part.unityVarMap())
 
         # build a summaryStr
         part.addToSummaryStr('0=O.C.,R,C,L: ','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
+    def singleOrTwoParallelRCL(self):
+        """
+        Description: One single RCL or two parallel RCLs
+          
+        Ports: 1, 2
+        
+        Variables: 
+        
+        Variable breakdown:
+            rcl_choice - wether the rcl is R (0), C (1) or L (2)
+            parallel_rcl_choice - wether only single rcl (0) or two rcl are used (1..3)
+            R1, C1, L1 - resistance, capacitance, inductance of permanent rcl
+            R2, C2, L2 - resistance, capacitance, inductance of possible parallel rcl
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        rcl_part = self.rcl()
+        ocOrRCL_part = self.ocOrRCL()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        pm_rcl = {'chosen_part_index': 'rcl_choice', 'R': 'R1', 'C': 'C1', 'L': 'L1'}
+        pm = self.updatePointMeta(pm, rcl_part, pm_rcl)
+
+        pm_ocOrRCL = {'chosen_part_index': 'parallel_rcl_choice', 'R': 'R2', 'C': 'C2', 'L': 'L2'}
+        pm = self.updatePointMeta(pm, ocOrRCL_part, pm_ocOrRCL)
+
+        # build the main part
+        part = CompoundPart(['1', '2'], pm, name)
+        part.addPart(rcl_part, {'1':'1', '2':'2'}, pm_rcl)
+        part.addPart(ocOrRCL_part, {'1':'1', '2':'2'}, pm_ocOrRCL)
+
+        # build a summaryStr
+        part.addToSummaryStr('singleOrTwoParallelRCL', '')
+
+        self._parts[name] = part
+        return part
+
+    def wireOrSingleOrTwoParallelRCL(self):
+        """
+        Description: Either of: A simple wire, one single RCL or two parallel RCLs
+          
+        Ports: 1, 2
+        
+        Variables: Values of the R, C or L
+        
+        Variable breakdown:
+            chosen_part_index = 0 -> wire
+            chosen_part_index = 1 -> singleOrTwoParallelRCL
+                rcl_choice - wether the rcl is R (0), C (1) or L (2)
+                parallel_rcl_choice - wether only single rcl (0) or two rcl are used (1)
+                R1, C1, L1 - resistance, capacitance, inductance of permanent rcl
+                R2, C2, L2 - resistance, capacitance, inductance of possible parallel rcl
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wire_part = self.wire()
+        sOTPRCL_part = self.singleOrTwoParallelRCL()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        pm = self.updatePointMeta(pm, sOTPRCL_part, sOTPRCL_part.unityVarMap())
+
+        # build the main part
+        part = FlexPart(['1', '2'], pm, name)
+        part.addPartChoice(wire_part, {'1':'1','2':'2'}, {})
+        part.addPartChoice(sOTPRCL_part, {'1':'1','2':'2'}, sOTPRCL_part.unityVarMap())
+
+        # build a summaryStr
+        part.addToSummaryStr('wireOrSingleOrTwoParallelRCL:','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
+    def singleOrTwoParallelOrParallelAndSeriesRCL(self):
+        """
+        Description: One single RCL, two parallel RCLs or one parallel and one series RCL
+          
+        Ports: 1, 2
+        
+        Variables: 
+        
+        Variable breakdown:
+            series_rcl_choice = 0 -> no series rcl
+            series_rcl_choice = 1..3 -> series rcl having
+                R1, C1, L1 - resistance, capacitance, inductance of series RCL
+            R2, C2, L2 - resistance, capacitance, inductance of RCL
+            parallel_rcl_choice = 0 -> no parallel rcl
+            parallel_rcl_choice = 1..3 -> parallel rcl having
+                R3, C3, L3 - resistance, capacitance, inductance or parallel RCL
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wireOrRCL_part = self.wireOrRCL()
+        rcl_part = self.rcl()
+        ocOrRCL_part = self.ocOrRCL()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        pm_wireOrRCL = {'chosen_part_index': 'series_rcl_choice', 'R': 'R1', 'C': 'C1', 'L': 'L1'}
+        pm = self.updatePointMeta(pm, wireOrRCL_part, pm_wireOrRCL)
+        pm_rcl = {'R': 'R2', 'C': 'C2', 'L': 'L2'}
+        pm = self.updatePointMeta(pm, rcl_part, pm_rcl)
+        pm_ocOrRCL = {'chosen_part_index': 'parallel_rcl_choice', 'R': 'R3', 'C': 'C3', 'L': 'L3'}
+        pm = self.updatePointMeta(pm, ocOrRCL_part, pm_ocOrRCL)
+
+        # build the main part
+        part = CompoundPart(['1', '2'], pm, name)
+        n1 = part.addInternalNode()
+        part.addPart(wireOrRCL_part, {'1': '1', '2':  n1}, pm_wireOrRCL)
+        part.addPart(rcl_part,       {'1':  n1, '2': '2'}, pm_rcl)
+        part.addPart(ocOrRCL_part,   {'1': '1', '2': '2'}, pm_ocOrRCL)
+
+        # build a summaryStr
+        part.addToSummaryStr('singleOrTwoParallelOrParallelAndSeriesRCL', '')
+
+        self._parts[name] = part
+        return part
+
+    def wireOrSingleOrTwoParallelOrParallelAndSeriesRCL(self):
+        """
+        Description: Either of: A simple wire, two parallel RCLs or one parallel and one series RCL
+          
+        Ports: 1, 2
+        
+        Variables: Values of the R, C or L
+        
+        Variable breakdown:
+            chosen_part_index = 0 -> wire
+            chosen_part_index = 1 -> singleOrTwoParallelOrParallelAndSeriesRCL
+            series_rcl_choice = 0 -> no series rcl
+            series_rcl_choice = 1..3 -> series rcl having
+                R1, C1, L1 - resistance, capacitance, inductance of series RCL
+            R2, C2, L2 - resistance, capacitance, inductance of RCL
+            parallel_rcl_choice = 0 -> no parallel rcl
+            parallel_rcl_choice = 1..3 -> parallel rcl having
+                R3, C3, L3 - resistance, capacitance, inductance or parallel RCL
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wire_part = self.wire()
+        sOTPRCL_part = self.singleOrTwoParallelOrParallelAndSeriesRCL()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        
+        pm = self.updatePointMeta(pm, sOTPRCL_part, sOTPRCL_part.unityVarMap())
+
+        # build the main part
+        part = FlexPart(['1', '2'], pm, name)
+        part.addPartChoice(wire_part, {'1':'1','2':'2'}, {})
+        part.addPartChoice(sOTPRCL_part, {'1':'1','2':'2'}, sOTPRCL_part.unityVarMap())
+
+        # build a summaryStr
+        part.addToSummaryStr('wireOrSingleOrTwoParallelOrParallelAndSeriesRCL:','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
+    def parallelTwoPortParts(self, part1, part1VarMap, part1Functions, part2, part2VarMap, part2Functions):
+        """
+        Description: 
+          
+        Ports: 1, 2
+        
+        Variables: 
+        
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        pm = self.updatePointMeta(pm, part1, part1VarMap)
+        pm = self.updatePointMeta(pm, part2, part2VarMap)
+
+        # build the main part
+        part = CompoundPart(['1', '2'], pm, name)
+        part.addPart(part1, {'1':'1','2':'2'}, part1Functions)
+        part.addPart(part2, {'1':'1','2':'2'}, part2Functions)
+
+        # build a summaryStr
+        part.addToSummaryStr('parallelTwoPortParts', '')
 
         self._parts[name] = part
         return part
@@ -4875,6 +5104,64 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
+    def d1n4148(self):
+        """
+        Description: 1N4148 Jellybean Diode
+        Ports: A, K
+        Variables: None
+        
+        Note: 
+        """
+        name = whoami()
+        if name in self._parts:  return self._parts[name]
+        part = AtomicPart('X', ['A', 'K'], self.buildPointMeta([]), 'D1N4148', name)
+        
+        #add DOCs
+        # first the DOC's that can be measured pre-simulation (FunctionDOC's)
+        #metric = Metric('NearMaxWidth', 0 , self.ss.max_W * self.ss.max_M * 0.99 , False)
+        #function = 'W*M'
+        
+        #doc = FunctionDOC(metric, function)
+        
+        #part.addFunctionDOC(doc)
+
+        self._parts[name] = part
+        return part
+
+    def wireOrD1n4148(self):
+        """
+        Description: wire or 1N4148 Jellybean Diode
+          
+        Ports: A, K
+        
+        Variables: choosen_part_index
+        
+        Variable breakdown:
+            chosen_part_index = 0 -> wire
+            chosen_part_index = 1 -> 1N4148
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wire_part = self.wire()
+        dio_part = self.d1n4148()
+
+        #build the point_meta (pm)
+        pm = PointMeta({})
+
+        # build the main part
+        part = FlexPart(['A', 'K'], pm, name)
+        part.addPartChoice(wire_part, {'1':'A','2':'K'}, {})
+        part.addPartChoice(dio_part,  {'A':'A','K':'K'}, {})
+
+        # build a summaryStr
+        part.addToSummaryStr('wireOrD1n4184: ','chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
     def lf411(self):
         """
         Description: LF411C OpAmp
@@ -4929,13 +5216,13 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
-    def opvCircuit(self):
+    def invAmpCircuit(self):
         """
         Description: OpAmp Circuit
         Ports: In, Out, Vcc, Vee, gnd
         Variables: None
         
-        Note: Only inverting amplifier is implemented as of now
+        Note: Inverting amplifier setup
         """
         name = whoami()
         if name in self._parts: return self._parts[name]
@@ -4957,6 +5244,219 @@ class OpLibrary(Library):
         part.addPart(opv1, {'IN+':'gnd','IN-': n1, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': 'Out'}, {})
         part.addPart(r1, {'1':'In','2': n1}, r1uVM)
         part.addPart(r2, {'1': n1,'2': 'Out'}, r2uVM)
+
+        part.addToSummaryStr('opvCircuit','')
+
+        self._parts[name] = part
+        return part
+
+    def fourPortStraigth(self):
+        """
+        Description: straight-through 1-3, 2-4
+          
+        Ports: 1, 2, 3, 4
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wire_part1 = self.wire()
+        wire_part2 = self.wire()
+        
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        
+        #build the main part
+        part = CompoundPart(['1', '2', '3', '4'], pm, name)
+        part.addPart(wire_part1, {'1':'1', '1':'3'}, {})
+        part.addPart(wire_part2, {'1':'2', '2':'4'}, {})
+                
+        self._parts[name] = part
+        return part
+
+    def fourPortCrossed(self):
+        """
+        Description: crossed 1-4, 2-3
+          
+        Ports: 1, 2, 3, 4
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #parts to embed
+        wire_part1 = self.wire()
+        wire_part2 = self.wire()
+        
+        #build the point_meta (pm)
+        pm = PointMeta({})
+        
+        #build the main part
+        part = CompoundPart(['1', '2', '3', '4'], pm, name)
+        part.addPart(wire_part1, {'1':'1', '2':'4'}, {})
+        part.addPart(wire_part2, {'1':'2', '2':'3'}, {})
+                
+        self._parts[name] = part
+        return part
+
+    def twoWayValveXOver(self):
+        """
+        Description: straight-through or crossed
+          
+        Ports: 1, 2, 3, 4
+        
+        Variables: chosen_part_index
+
+        Variable breakdown:
+          For overall part: chosen_part_index (=='open_circuit')
+            0: straight-through
+            1: crossed
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        #build the main part
+        part = FlexPart(['1', '2', '3', '4'], PointMeta({}), name)
+        part.addPartChoice(self.fourPortStraigth(), {'1':'1', '2':'2', '3':'3', '4':'4'}, {})
+        part.addPartChoice(self.fourPortCrossed(),  {'1':'1', '2':'2', '3':'3', '4':'4'}, {})
+        
+        self._parts[name] = part
+        return part
+
+    def opvCircuit(self):
+        """
+        Description: OpAmp Circuit (Universal)
+        Ports: In, Out, Vcc, Vee, gnd
+        Variables: None
+        
+        Note: 
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        inStgWOrSRCLOrTwoPRCL = self.wireOrSingleOrTwoParallelRCL()
+        inStg1OCOrRCL1 = self.ocOrRCL()
+        inStg1OCOrRCL2 = self.ocOrRCL()
+        inStg1OCOrRCLVcc = self.ocOrRCL()
+        inStg1OCOrRCLVee = self.ocOrRCL()
+        inStg1WireOrRCL = self.wireOrRCL()
+
+        refStgRCLBlock = self.wireOrSingleOrTwoParallelOrParallelAndSeriesRCL()
+        refStg1OCOrRCLVcc = self.ocOrRCL()
+        refStg1OCOrRCLVee = self.ocOrRCL()
+
+        inverting_mux = self.twoWayValveXOver()
+
+        ampOrComp_mux = self.twoWayValveXOver()        
+
+        opv1 = self.lf411()
+
+        fbStgWireOrDiode = self.wireOrD1n4148()
+        fbStg1RCLBlock = self.wireOrSingleOrTwoParallelOrParallelAndSeriesRCL()
+        fbStg1WireOrDiode = self.wireOrD1n4148()
+
+        opBiasOCOrRCL = self.ocOrRCL()
+        opBiasOCOrRCLVcc = self.ocOrRCL()
+        opBiasOCOrRCLVee = self.ocOrRCL()
+
+        # Build PointMeta
+        pm = PointMeta({})
+
+        pm_inStgWOrSRCLOrTwoPRCL = {'chosen_part_index': 'instg_use_series_rcl_block1', 'rcl_choice': 'instg_rcl_series1_choice', 'R1': 'instg_R_series1', 'C1': 'instg_C_series1', 'L1': 'instg_L_series1', 'parallel_rcl_choice': 'instg_rcl_parallel1_choice', 'R2': 'instg_R_parallel1', 'C2': 'instg_C_parallel1', 'L2': 'instg_L_parallel1'}
+        pm = self.updatePointMeta(pm, inStgWOrSRCLOrTwoPRCL, pm_inStgWOrSRCLOrTwoPRCL)
+
+        pm_inStg1OCOrRCL1 = {'chosen_part_index': 'instg_oc_rcl_gnd1_choice', 'R': 'instg_R_gnd1', 'C': 'instg_C_gnd1', 'L': 'instg_L_gnd1'}
+        pm = self.updatePointMeta(pm, inStg1OCOrRCL1, pm_inStg1OCOrRCL1)
+
+        pm_inStg1OCOrRCL2 = {'chosen_part_index': 'instg_oc_rcl_gnd2_choice', 'R': 'instg_R_gnd2', 'C': 'instg_C_gnd2', 'L': 'instg_L_gnd2'}
+        pm = self.updatePointMeta(pm, inStg1OCOrRCL2, pm_inStg1OCOrRCL2)
+
+        pm_inStg1OCOrRCLVcc = {'chosen_part_index': 'instg_oc_rcl_vcc_choice', 'R': 'instg_R_vcc', 'C': 'instg_C_vcc', 'L': 'instg_L_vcc'}
+        pm = self.updatePointMeta(pm, inStg1OCOrRCLVcc, pm_inStg1OCOrRCLVcc)
+
+        pm_inStg1OCOrRCLVee = {'chosen_part_index': 'instg_oc_rcl_vee_choice', 'R': 'instg_R_vee', 'C': 'instg_C_vee', 'L': 'instg_L_vee'}
+        pm = self.updatePointMeta(pm, inStg1OCOrRCLVee, pm_inStg1OCOrRCLVee)
+
+        pm_inStg1WireOrRCL = {'chosen_part_index': 'instg_wire_rcl2_series_choice', 'R': 'instg_R_series2', 'C': 'instg_C_series2', 'L': 'instg_L_series2'}
+        pm = self.updatePointMeta(pm, inStg1WireOrRCL, pm_inStg1WireOrRCL)
+
+
+
+        pm_refStgRCLBlock = {'chosen_part_index': 'refstg_use_series_rcl_block1', 'series_rcl_choice': 'refstg_rcl_series2_choice', 'R1': 'instg_R_series2', 'C1': 'instg_C_series2', 'L1': 'instg_L_series2', 'R2': 'instg_R_series1', 'C2': 'instg_C_series1', 'L2': 'instg_L_series1', 'parallel_rcl_choice': 'refstg_rcl_parallel1_choice', 'R3': 'instg_R_parallel1', 'C3': 'instg_C_parallel1', 'L3': 'instg_L_parallel1'}
+        pm = self.updatePointMeta(pm, refStgRCLBlock, pm_refStgRCLBlock)
+
+        pm_refStg1OCOrRCLVcc = {'chosen_part_index': 'refstg_oc_rcl_vcc_choice', 'R': 'refstg_R_vcc', 'C': 'refstg_C_vcc', 'L': 'refstg_L_vcc'}
+        pm = self.updatePointMeta(pm, refStg1OCOrRCLVcc, pm_refStg1OCOrRCLVcc)
+
+        pm_refStg1OCOrRCLVee = {'chosen_part_index': 'refstg_oc_rcl_vee_choice', 'R': 'refstg_R_vee', 'C': 'refstg_C_vee', 'L': 'refstg_L_vee'}
+        pm = self.updatePointMeta(pm, refStg1OCOrRCLVee, pm_refStg1OCOrRCLVee)
+
+
+
+        pm_inverting_mux = {'chosen_part_index': 'is_inverting'}
+        pm = self.updatePointMeta(pm, inverting_mux, pm_inverting_mux)
+
+        pm_ampOrComp_mux = {'chosen_part_index': 'is_positive_feedback'} # i.e. is_comparator
+        pm = self.updatePointMeta(pm, ampOrComp_mux, pm_ampOrComp_mux)
+
+
+
+        pm_fbStgWireOrDiode = {'chosen_part_index': 'use_feedback_diode1'}
+        pm = self.updatePointMeta(pm, fbStgWireOrDiode, pm_fbStgWireOrDiode)
+
+        pm_fbStg1RCLBlock = {'chosen_part_index': 'fbstg_use_series_rcl_block1', 'series_rcl_choice': 'fbstg_rcl_series2_choice', 'R1': 'instg_R_series2', 'C1': 'instg_C_series2', 'L1': 'instg_L_series2', 'R2': 'instg_R_series1', 'C2': 'instg_C_series1', 'L2': 'instg_L_series1', 'parallel_rcl_choice': 'fbstg_rcl_parallel1_choice', 'R3': 'instg_R_parallel1', 'C3': 'instg_C_parallel1', 'L3': 'instg_L_parallel1'}
+        pm = self.updatePointMeta(pm, fbStg1RCLBlock, pm_fbStg1RCLBlock)
+
+        pm_fbStg1WireOrDiode = {'chosen_part_index': 'use_feedback_diode2'}
+        pm = self.updatePointMeta(pm, fbStg1WireOrDiode, pm_fbStg1WireOrDiode)
+
+        pm_opBiasOCOrRCL = {'chosen_part_index': 'opbias_oc_rcl_gnd_choice', 'R': 'opbias_R_gnd', 'C': 'opbias_C_gnd', 'L': 'opbias_L_gnd'}
+        pm = self.updatePointMeta(pm, opBiasOCOrRCL, pm_opBiasOCOrRCL)
+
+        pm_opBiasOCOrRCLVcc = {'chosen_part_index': 'opbias_oc_rcl_vcc_choice', 'R': 'opbias_R_vcc', 'C': 'opbias_C_vcc', 'L': 'opbias_L_vcc'}
+        pm = self.updatePointMeta(pm, opBiasOCOrRCLVcc, pm_opBiasOCOrRCLVcc)
+
+        pm_opBiasOCOrRCLVee = {'chosen_part_index': 'opbias_oc_rcl_vee_choice', 'R': 'opbias_R_vee', 'C': 'opbias_C_vee', 'L': 'opbias_L_vee'}
+        pm = self.updatePointMeta(pm, opBiasOCOrRCLVee, pm_opBiasOCOrRCLVee)
+
+        # Build part and connections
+        part = CompoundPart(['In', 'Out', 'Vcc', 'Vee', 'gnd'], pm, name)
+        n1 = part.addInternalNode()
+        part.addPart(inStgWOrSRCLOrTwoPRCL, {'1': 'In',  '2': n1},     pm_inStgWOrSRCLOrTwoPRCL)
+        part.addPart(inStg1OCOrRCL1,        {'1': n1,    '2': 'gnd'},  pm_inStg1OCOrRCL1)
+        part.addPart(inStg1OCOrRCL2,        {'1': n1,    '2': 'gnd'},  pm_inStg1OCOrRCL2)
+        part.addPart(inStg1OCOrRCLVcc,      {'1': n1,    '2': 'Vcc'},  pm_inStg1OCOrRCLVcc)
+        part.addPart(inStg1OCOrRCLVee,      {'1': n1,    '2': 'Vee'},  pm_inStg1OCOrRCLVee)
+        n2 = part.addInternalNode()
+        part.addPart(inStg1WireOrRCL,       {'1': n1,    '2': n2},     pm_inStg1WireOrRCL)
+
+        n3 = part.addInternalNode()
+        part.addPart(refStgRCLBlock,        {'1': 'gnd',  '2': n3},    pm_refStgRCLBlock)
+        part.addPart(refStg1OCOrRCLVcc,     {'1': n3,     '2': 'Vcc'}, pm_refStg1OCOrRCLVcc)
+        part.addPart(refStg1OCOrRCLVee,     {'1': n3,     '2': 'Vee'}, pm_refStg1OCOrRCLVee)
+
+        n4 = part.addInternalNode()
+        n5 = part.addInternalNode()
+        part.addPart(inverting_mux,         {'1': n2, '2': n3, '3': n4, '4': n5}, pm_inverting_mux)
+
+        n6 = part.addInternalNode()
+        n7 = part.addInternalNode()
+        part.addPart(ampOrComp_mux,         {'1': n4, '2': n5, '3': n6, '4': n7}, pm_ampOrComp_mux)
+        
+
+        n8 = part.addInternalNode()
+        part.addPart(opv1,                  {'IN+': n6, 'IN-': n7, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': n8}, {})
+        part.addPart(fbStgWireOrDiode,      {'A': n5,    'K': n8},     pm_fbStgWireOrDiode)
+
+        n9 = part.addInternalNode()
+        part.addPart(fbStg1WireOrDiode,     {'A': n8,    'K': n9},     pm_fbStg1WireOrDiode)
+        part.addPart(fbStg1RCLBlock,        {'1': n5,    '2': n9},     pm_fbStg1RCLBlock)
+        part.addPart(opBiasOCOrRCL,         {'1': n9,    '2': 'gnd'},  pm_opBiasOCOrRCL)
+        part.addPart(opBiasOCOrRCLVcc,      {'1': n9,    '2': 'Vcc'},  pm_opBiasOCOrRCLVcc)
+        part.addPart(opBiasOCOrRCLVee,      {'1': n9,    '2': 'Vee'},  pm_opBiasOCOrRCLVee)
+
 
         part.addToSummaryStr('opvCircuit','')
 
