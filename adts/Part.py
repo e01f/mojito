@@ -1216,11 +1216,9 @@ class EmbeddedPart:
                 #modify recurse info such that toplevel vars are
                 # for _this_ level rather than a sub-level.  Then
                 # add to info_list.
-                for (sub_emb_part, sub_scaled_point, sub_par_vars) in \
-                        emb_info_list:
+                for (sub_emb_part, sub_scaled_point, sub_par_vars) in emb_info_list:
                     emb_vars_used_by_sub_emb_part = sub_par_vars
-                    par_vars_used = self._varsUsedByEmbVarsOfEmbPart( \
-                        emb_part, emb_vars_used_by_sub_emb_part, scaled_point)
+                    par_vars_used = self._varsUsedByEmbVarsOfEmbPart(emb_part, emb_vars_used_by_sub_emb_part, scaled_point)
                     tup = (sub_emb_part, sub_scaled_point, par_vars_used)
                     info_list.append(tup)
                 
