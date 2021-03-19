@@ -1842,7 +1842,7 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         pmos_modelname = 'P_18_MM'
         
         #build library
-        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vcc, self.approxMosModels())
+        lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vcc, None)
         library = OpLibrary(lib_ss)
         
         #build embedded part

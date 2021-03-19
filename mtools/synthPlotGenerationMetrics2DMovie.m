@@ -49,8 +49,8 @@ function mv = synthPlotGenerationMetrics2DMovie(datasets, metric1, metric2, form
         min_y=min(min_y,min(data{1}.data(:,metric2_idx)));
     end
     
-    for data=datasets
-        synthPlotGenerationMetrics2D(data, metric1, metric2, format);
+    for data = datasets
+        synthPlotGenerationMetrics2D(data{1}, metric1, metric2, format);
         
         axis([min_x max_x min_y max_y])
         

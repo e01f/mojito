@@ -29,6 +29,9 @@ function [metrics, scaled,unscaled] = synthLoadMultipleStates(problem, base_dir,
 %
 %  The output of this can be readily used by synthPlotGenerationMetrics2DMovie
 %
+    python = '"C:/Program Files/Python37/python.exe"';
+    m_path = 'C:/Users/Alexander/Documents/BA/mojito';
+    wd = cd;
 
     metrics={};
     scaled={};
@@ -53,10 +56,11 @@ function [metrics, scaled,unscaled] = synthLoadMultipleStates(problem, base_dir,
                 continue
             end
         end
-            
-        cmd=['./summarize_db.py ' num2str(problem) ' ' base_dir '/' state_file ' None temp_metrics temp_points'];
+        cd(m_path);
+        cmd = [python ' ./summarize_db.py ' num2str(problem) ' ' base_dir '/' state_file ' None temp_metrics temp_points'];
         system(cmd);
-        metrics{i} = synthImportMetrics('temp_metrics');
-        [scaled{i}, unscaled{i}] = synthImportPoints('temp_points');
+        cd(wd);
+        metrics{i} = synthImportMetrics([m_path '/temp_metrics']);
+        [scaled{i}, unscaled{i}] = synthImportPoints([m_path '/temp_points']);
         i = i + 1;
     end

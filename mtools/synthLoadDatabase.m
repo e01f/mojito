@@ -30,9 +30,16 @@ if size(dir(filename),1)==0
     disp(['Cannot find file: ' filename]);
     return
 end
-            
-cmd=['./summarize_db.py ' num2str(problem) ' ' filename ' None temp_metrics temp_points'];
+
+python = '"C:/Program Files/Python37/python.exe"';
+m_path = 'C:/Users/Alexander/Documents/BA/mojito';
+wd = cd;
+
+cd(m_path);
+cmd=[python ' ./summarize_db.py ' num2str(problem) ' ' filename ' None temp_metrics temp_points'];
 system(cmd);
+cd(wd);
+
 metrics = synthImportMetrics('temp_metrics');
 [scaled, unscaled] = synthImportPoints('temp_points');
 
