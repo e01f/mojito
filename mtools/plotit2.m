@@ -1,6 +1,7 @@
 problem = 103;
 base    = 'C:\Users\Alexander\Documents\BA\mojito\mtools\results\run-103-27.01.2021-9190a223';
 objsfil = 'C:\Users\Alexander\Documents\BA\mojito\mtools\plot-settings\objectives-103';
+run('C:\Users\Alexander\Documents\BA\mojito\mtools\plot-settings\objectives_103.m');
 mtoolsd = 'C:\Users\Alexander\Documents\BA\mojito\mtools';
 python  = '"C:/Program Files/Python37/python.exe"';
 m_path  = 'C:/Users/Alexander/Documents/BA/mojito';
@@ -61,46 +62,51 @@ if 1
     font_size = 11; %10 is default
     font_weight = 'bold'; %'normal' or 'bold'
     
-    %affects relative size of plotted area vs. whitespace surrounding
-    %outer_position = [-.2 -.2 1.4 1.4]; %[left bottom width height, all normalized] default [0 0 1 1]
-    outer_position = [0 0 1 1]; %[left bottom width height, all normalized] default [0 0 1 1]
-    
     %h = plotmatrix(objective_X','o');
     %set(h, 'MarkerSize','3');
     
     %linetypes = 'ox+*sdv^<>phox+';
     num_objs = size(objective_X, 1);
     subplot_i = 0;
-    
-    %hack so that we don't have to have "*10^9" on the slewrate axis
-    objective_vars2 = objective_vars;
-    %objective_vars2{5} = 'slewrate / 10^9'; %
-    objective_X2 = objective_X;
-    %objective_X2(5,:) = objective_X2(5,:) / 1e9; %
         
     for row_i = 1:num_objs
         for col_j = 1:num_objs
             subplot_i = subplot_i + 1;
             h = subplot(num_objs, num_objs, subplot_i);
             if row_i == col_j
-                hist(objective_X2(row_i,:), 20);
+                hist(objective_X(row_i,:), 20);
+                yExponent = getAxExponent(objective_X(row_i,:));
+                xExponent = getAxExponent(objective_X(col_j,:));
             else
-                pl = plot(objective_X2(col_j,:), objective_X2(row_i,:), 'k+', 'MarkerSize', 5);
+                pl = plot(objective_X(col_j,:), objective_X(row_i,:), 'k+', 'MarkerSize', 5);
                 ax = ancestor(pl, 'axes');
+                
+                goalInfoIdx = find(ismember({s.name}, objective_vars{row_i}));
+                if (size(goalInfoIdx, 2) > 0)
+                    hline = refline(ax, [0 s(goalInfoIdx).min]);
+                    hline.Color = 'r';
+                    hline = refline(ax, [0 s(goalInfoIdx).max]);
+                    hline.Color = 'r';
+                    hline = refline(ax, [0 s(goalInfoIdx).goal]);
+                    hline.Color = 'g';
+                end
                 if fancyFmt
-                    formatAxisTicks(ax, objective_X2(row_i,:), true);
-                    formatAxisTicks(ax, objective_X2(col_j,:), false);
+                    yExponent = formatAxisTicks(ax, objective_X(row_i,:), true);
+                    xExponent = formatAxisTicks(ax, objective_X(col_j,:), false);
+                else
+                    yExponent = getAxExponent(objective_X(row_i,:));
+                    xExponent = getAxExponent(objective_X(col_j,:));
                 end
             end
             
             %set y-label and y-tick marks (on 1st column, with exceptions)
             if (col_j == 1 && row_i == 1)
-                ylabel(objective_vars2{row_i}, 'FontSize', [font_size], 'FontWeight', font_weight);
+                axisLabel(objective_vars{row_i}, yExponent, true, font_size, font_weight)
                 set(h, 'YTickLabel', '');
             elseif (col_j == num_objs && row_i == 1)
                 set(h, 'YAxisLocation', 'right');
             elseif (col_j == 1)
-                ylabel(objective_vars2{row_i}, 'FontSize', [font_size], 'FontWeight', font_weight);
+                axisLabel(objective_vars{row_i}, yExponent, true, font_size, font_weight)
                 %annotation('textbox',[0 0.1 0.1 0.1],'interpreter','latex','String','$\times 10^{-12}$', 'FitBoxToText','on', 'EdgeColor', 'none');
             else
                 set(h, 'YTickLabel', '');
@@ -108,12 +114,12 @@ if 1
                         
             %set x-label and x-tick marks
             if (row_i == num_objs && col_j == num_objs)
-                xlabel(objective_vars2{col_j}, 'FontSize', [font_size], 'FontWeight', font_weight);
+                axisLabel(objective_vars{col_j}, xExponent, false, font_size, font_weight);
                 set(h, 'XTickLabel', '');
             elseif (row_i == 1 && col_j == num_objs)
                 set(h, 'XAxisLocation', 'top');
             elseif (row_i == num_objs)
-                xlabel(objective_vars2{col_j}, 'FontSize', [font_size], 'FontWeight', font_weight);
+                axisLabel(objective_vars{col_j}, xExponent, false, font_size, font_weight);
             else
                 set(h, 'XTickLabel', '');
             end
@@ -129,12 +135,29 @@ if 1
     end
 end
 
-function formatAxisTicks(ax, data, isY)
+function axisLabel(axLbl, axExponent, isY, font_size, font_weight)
+    if ~(axExponent == 0)
+        axLbl = [axLbl ' x 10^{' num2str(axExponent) '}'];
+    end
+    if isY
+        ylabel(axLbl, 'FontSize', [font_size], 'FontWeight', font_weight);
+    else
+        xlabel(axLbl, 'FontSize', [font_size], 'FontWeight', font_weight);
+    end
+end
+
+function axExponent = getAxExponent(data)
+    axMin = min(data);
+    axExponent = floor(log10(abs(axMin)));
+end
+
+function axExponent = formatAxisTicks(ax, data, isY)
      axMin = min(data);
      axMax =  max(data);
      axTicks = linspace(axMin, axMax, 5);
      %axTicklabels = num2cell((axTicks./(10.^floor(log10(axTicks)))));
-     axFactor = 10^floor(log10(abs(axMin)));
+     axExponent = floor(log10(abs(axMin)));
+     axFactor = 10^axExponent;
      axMagnitude = (axMax - axMin);
      axMagnitudeScaled = axMagnitude/axFactor;
      axNumMagnitudeDecades = floor(log10(1/axMagnitudeScaled));
