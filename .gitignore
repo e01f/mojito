@@ -1,5 +1,6 @@
 *.pyc
 *.clustermodel
-mtools/mojito-tests/
 /temp_metrics.*
 /temp_points.*
+autogen_simfiles
+*.asv
