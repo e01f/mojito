@@ -25,6 +25,8 @@ cmd = [python ' ./summarize_db.py ' num2str(problem) ' ' base '/' state_file ' N
 system(cmd);
 cd(wd);
 
+fancyFmt = 1;
+
 %(not used, so turned off)
 %[scaled, unscaled] = synthImportPoints([base '_points']);  
 %all_unscaled_vars = unscaled.header; % {var index}
@@ -52,7 +54,9 @@ end
 %maybe do 2d scatterplot grid
 %objective_X = objectives.data'; % [objective index][sample index]
 if 1
-    figure(4);
+    fig4 = figure(4);
+    fig4.Position(1:2) = [400 0];
+    fig4.Position(3:4) = [1024 768];
     font_size = 11; %10 is default
     font_weight = 'bold'; %'normal' or 'bold'
     
@@ -80,25 +84,23 @@ if 1
             if row_i == col_j
                 hist(objective_X2(row_i,:), 20);
             else
-                %hold off;
                 pl = plot(objective_X2(col_j,:), objective_X2(row_i,:), 'k+', 'MarkerSize', 5);
                 ax = ancestor(pl, 'axes');
-                ax.XAxis.Exponent = 0;
-                xtickformat('%.2f');
-                ax.YAxis.Exponent = 0;
-                ytickformat('%.2f');
-                %plot(objective_X2(col_j,onestage_sample_I), objective_X2(row_i,onestage_sample_I), 'ks', 'MarkerSize', 5);
-                %hold on;
-                %plot(objective_X2(col_j,twostage_sample_I), objective_X2(row_i,twostage_sample_I), 'k+', 'MarkerSize', 5);
-                %hold off;              
+                if fancyFmt
+                    formatAxisTicks(ax, objective_X2(row_i,:), true);
+                    formatAxisTicks(ax, objective_X2(col_j,:), false);
+                end
             end
             
             %set y-label and y-tick marks (on 1st column, with exceptions)
             if (col_j == 1 && row_i == 1)
                 ylabel(objective_vars2{row_i}, 'FontSize', [font_size], 'FontWeight', font_weight);
-                %set(h, 'YTickLabel', '');
+                set(h, 'YTickLabel', '');
+            elseif (col_j == num_objs && row_i == 1)
+                set(h, 'YAxisLocation', 'right');
             elseif (col_j == 1)
                 ylabel(objective_vars2{row_i}, 'FontSize', [font_size], 'FontWeight', font_weight);
+                %annotation('textbox',[0 0.1 0.1 0.1],'interpreter','latex','String','$\times 10^{-12}$', 'FitBoxToText','on', 'EdgeColor', 'none');
             else
                 set(h, 'YTickLabel', '');
             end
@@ -106,7 +108,9 @@ if 1
             %set x-label and x-tick marks
             if (row_i == num_objs && col_j == num_objs)
                 xlabel(objective_vars2{col_j}, 'FontSize', [font_size], 'FontWeight', font_weight);
-                %set(h, 'XTickLabel', '');
+                set(h, 'XTickLabel', '');
+            elseif (row_i == 1 && col_j == num_objs)
+                set(h, 'XAxisLocation', 'top');
             elseif (row_i == num_objs)
                 xlabel(objective_vars2{col_j}, 'FontSize', [font_size], 'FontWeight', font_weight);
             else
@@ -115,11 +119,43 @@ if 1
             
             set(h, 'FontSize', [font_size], 'FontWeight', font_weight);
             %set(h, 'OuterPosition', outer_position);
-            %pos = get(h, 'Position');
-            %dw = 0.01;
-            %dh = 0.015;
-            %newpos = [pos(1)-dw, pos(2)-dh, pos(3)+dw*2, pos(4)+dh*2];
-            %set(h, 'Position', newpos);
+            pos = get(h, 'Position');
+            dw = 0.01;
+            dh = 0.01;
+            newpos = [pos(1)-dw, pos(2)-dh, pos(3)+dw*2, pos(4)+dh*2];
+            set(h, 'Position', newpos);
         end
     end
+end
+
+function formatAxisTicks(ax, data, isY)
+     axMin = min(data);
+     axMax =  max(data);
+     axTicks = linspace(axMin, axMax, 5);
+     %axTicklabels = num2cell((axTicks./(10.^floor(log10(axTicks)))));
+     axFactor = 10^floor(log10(axMin));
+     axMagnitude = (axMax - axMin);
+     axMagnitudeScaled = axMagnitude/axFactor;
+     axNumMagnitudeDecades = floor(log10(1/axMagnitudeScaled));
+     axTickLabelsScaled = axTicks./axFactor;
+     %'%0.1f'
+     axFormatStr = sprintf('%%0.%df', max(axNumMagnitudeDecades + 1, 0));
+     axTicklabels = cellfun(@(s)sprintf(axFormatStr, s), num2cell(axTickLabelsScaled),'UniformOutput',false);
+     
+     if (isY)
+     ax.YTickLabelMode = 'manual';
+     ax.YTickMode = 'manual';
+     ax.YTick = axTicks;
+     ax.YTickLabel = axTicklabels;
+     ax.YLimMode = 'manual';
+     ax.YLim = [(axMin - axMagnitude*0.05) (axMax + axMagnitude*0.05)];
+     else
+        ax.XTickLabelMode = 'manual';
+        ax.XTickLabelRotation = 90;
+        ax.XTickMode = 'manual';
+        ax.XTick = axTicks;
+        ax.XTickLabel = axTicklabels;
+        ax.XLimMode = 'manual';
+        ax.XLim = [(axMin - axMagnitude*0.05) (axMax + axMagnitude*0.05)];
+     end
 end
