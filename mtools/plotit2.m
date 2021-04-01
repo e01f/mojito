@@ -134,14 +134,23 @@ function formatAxisTicks(ax, data, isY)
      axMax =  max(data);
      axTicks = linspace(axMin, axMax, 5);
      %axTicklabels = num2cell((axTicks./(10.^floor(log10(axTicks)))));
-     axFactor = 10^floor(log10(axMin));
+     axFactor = 10^floor(log10(abs(axMin)));
      axMagnitude = (axMax - axMin);
      axMagnitudeScaled = axMagnitude/axFactor;
      axNumMagnitudeDecades = floor(log10(1/axMagnitudeScaled));
      axTickLabelsScaled = axTicks./axFactor;
      %'%0.1f'
-     axFormatStr = sprintf('%%0.%df', max(axNumMagnitudeDecades + 1, 0));
-     axTicklabels = cellfun(@(s)sprintf(axFormatStr, s), num2cell(axTickLabelsScaled),'UniformOutput',false);
+     extraDigits = 1;
+     while extraDigits < 10
+        numDigits = max(axNumMagnitudeDecades + extraDigits, 0);
+        axFormatStr = sprintf('%%0.%df', numDigits);
+        axTicklabels = cellfun(@(s)sprintf(axFormatStr, round(s, numDigits)), num2cell(axTickLabelsScaled),'UniformOutput',false);
+        if (length(axTicklabels) - length(unique(axTicklabels)) > 0)
+             extraDigits = extraDigits + 1;
+        else
+             break
+        end
+     end
      
      if (isY)
      ax.YTickLabelMode = 'manual';
