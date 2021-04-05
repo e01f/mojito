@@ -74,7 +74,8 @@ if 1
             subplot_i = subplot_i + 1;
             h = subplot(num_objs, num_objs, subplot_i);
             if row_i == col_j
-                hist(objective_X(row_i,:), 20);
+                histogram(objective_X(row_i,:), 20);
+                setAxLimits(gca, objective_X(row_i,:), false);
                 yExponent = getAxExponent(objective_X(row_i,:));
                 xExponent = getAxExponent(objective_X(col_j,:));
             else
@@ -127,9 +128,11 @@ if 1
             set(h, 'FontSize', [font_size], 'FontWeight', font_weight);
             %set(h, 'OuterPosition', outer_position);
             pos = get(h, 'Position');
+            xOffs = 0.00;
+            yOffs = 0.02;
             dw = 0.01;
             dh = 0.01;
-            newpos = [pos(1)-dw, pos(2)-dh, pos(3)+dw*2, pos(4)+dh*2];
+            newpos = [pos(1)-xOffs-dw, pos(2)-yOffs-dh, pos(3)+dw*2, pos(4)+dh*2];
             set(h, 'Position', newpos);
         end
     end
@@ -143,6 +146,17 @@ function axisLabel(axLbl, axExponent, isY, font_size, font_weight)
         ylabel(axLbl, 'FontSize', [font_size], 'FontWeight', font_weight);
     else
         xlabel(axLbl, 'FontSize', [font_size], 'FontWeight', font_weight);
+    end
+end
+
+function setAxLimits(ax, data, isY)
+    axMin = min(data);
+    axMax =  max(data);
+    axMagnitude = (axMax - axMin);
+    if (isY)
+        ax.YLim = [(axMin - axMagnitude*0.05) (axMax + axMagnitude*0.05)];
+    else
+        ax.XLim = [(axMin - axMagnitude*0.05) (axMax + axMagnitude*0.05)];
     end
 end
 
