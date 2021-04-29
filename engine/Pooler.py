@@ -134,7 +134,7 @@ class Pooler:
         f = open(self.db_dirs_file, 'r')
         lines_list = f.readlines()
         f.close()
-        db_dirs = string.join(lines_list).split()
+        db_dirs = "".join(lines_list).split()
         log.info('Will try to read from these db_dirs: %s' % db_dirs)
 
         #2. read each db in (it's ok if a db doesn't exist)

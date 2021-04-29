@@ -420,7 +420,7 @@ def fastNondominatedSort(P, minmax_metrics, max_num_inds=None,
     #make sure we don't exceed max_num_inds
     if numIndsInNestedPop(F) > max_num_inds:
         num_extra = numIndsInNestedPop(F) - max_num_inds
-        num_keep = max(0, len(F[-1]) - num_extra)
+        num_keep = int(max(0, len(F[-1]) - num_extra))
         F[-1] = random.sample(F[-1], num_keep)
 
     #if the last list_of_inds in F is empty, remove it
