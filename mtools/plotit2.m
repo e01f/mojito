@@ -1,11 +1,4 @@
-problem = 103;
-base    = 'C:\Users\Alexander\Documents\BA\mojito\mtools\results\run-103-27.01.2021-9190a223';
-objsfil = 'C:\Users\Alexander\Documents\BA\mojito\mtools\plot-settings\objectives-103';
-run('C:\Users\Alexander\Documents\BA\mojito\mtools\plot-settings\objectives_103.m');
-mtoolsd = 'C:\Users\Alexander\Documents\BA\mojito\mtools';
-python  = '"C:/Program Files/Python37/python.exe"';
-m_path  = 'C:/Users/Alexander/Documents/BA/mojito';
-state_file = 'state_gen0105.db';
+run('plotsettings.m');
 
 % Step 1
 %dataset1 = synthLoadMultipleStates(103, testdat);
@@ -24,7 +17,7 @@ state_file = 'state_gen0105.db';
 wd = cd;
 cd(m_path);
 cmd = [python ' ./summarize_db.py ' num2str(problem) ' ' base '/' state_file ' None temp_metrics temp_points'];
-system(cmd);
+%system(cmd);
 cd(wd);
 
 fancyFmt = 1;
@@ -37,7 +30,7 @@ fancyFmt = 1;
 %'objective_X' has _only_ metric_value data for objectives; not ind_ID etc
 objectives = synthImportObjectives(objsfil, [m_path '\temp_metrics']);
 objective_vars = objectives.header; % {objective index}
-objective_X = objectives.data'; % [objective index][sample index]
+objective_X = rmoutliers(objectives.data)'; % [objective index][sample index]
 for i = 1:length(objective_vars)
     objective_vars{i} = strrep(objective_vars{i}, '_', ' ');
 end
