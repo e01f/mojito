@@ -63,7 +63,7 @@ class ApproxMosModels:
                 
         # correct for the device multiplier
         new_point=copy.copy(input_point)
-        new_point['Ids']=new_point['Ids']/mult;
+        new_point['Ids']=new_point['Ids']/mult
                 
         return self._nmos_model.simulatePoint(new_point)
 
@@ -73,7 +73,7 @@ class ApproxMosModels:
         
         # correct for the device multiplier
         new_point=copy.copy(input_point)
-        new_point['Ids']=new_point['Ids']/mult;
+        new_point['Ids']=new_point['Ids']/mult
         
         return self._pmos_model.simulatePoint(new_point)
         
@@ -364,7 +364,7 @@ class OpLibrary(Library):
         rvm['fracVgnd'] = ContinuousVarMeta(False, 0.0, 0.5, 'fracVgnd')
         
         rvm['W'] = ContinuousVarMeta(False, ss.min_W, ss.max_W, 'W')
-        rvm['L'] = ContinuousVarMeta(False, ss.min_L, ss.max_L, 'L')
+        #rvm['L'] = ContinuousVarMeta(False, ss.min_L, ss.max_L, 'L')
         rvm['M'] = DiscreteVarMeta(range(ss.min_M, ss.max_M+1), 'M')
         rvm['K'] = DiscreteVarMeta(range(ss.min_K, ss.max_K+1), 'K')
 
@@ -1036,7 +1036,7 @@ class OpLibrary(Library):
         pm = PointMeta({})
         pm['Ids']= self.buildVarMeta('Ids','Ids')
 
-        res_varmeta_map={'V':'Vds','I':'Ids'};
+        res_varmeta_map={'V':'Vds','I':'Ids'}
         
         diode_varmeta_map = diode_part.unityVarMap()
         
@@ -3069,7 +3069,7 @@ class OpLibrary(Library):
                        }
         pm = self.updatePointMeta(pm, ssvi_part, ssvi_varmap)
         pm = self.updatePointMeta(pm, bias_part, bias_varmap, True)
-        del pm['Vds'];
+        del pm['Vds']
         
         #build the main part
         part = CompoundPart(['Vin1', 'Vin2', 'Iout1', 'Iout2',
@@ -4425,7 +4425,7 @@ class OpLibrary(Library):
         
         # make sure the chosen_part_index from the onestage is connected
         # right
-        onestage_functions=onestage_varmap;
+        onestage_functions=onestage_varmap
         onestage_functions['chosen_part_index']='stage1_loadrail_is_vdd'
 
         #build the main part
@@ -4862,9 +4862,9 @@ class OpLibrary(Library):
         pm = PointMeta({})
 
         wire_varmeta_map = wire_part.unityVarMap()
-        wire_varmeta_map['chosen_part_index'] = 'chosen_part_index_wire';
+        wire_varmeta_map['chosen_part_index'] = 'chosen_part_index_wire'
         oc_varmeta_map = oc_part.unityVarMap()
-        oc_varmeta_map['chosen_part_index'] = 'chosen_part_index_oc';
+        oc_varmeta_map['chosen_part_index'] = 'chosen_part_index_oc'
         
         pm = self.updatePointMeta(pm, wire_part, wire_varmeta_map)
         pm = self.updatePointMeta(pm, oc_part, oc_varmeta_map)
@@ -5090,7 +5090,7 @@ class OpLibrary(Library):
         r2 = self.eSeriesResistor()
 
         r1uVM = r1.unityVarMap()
-        r2uVM = {'R' : 'R2'}
+        r2uVM = {'R': 'R2'}
 
         pm = PointMeta({})
 
@@ -5098,10 +5098,10 @@ class OpLibrary(Library):
         pm = self.updatePointMeta(pm, r2, r2uVM)
 
         part = CompoundPart(['1', '2', '3'], pm, name)
-        part.addPart(r1, {'1':'1','2':'2'}, r1uVM)
-        part.addPart(r2, {'1':'2','2':'3'}, r2uVM)
+        part.addPart(r1, {'1': '1', '2': '2'}, r1uVM)
+        part.addPart(r2, {'1': '2', '2': '3'}, r2uVM)
 
-        part.addToSummaryStr('resistiveDivider','')
+        part.addToSummaryStr('resistiveDivider', '')
 
         self._parts[name] = part
         return part
@@ -5480,7 +5480,7 @@ class OpLibrary(Library):
         n6 = part.addInternalNode()
         n7 = part.addInternalNode()
         part.addPart(ampOrComp_mux,         {'1': n4, '2': n5, '3': n6, '4': n7}, pm_ampOrComp_mux)
-        
+
 
         n8 = part.addInternalNode()
         part.addPart(opv1,                  {'IN+': n6, 'IN-': n7, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': n8}, {})
@@ -5493,7 +5493,7 @@ class OpLibrary(Library):
         part.addPart(opBiasOCOrRCLVee,      {'1': 'Out',    '2': 'Vee'},  pm_opBiasOCOrRCLVee)
 
 
-        part.addToSummaryStr('opvCircuit','')
+        part.addToSummaryStr('opvCircuit', '')
 
         self._parts[name] = part
         return part
