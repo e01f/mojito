@@ -2,17 +2,18 @@
 #
 # start n parallel synth runs on this machine
 #
-NUMPROCS=8
+NUMPROCS=16
 
 POPSIZE=100
 POOL_SIZE=100
-PROBLEM_NUMBER=32
+PROBLEM_NUMBER=103
 
-SYNTH_DIR="C:\BA\mojito"
+SYNTH_DIR="C:\\BA\\mojito"
 RUN_DIR="run1"
 
-RESULT_BASE_DIR="C:\BA\mojito-tests-$RUN_DIR"
+RESULT_BASE_DIR="C:\\BA\\mojito-tests-$RUN_DIR"
 RESULT_PREFIX="OP"
+RESULT_DATABASE_FILE="$RESULT_BASE_DIR/result.db"
 
 POOL_DATABASE_FILE="$RESULT_BASE_DIR/pooled.db"
 POOL_DIRLIST_FILE="$RESULT_BASE_DIR/pool.dirs"
@@ -41,4 +42,13 @@ echo "Startup complete. Wait for pool..."
 
 ./pooler.py $PROBLEM_NUMBER "$POOL_DIRLIST_FILE" "$POOL_DATABASE_FILE" "$POOL_SIZE"
 
+# To stop, use the following:
+#  1. taskkill /IM python.exe /F
+#  2. taskkill /IM hspice.com /F
+#     (this works best if hspice.EXE -C was used to start client/server mode so the server isn't killed)
+
 echo "Pooling complete."
+
+echo "Aggregation..."
+
+./aggregator.py $PROBLEM_NUMBER "$POOL_DIRLIST_FILE" "$RESULT_DATABASE_FILE"
