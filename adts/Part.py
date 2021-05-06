@@ -86,12 +86,12 @@ class WireFactory:
           zero resistance.          
         """ 
         wire_part = self.__class__._wire_part
-        if wire_part is None: 
-            res_pointmeta = PointMeta( [ContinuousVarMeta(False, 0,0, 'R')] )
-            res_part = AtomicPart('R', ['1','2'], res_pointmeta, name='wire_res')
+        if wire_part is None:
+            res_pointmeta = PointMeta([ContinuousVarMeta(False, 0, 0, 'R')])
+            res_part = AtomicPart('R', ['1', '2'], res_pointmeta, name='wire_res')
 
-            wire_part = CompoundPart(['1','2'], PointMeta({}), 'wire')
-            wire_part.addPart(res_part, {'1':'1', '2':'2'}, {'R':0.0} )
+            wire_part = CompoundPart(['1', '2'], PointMeta({}), 'wire')
+            wire_part.addPart(res_part, {'1': '1', '2': '2'}, {'R': 0.0})
             self.__class__._wire_part = wire_part
         return wire_part
 
@@ -1168,9 +1168,15 @@ class EmbeddedPart:
         assert scaled_point.is_scaled
         
         if isinstance(self.part, AtomicPart):
-            return 1
+            if self.part.name == 'wire_res':
+                # wires (and open circuits, obviously) don't count towards part count
+                return 0
+            else:
+                # all other AtomicParts count
+                return 1
         
-        else: # CompoundPart or FlexPart
+        else:
+            # CompoundPart or FlexPart
             emb_parts = self.part.embeddedParts(scaled_point)
             
             num_atomic_parts = 0                    

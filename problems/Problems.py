@@ -2038,6 +2038,12 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
                         
         op_an2 = CircuitAnalysis(op_env_points2, op_metrics2, sim2)
         analyses.append(op_an2)
+
+        # -------------------------------------------------------
+        # function analysis
+        # minimize number of atomic parts
+        an0 = FunctionAnalysis(embedded_part.numAtomicParts, [EnvPoint(True)], float('-Inf'), 9999, True)
+        analyses.append(an0)
        
         #-------------------------------------------------------
         #add function DOCs analysis

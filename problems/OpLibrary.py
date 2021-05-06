@@ -922,7 +922,7 @@ class OpLibrary(Library):
         
         part.addFunctionDOC(doc)
         
-        # the SimulationDOC's are DOC's derrived from simulation output.
+        # the SimulationDOC's are DOC's derived from simulation output.
         metric = Metric('operating_region', REGION_SATURATION,
                         REGION_SATURATION, False)
         function = 'region'
