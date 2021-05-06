@@ -1700,23 +1700,23 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
         @return
           ps -- ProblemSetup object
         """
-        #settable parameters
+        # settable parameters
         vcc = 10.0
         vee = -10.0
         feature_size = 0.18e-06
         nmos_modelname = 'N_18_MM'
         pmos_modelname = 'P_18_MM'
         
-        #build library
+        # build library
         lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vcc, self.approxMosModels())
         library = OpLibrary(lib_ss)
         
-        #build embedded part
+        # build embedded part
         # invAmpCircuit has ports: In, Out, Vcc, Vee, gnd
         part = library.invAmpCircuit()
 
-        #the keys of 'connections' are the external ports of 'part'
-        #the value corresponding to each key must be in the test_fixture_strings
+        # the keys of 'connections' are the external ports of 'part'
+        # the value corresponding to each key must be in the test_fixture_strings
         # that are below
         connections = {'In': 'nVin', 'Out': 'nout', 'Vcc': 'nVcc', 'Vee': 'nVee', 'gnd': 'gnd'}
 
@@ -1726,11 +1726,11 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
             
         embedded_part = EmbeddedPart(part, connections, functions)
 
-        #we'll be building this up
+        # we'll be building this up
         analyses = []
 
-        #-------------------------------------------------------
-        #shared info between analyses
+        # -------------------------------------------------------
+        # shared info between analyses
         # (though any of this can be analysis-specific if we'd wanted
         #  to set them there instead)
         pwd = os.getenv('PWD')
@@ -1743,8 +1743,8 @@ EPWR1 pwrnode gnd volts='-pVdcin*I(Vindc)'
         simulator_options_string = "\n.include %ssimulator_options.inc\n" % cir_file_path
         models_string = "\n.include %smodels.inc\n" % cir_file_path
 
-        #-------------------------------------------------------
-        #build op analysis
+        # -------------------------------------------------------
+        # build op analysis
         d = {
              'pRload': 10000000,
              'pVcc': vcc,
@@ -1788,7 +1788,7 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
                       Metric('voutrms', 2.4, 2.6, True)
                       ]
 
-        #if we use a .lis output like 'region' or 'vgs' even once in
+        # if we use a .lis output like 'region' or 'vgs' even once in
         # order to constrain DOCs via perc_DOCs_met, list it here
         # (if you forget a measure, it _will_ complain)
         doc_measures = ['test']
@@ -1808,16 +1808,16 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
         analyses.append(op_an)
 
-        #-------------------------------------------------------
+        # -------------------------------------------------------
         # no transient analysis
        
-        #-------------------------------------------------------
-        #add function DOCs analysis
+        # -------------------------------------------------------
+        # add function DOCs analysis
         funcDOCs_an = FunctionAnalysis(embedded_part.functionDOCsAreFeasible, [EnvPoint(True)], 0.99, float('Inf'), False)
         analyses.append(funcDOCs_an)
         
-        #-------------------------------------------------------
-        #finally, build PS and return
+        # -------------------------------------------------------
+        # finally, build PS and return
         ps = ProblemSetup(embedded_part, analyses)
         return ps
 
@@ -1834,37 +1834,37 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         @return
           ps -- ProblemSetup object
         """
-        #settable parameters
+        # settable parameters
         vcc = 10.0
         vee = -10.0
         feature_size = 0.18e-06
         nmos_modelname = 'N_18_MM'
         pmos_modelname = 'P_18_MM'
         
-        #build library
+        # build library
         lib_ss = OpLibraryStrategy(feature_size, nmos_modelname, pmos_modelname, vcc, None)
         library = OpLibrary(lib_ss)
         
-        #build embedded part
+        # build embedded part
         # opvCircuit has ports: In, Out, Vcc, Vee, gnd
         part = library.opvCircuit()
 
-        #the keys of 'connections' are the external ports of 'part'
-        #the value corresponding to each key must be in the test_fixture_strings
+        # the keys of 'connections' are the external ports of 'part'
+        # the value corresponding to each key must be in the test_fixture_strings
         # that are below
         connections = {'In': 'nVin', 'Out': 'nout', 'Vcc': 'nVcc', 'Vee': 'nVee', 'gnd': 'gnd'}
 
         functions = {}
         for varname in part.point_meta.keys():
-            functions[varname] = None #these need to get set ind-by-ind
+            functions[varname] = None  # these need to get set ind-by-ind
             
         embedded_part = EmbeddedPart(part, connections, functions)
 
-        #we'll be building this up
+        # we'll be building this up
         analyses = []
 
-        #-------------------------------------------------------
-        #shared info between analyses
+        # -------------------------------------------------------
+        # shared info between analyses
         # (though any of this can be analysis-specific if we'd wanted
         #  to set them there instead)
         pwd = os.getenv('PWD')
@@ -1873,14 +1873,14 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         if pwd[-1] != '/':
             pwd += '/'
         cir_file_path = pwd + 'problems/zcd/'
-        max_simulation_time = 5 #in seconds
+        max_simulation_time = 5  # in seconds
         simulator_options_string = "\n.include %ssimulator_options.inc\n" % cir_file_path
         models_string = "\n.include %smodels.inc\n" % cir_file_path
 
-        #-------------------------------------------------------
+        # -------------------------------------------------------
         # no op analysis
 
-        #-------------------------------------------------------
+        # -------------------------------------------------------
         # transient analysis (includes op analysis)
         d = {
              'pRload': 10000000,
@@ -1942,7 +1942,7 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
                       Metric('toutzc4', 2.4/d['fTest'], 2.6/d['fTest'], True)
                       ]
 
-        #if we use a .lis output like 'region' or 'vgs' even once in
+        # if we use a .lis output like 'region' or 'vgs' even once in
         # order to constrain DOCs via perc_DOCs_met, list it here
         # (if you forget a measure, it _will_ complain)
         doc_measures = ['test']
@@ -1951,7 +1951,7 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
                          #'ic0':['pwrnode','fbmnode'],
                          #'ic0':['pwrnode']
                          #'lis':['perc_DOCs_met']
-                         },
+                        },
                         cir_file_path,
                         max_simulation_time,
                         simulator_options_string,
@@ -2022,19 +2022,19 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
                       Metric('toutzc4-2', 2.4/d2['fTest'], 2.6/d2['fTest'], True)
                       ]
 
-        #if we use a .lis output like 'region' or 'vgs' even once in
+        # if we use a .lis output like 'region' or 'vgs' even once in
         # order to constrain DOCs via perc_DOCs_met, list it here
         # (if you forget a measure, it _will_ complain)
         doc_measures2 = ['test']
         sim2 = Simulator({
-                         'mt0':['voutdc-2', 'voutav1-2', 'voutav2-2', 'voutav3-2', 'voutav4-2', 'voutpp1-2', 'voutpp2-2', 'voutpp3-2', 'voutpp4-2', 'toutzc1-2', 'toutzc2-2', 'toutzc3-2', 'toutzc4-2', 'maxpwr-2', 'avgpwr-2']
+                         'mt0': ['voutdc-2', 'voutav1-2', 'voutav2-2', 'voutav3-2', 'voutav4-2', 'voutpp1-2', 'voutpp2-2', 'voutpp3-2', 'voutpp4-2', 'toutzc1-2', 'toutzc2-2', 'toutzc3-2', 'toutzc4-2', 'maxpwr-2', 'avgpwr-2']
                          },
-                        cir_file_path,
-                        max_simulation_time,
-                        simulator_options_string,
-                        models_string,
-                        test_fixture_string2,
-                        doc_measures2)
+                         cir_file_path,
+                         max_simulation_time,
+                         simulator_options_string,
+                         models_string,
+                         test_fixture_string2,
+                         doc_measures2)
                         
         op_an2 = CircuitAnalysis(op_env_points2, op_metrics2, sim2)
         analyses.append(op_an2)
@@ -2045,12 +2045,12 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
         an0 = FunctionAnalysis(embedded_part.numAtomicParts, [EnvPoint(True)], float('-Inf'), 9999, True)
         analyses.append(an0)
        
-        #-------------------------------------------------------
-        #add function DOCs analysis
+        # -------------------------------------------------------
+        # add function DOCs analysis
         funcDOCs_an = FunctionAnalysis(embedded_part.functionDOCsAreFeasible, [EnvPoint(True)], 0.99, float('Inf'), False)
         analyses.append(funcDOCs_an)
         
-        #-------------------------------------------------------
-        #finally, build PS and return
+        # -------------------------------------------------------
+        # finally, build PS and return
         ps = ProblemSetup(embedded_part, analyses)
         return ps
