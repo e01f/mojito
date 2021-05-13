@@ -59,16 +59,16 @@ class ProblemFactory:
         @return
           ps -- ProblemSetup object --          
         """
-        known_problem_choices = [1,2,
-                                 31,32,
-                                 41,42,
-                                 51,52,
-                                 61,62,
-                                 71,72,
+        known_problem_choices = [1, 2,
+                                 31, 32,
+                                 41, 42,
+                                 51, 52,
+                                 61, 62,
+                                 71, 72,
                                  81,
-                                 101,102,103,
+                                 101, 102, 103,
                                  1001]
-        problem = None #fill this in
+        problem = None  # fill this in
         if problem_choice == 1:
             problem = self.maximizePartCount_Problem()
         elif problem_choice == 2:
@@ -149,7 +149,7 @@ class ProblemFactory:
         connections = part.unityPortMap()
         functions = {}
         for varname in part.point_meta.keys():
-            functions[varname] = None #these need to get set ind-by-ind
+            functions[varname] = None  # these need to get set ind-by-ind
             
         embedded_part = EmbeddedPart(part, connections, functions)
 

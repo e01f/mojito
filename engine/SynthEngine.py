@@ -314,13 +314,13 @@ class SynthEngine:
             log.info('This is an age_gap generation, so grow one more layer,'
                      ' and generate new random inds at layer 0')
             
-            #update age-layers population structure based on ages
-            # -just having an empty 'R' is ok because _updateR() will fill
-            #  it in by include the lower layer when choosing cand_parents
+            # update age-layers population structure based on ages
+            # - just having an empty 'R' is ok because _updateR() will fill
+            #   it in by including the lower layer when choosing cand_parents
             if R_per_age_layer.numAgeLayers() < self.ss.max_num_age_layers:
                 R_per_age_layer.append([])
         
-            #randomly genarate new inds for age layer 0 (a la ALPS)
+            # randomly genarate new inds for age layer 0 (a la ALPS)
             # (let the previous inds from layer 0 have one last chance by
             #  putting them into level 1)
             if R_per_age_layer.numAgeLayers() > 1:
@@ -330,19 +330,19 @@ class SynthEngine:
                    "the randomly-generated inds were not unique by performance"
             R_per_age_layer[0] = rand_inds
         
-        #incorporate migrants: put each migrant into the lowest layer
+        # incorporate migrants: put each migrant into the lowest layer
         # that it's allowed, so that it can aid search in as many layers
         # as possible (and so that it has a reasonable chance of competing)
         #
-        #NOTE: never allow migrants into age layer 0, because this can
-        #cause a problem.  Here is the scenario:
-        #-incoming migrants are would fit into layer-0, but are older
-        # than other layer-0 inds
-        #-but they have better performances, and thus would get selected for
-        #-but migrant-inds and offspring will get booted out of layer 0 before
-        # the current age_gap iteration is over
-        #-and then we will not have enough individuals in layer 0 for the
-        # next round of selection etc.
+        # NOTE: never allow migrants into age layer 0, because this can
+        # cause a problem.  Here is the scenario:
+        # - incoming migrants are would fit into layer-0, but are older
+        #   than other layer-0 inds
+        # - but they have better performances, and thus would get selected for
+        # - but migrant-inds and offspring will get booted out of layer 0 before
+        #   the current age_gap iteration is over
+        # - and then we will not have enough individuals in layer 0 for the
+        #   next round of selection etc.
         migrants = self.retrieveMigrants()
         for migrant in migrants:
             age_layer_i = self.ss.lowestAllowedAgeLayerOfMigrant(migrant.genetic_age, R_per_age_layer.numAgeLayers())
@@ -353,10 +353,10 @@ class SynthEngine:
                 R_per_age_layer[age_layer_i].append(migrant)
         R_per_age_layer.uniquifyInds()
 
-        #compute metric ranges
+        # compute metric ranges
         minmax_metrics = minMaxMetrics(self.ps, R_per_age_layer.flattened())
 
-        #MAIN WORK: one layer at a time, select and create children to get new R
+        # MAIN WORK: one layer at a time, select and create children to get new R
         # Note how elder_inds from level i bump up to level i+1.
         new_R_per_age_layer = AgeLayeredPop()
         elder_inds = []
@@ -370,7 +370,7 @@ class SynthEngine:
             new_R_per_age_layer.append(new_R)
             log.info(s + ': done')
 
-        #update self.state
+        # update self.state
         self.state.R_per_age_layer = new_R_per_age_layer
         log.info('Gen=%d: done' % self.state.generation)
         self.state.generation += 1
@@ -398,31 +398,30 @@ class SynthEngine:
         """
         N = self.ss.num_inds_per_age_layer
 
-        #get candidate parents
+        # get candidate parents
         cand_parents, elder_inds = self._alpsCandidateParents(R_per_age_layer, age_layer_i)
         
-        #cand_F = F[0] + F[1] + ... = nondominated layers
+        # cand_F = F[0] + F[1] + ... = nondominated layers
         cand_F = fastNondominatedSort(cand_parents, minmax_metrics, max_num_inds=N, metric_weights=self.ss.metric_weights)
 
-        #output state
+        # output state
         self.doStatusOutput(age_layer_i, cand_F)
 
-        #fill parent population P
+        # fill parent population P
         P = self._nsgaSelectInds(cand_F, N, minmax_metrics)
 
-        #use selection, mutation, and crossover to create a new child pop Q
-        # -note that the new pop gets evaluated within
+        # use selection, mutation, and crossover to create a new child pop Q
+        #  - note that the new pop gets evaluated within
         Q = self.makeNewPop(P)
 
-        #age the parents
+        # age the parents
         for ind in P:
             ind.genetic_age += 1
 
-        #combine parent and offspring population
+        # combine parent and offspring population
         R = P + Q
         return R, elder_inds
-            
- 
+
     def _alpsCandidateParents(self, R_per_age_layer, age_layer_i):
         """
         @description
@@ -446,7 +445,7 @@ class SynthEngine:
         cand_parents = []
         elder_inds = []
 
-        #add from layer i
+        # add from layer i
         for ind in uniqueIndsByPerformance(R):
             if self.ss.allowIndInAgeLayer(age_layer_i, ind.genetic_age, R_per_age_layer.numAgeLayers()):
                 cand_parents.append(ind)
@@ -455,7 +454,7 @@ class SynthEngine:
         num_from_layer_i = len(cand_parents)
         log.debug('From age layer %d, %d/%d inds are candidate parents' % (age_layer_i, num_from_layer_i, len(R)))
 
-        #add from layer i-1
+        # add from layer i-1
         if age_layer_i > 0:
             tabu_perfs = [cand_parent.worstCaseMetricValuesStr() for cand_parent in cand_parents]
             R1 = R_per_age_layer[age_layer_i-1]
@@ -489,24 +488,24 @@ class SynthEngine:
         N = target_num_inds
         P, i = [], 0
         while True:
-            #set 'distance' value to each ind in F[i]
+            # set 'distance' value to each ind in F[i]
             self.crowdingDistanceAssignment(F[i], minmax_metrics)
 
-            #stop if this next layer would overfill 
+            # stop if this next layer would overfill
             if len(P) + len(F[i]) > N: break
 
-            #include ith nondominated front in the parent pop P
+            # include ith nondominated front in the parent pop P
             P += F[i]
 
-            #stop if we're full
+            # stop if we're full
             if len(P) >= N:
                 P = P[:N]
                 break
 
-            #check the next front for inclusion
+            # check the next front for inclusion
             i += 1
 
-        #fill up the rest of P with elements of F[i], going
+        # fill up the rest of P with elements of F[i], going
         # for highest-distance inds first
         if len(P) < N:
             I = numpy.argsort([-ind.distance for ind in F[i]])
@@ -514,7 +513,7 @@ class SynthEngine:
 
             P += F[i][:(N-len(P))]
 
-        #ensure that references to parents in other layers don't hurt us
+        # ensure that references to parents in other layers don't hurt us
         # (don't deepcopy because we don't want to copy each 'S' attribute)
         P = [copy.copy(ind) for ind in P]
 
@@ -545,20 +544,20 @@ class SynthEngine:
         @return
           migrants -- list of Ind -- some migrants
         """
-        #corner cases: not interested in migration
+        # corner cases: not interested in migration
         if self.pooled_db_file is None: return []
         if self.ss.migration_rate == 0.0: return []
 
-        #corner case: no pooled db file exists
+        # corner case: no pooled db file exists
         # (though it may exist at other times in the run of this engine)
         if not os.path.exists(self.pooled_db_file): return []
 
-        #main case...
+        # main case...
 
-        #try to load candidate migrants
-        #-this may fail if we are in conflict with another process
-        # trying to access the pooled DB file.  No problem, just
-        # do it another time
+        # try to load candidate migrants
+        # - this may fail if we are in conflict with another process
+        #   trying to access the pooled DB file.  No problem, just
+        #   do it another time
         try:
             pooled_state = loadSynthState(self.pooled_db_file, self.ps)
             cand_migrants = pooled_state.allInds()
@@ -566,17 +565,17 @@ class SynthEngine:
             log.warning('Could not open pooled_db file for migration')
             return []
 
-        #choose num_migrants based on num_inds_per_age_layer and migration_rate
+        # choose num_migrants based on num_inds_per_age_layer and migration_rate
         N = self.ss.num_inds_per_age_layer
         min_num_migrants = 1
         max_num_migrants = N / 2
         num_migrants = int(self.ss.migration_rate * N)
         num_migrants = max(min_num_migrants,min(max_num_migrants,num_migrants))
 
-        #unique-ify cand_migrants
+        # unique-ify cand_migrants
         cand_migrants = uniqueIndsByPerformance(cand_migrants)
 
-        #choose migrants
+        # choose migrants
         if len(cand_migrants) <= num_migrants:
             migrants = cand_migrants
         else:
@@ -618,23 +617,23 @@ class SynthEngine:
         assert len(P) == N, (len(P), N)
         assert len(P) == len(uniqueIndsByPerformance(P))
         
-        #select parents
+        # select parents
         parents = []
         while len(parents) < len(P):
             ind_a, ind_b = random.choice(P), random.choice(P)
 
-            #first try selecting based on domination
+            # first try selecting based on domination
             if ind_a.rank < ind_b.rank:   parents.append(ind_a)
             elif ind_b.rank < ind_a.rank: parents.append(ind_b)
 
-            #if needed, select based on distance
+            # if needed, select based on distance
             elif ind_a.distance > ind_b.distance:  parents.append(ind_a)
             else:                                  parents.append(ind_b)
 
         #
         tabu_perfs = [ind.worstCaseMetricValuesStr() for ind in P]
 
-        #with parents, generate children via variation
+        # with parents, generate children via variation
         Q = []
         parent_index = 0
         while len(Q) < self.ss.num_inds_per_age_layer:
@@ -642,7 +641,7 @@ class SynthEngine:
             s_Q += " (generation=%d)" % self.state.generation
             log.info(s_Q)
             par1 = parents[parent_index]
-            if parent_index+1 == len(P): #happens whenever pop size is odd
+            if parent_index+1 == len(P):  # happens whenever pop size is odd
                 par2 = random.choice(parents)
             else:
                 par2 = parents[parent_index+1]
@@ -661,12 +660,12 @@ class SynthEngine:
                 else:
                     log.debug("Since unsuccessful in vary(), reloop: %s" % s_Q)
                     
-                    #once we've tried once with the original parents,
+                    # once we've tried once with the original parents,
                     # from now on it's a free-for-all (more robust this way)
                     par1 = random.choice(parents)
                     par2 = random.choice(parents)
 
-            #add children in a fashion that can handles an odd-numbered value
+            # add children in a fashion that can handles an odd-numbered value
             # for num_inds_per_age_layer
             Q.append(child1)
             parent_index += 1
@@ -674,7 +673,7 @@ class SynthEngine:
                 Q.append(child2) 
                 parent_index += 1
 
-        #done
+        # done
         assert len(Q) == N, (len(Q), N)
         assert len(P+Q) == len(uniqueIndsByPerformance(P+Q))
         return Q
@@ -694,17 +693,17 @@ class SynthEngine:
           <<none>> but alters the 'distance' attribute of each individual
            in layer_inds
         """
-        #corner case
+        # corner case
         if len(layer_inds) == 0:
             return
 
-        #initialize distance for each ind to 0.0
+        # initialize distance for each ind to 0.0
         for ind in layer_inds:
             ind.distance = 0.0
 
-        #increment distance for each ind on a metric-by-metric basis
+        # increment distance for each ind on a metric-by-metric basis
         for metric in self.ps.flattenedMetrics():
-            #retrieve max and min; if max==min then this metric won't
+            # retrieve max and min; if max==min then this metric won't
             # affect distance calcs
             (met_min,met_max) = minmax_metrics[metric.name]
             assert met_min > float('-Inf'), "can't scale on inf"
@@ -712,24 +711,23 @@ class SynthEngine:
             if met_min == met_max:
                 continue
 
-            #sort layer_inds and metvals, according to metvals 
+            # sort layer_inds and metvals, according to metvals
             metvals = [ind.worstCaseMetricValue(metric.name)
                        for ind in layer_inds]
             I = numpy.argsort(metvals)
             layer_inds = numpy.take(layer_inds, I)
             metvals = numpy.take(metvals, I)
 
-            #ensure that boundary points are always selected via dist = Inf
+            # ensure that boundary points are always selected via dist = Inf
             layer_inds[0].distance = float('Inf')
             layer_inds[-1].distance = float('Inf')
 
-            #all other points get distance set based on nearness to
+            # all other points get distance set based on nearness to
             # ind on both sides (scaled by the max and min seen on metric)
             for i in range(1,len(layer_inds)-1):
                 d = abs(metvals[i+1] - metvals[i-1]) / (met_max - met_min)
                 layer_inds[i].distance += d
-                
-            
+
     def doStatusOutput(self, age_layer_i, F):
         """
         @description
@@ -883,7 +881,7 @@ class SynthEngine:
            <<none>> but it modifies the ind's internal data
         """
         log.info('Evaluate ind...')
-        #functions first
+        # functions first
         for analysis in self.ps.functionAnalyses():
             for env_point in analysis.env_points:
                 sim_results = self.evalIndAtAnalysisEnvPoint(ind, analysis,
@@ -896,7 +894,7 @@ class SynthEngine:
                         ind.forceFullyBad()
                         return
         
-        #simulation only if still feasible after funcs
+        # simulation only if still feasible after funcs
         for analysis in self.ps.circuitAnalyses():
             
             for env_point in analysis.env_points:
@@ -933,41 +931,41 @@ class SynthEngine:
            sim_results -- dict of metric_name : metric_value -- the
              simulation values actually found
         """
-        #corner case: have already evaluated here
+        # corner case: have already evaluated here
         if ind.simRequestMade(analysis, env_point):
             return
 
-        #main case...
+        # main case...
         
-        #remember the request
+        # remember the request
         ind.reportSimRequest(analysis, env_point)
         self.state.num_evaluations_per_analysis[analysis.ID] += 1
         
-        #create 'scaled_point'
+        # create 'scaled_point'
         pm = self.ps.embedded_part.part.point_meta
         scaled_point = pm.scale(ind.genotype.unscaled_opt_point)
             
         if isinstance(analysis, FunctionAnalysis):
         
-            #call the function
+            # call the function
             function_result = analysis.function(scaled_point)
 
-            #set results
+            # set results
             sim_results = {analysis.metric.name : function_result}
             ind.setSimResults(sim_results, analysis, env_point)
             
         elif isinstance(analysis, CircuitAnalysis):
             
-            #compute netlist
+            # compute netlist
             emb_part = self.ps.embedded_part
             emb_part.functions = scaled_point
             netlist = emb_part.spiceNetlistStr(annotate_bb_info=False)
 
-            #call simulator
+            # call simulator
             sim_results, lis_results, waveforms_per_ext = analysis.simulate(
                 self.simfile_dir, netlist, env_point)
 
-            #set DOCs metric
+            # set DOCs metric
             assert not DOCs_metric_name in sim_results
             assert DOCs_metric_name == 'perc_DOCs_met', 'expected percent DOCs'
 
@@ -977,12 +975,12 @@ class SynthEngine:
                 # FIXME: (PP) I don't think this belongs here...
                 if not BAD_METRIC_VALUE in sim_results.values():
                     perc = emb_part.percentSimulationDOCsMet(lis_results)
-               	    sim_results[DOCs_metric_name] = perc
+                    sim_results[DOCs_metric_name] = perc
                     log.info('%s = %.3f' % (DOCs_metric_name, perc))
                 else:
                     sim_results[DOCs_metric_name] = 0.0
 
-            #set results
+            # set results
             assert sorted(sim_results.keys()) == sorted(target_metrics)
             ind.setSimResults(sim_results, analysis, env_point,
                               waveforms_per_ext)
@@ -992,7 +990,6 @@ class SynthEngine:
                                  str(analysis.__class__))
 
         return sim_results
-
 
     def varyParentsToGetGoodChildren(self, par1, par2, tabu_perfs,
                                      status_str,
@@ -1024,7 +1021,7 @@ class SynthEngine:
           success -- bool -- True if two children were generated with
             fewer than 'max_num_rounds'
           child1 -- Ind or None -- offspring #1 (None if unsuccessful)
-          child2 -- Ind or None -- offsprign #2 (None if unsuccessful)
+          child2 -- Ind or None -- offspring #2 (None if unsuccessful)
         """
         log.debug('Vary parents to get two good, unique children: begin')
         
@@ -1045,7 +1042,7 @@ class SynthEngine:
             log.debug('Vary parents: round #%d, tot_num_inds=%d [%s]'%\
                       (vary_round, self.state.tot_num_inds, status_str))
 
-            #note: _varyParents gives children with netlists that are
+            # note: _varyParents gives children with netlists that are
             # different than either parent's netlist
             (cand_child1, cand_child2) = self._varyParents(par1, par2)
 
@@ -1105,11 +1102,11 @@ class SynthEngine:
         assert par1 is not None
         assert par2 is not None
         
-        #choose how much to vary each ind
+        # choose how much to vary each ind
         num_vary1 = mathutil.randIndex(self.ss.num_vary_biases)
         num_vary2 = mathutil.randIndex(self.ss.num_vary_biases)
 
-        #maybe do crossover before mutating
+        # maybe do crossover before mutating
         do_crossover = random.random() < self.ss.prob_crossover
         if do_crossover:
             (child1, child2) = self.crossoverInds(par1, par2)
@@ -1118,16 +1115,16 @@ class SynthEngine:
         else:
             (child1, child2) = (par1, par2)
 
-        #always mutate
+        # always mutate
         child1 = self.mutateInd(child1, num_vary1)
         child2 = self.mutateInd(child2, num_vary2)
 
-        #keep mutating until the child is different
+        # keep mutating until the child is different
         # (there is huge chance of a same child due to the structure of GRAIL)
         child1 = self.mutateUntilDifferent(child1, par1.netlist())
         child2 = self.mutateUntilDifferent(child2, par2.netlist())
 
-        #set genetic age
+        # set genetic age
         if do_crossover:
             child1.genetic_age = max(par1.genetic_age, par2.genetic_age) + 1
             child2.genetic_age = max(par1.genetic_age, par2.genetic_age) + 1
@@ -1147,7 +1144,7 @@ class SynthEngine:
         """
         num_tries = 0
         while True:
-            #avoid infinite loop; and excessive effort
+            # avoid infinite loop; and excessive effort
             if num_tries > 100:
                 break
 
@@ -1185,11 +1182,11 @@ class SynthEngine:
           ok, while this isn't perfect, it's far better than the fully-naive
           uniform crossover which has 100% crosstalk.
         """
-        #retrieve parent info
+        # retrieve parent info
         par1_opt_point = par1.genotype.unscaled_opt_point
         par2_opt_point = par2.genotype.unscaled_opt_point
         
-        #choose a sub-part, and find which vars affect it (including
+        # choose a sub-part, and find which vars affect it (including
         # alternate topology sub-implementations)
         emb_part = self.ps.embedded_part
         scaled_point = emb_part.part.point_meta.scale(par1_opt_point)
@@ -1207,7 +1204,7 @@ class SynthEngine:
         (sub_emb_part, sub_scaled_point, vars_affecting) = sub_part_info
         log.debug('Crossover: sub_emb_part=%s, vars_affecting=%s' % (sub_emb_part.part.name, vars_affecting))
 
-        #build up dicts
+        # build up dicts
         child1_dict, child2_dict = {}, {}
         for var in par1_opt_point.keys():
             if var in vars_affecting:
@@ -1217,17 +1214,17 @@ class SynthEngine:
                 child1_dict[var] = par2_opt_point[var]
                 child2_dict[var] = par1_opt_point[var]
 
-        #build child1
+        # build child1
         child1_genotype = Genotype()
         child1_genotype.unscaled_opt_point = Point(False, child1_dict)
         child1 = NsgaInd(child1_genotype, self.ps)
 
-        #build child2
+        # build child2
         child2_genotype = Genotype()
         child2_genotype.unscaled_opt_point = Point(False, child2_dict)
         child2 = NsgaInd(child2_genotype, self.ps)
 
-        #done
+        # done
         return (child1, child2)
         
     def mutateInd(self, parent_ind, num_mutates, force_mutate1var=False):
@@ -1245,17 +1242,17 @@ class SynthEngine:
           The genetic_age attribute of the child is still None. Leave
           setting that to higher-level routines.
         """
-        #retrieve base info
+        # retrieve base info
         point_meta = self.ps.embedded_part.part.point_meta
         parent_opt_point = parent_ind.genotype.unscaled_opt_point
 
-        #sometimes mutate just 1 var, sometimes mutate all
+        # sometimes mutate just 1 var, sometimes mutate all
         if force_mutate1var:
             mutate_1var = True
         else:
             mutate_1var = (random.random() < self.ss.prob_mutate_1var)
 
-        #build up dicts
+        # build up dicts
         child_dict = copy.copy(dict(parent_opt_point))
         for mutate_i in range(num_mutates):
             if mutate_1var: vars_to_mutate = [random.choice(list(point_meta))]
@@ -1264,10 +1261,10 @@ class SynthEngine:
             for var in vars_to_mutate:
                 child_dict[var] = point_meta[var].mutate(child_dict[var], self.ss.mutate_stddev)
 
-        #build Ind
+        # build Ind
         child_genotype = Genotype()
         child_genotype.unscaled_opt_point = Point(False, child_dict)
         child = NsgaInd(child_genotype, self.ps)
 
-        #done
+        # done
         return child
