@@ -1837,6 +1837,7 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         # settable parameters
         vcc = 10.0
         vee = -10.0
+        randSeed = 58989
         feature_size = 0.18e-06
         nmos_modelname = 'N_18_MM'
         pmos_modelname = 'P_18_MM'
@@ -1883,12 +1884,33 @@ EPWR1 pwrnode gnd volts='-pVcc*I(Vcc) + -pVee*I(Vee)'
         # -------------------------------------------------------
         # transient analysis (includes op analysis)
         d = {
+            'pRload': 10000000,
+            'pVcc': vcc,
+            'pVee': vee,
+            'fTest': 89
+        }
+        d.update({
+             'pwlFile': "%sdetRandomSig-%d-%dHz.dat" % (cir_file_path, randSeed, d['fTest'])
+        })
+        d2 = {
              'pRload': 10000000,
              'pVcc': vcc,
              'pVee': vee,
              'fTest': 1000
-             }
-        op_env_points = [EnvPoint(True, d)]
+        }
+        d2.update({
+            'pwlFile': "%sdetRandomSig-%d-%dHz.dat" % (cir_file_path, randSeed, d2['fTest'])
+        })
+        d3 = {
+            'pRload': 10000000,
+            'pVcc': vcc,
+            'pVee': vee,
+            'fTest': 8999
+        }
+        d3.update({
+            'pwlFile': "%sdetRandomSig-%d-%dHz.dat" % (cir_file_path, randSeed, d3['fTest'])
+        })
+        op_env_points = [EnvPoint(True, d), EnvPoint(True, d2), EnvPoint(True, d3)]
         test_fixture_string = """
 Rload   nout    gnd pRload
 
@@ -1897,7 +1919,7 @@ Vcc         nVcc        gnd         DC=pVcc
 Vee         nVee        gnd         DC=pVee
 Vin         nVindc      gnd         DC=-0.5
 VinNoDc     nVinNodc    nVindc      PULSE(0 0.5 '1/fTest')
-Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
+Vinac       nVin        nVinNodc    PWL PWLFILE=str(pwlFile)
 
 
 * this measures the amount of feedback biasing there is
@@ -1908,10 +1930,10 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
 
 * time-domain measurements
 .measure TRAN voutdc        AVG  V(nout) TO='1/fTest'
-.measure TRAN voutav1       AVG  V(nout) FROM='1/fTest'  TO='1.5/fTest'
-.measure TRAN voutav2       AVG  V(nout) FROM='1.5/fTest' TO='2/fTest'
-.measure TRAN voutav3       AVG  V(nout) FROM='2/fTest'  TO='2.5/fTest'
-.measure TRAN voutav4       AVG  V(nout) FROM='2.5/fTest' TO='3/fTest'
+.measure TRAN voutav1       AVG  V(nout) FROM='1.0/fTest' TO='1.5/fTest'
+.measure TRAN voutav2       AVG  V(nout) FROM='1.5/fTest' TO='2.0/fTest'
+.measure TRAN voutav3       AVG  V(nout) FROM='2.0/fTest' TO='2.5/fTest'
+.measure TRAN voutav4       AVG  V(nout) FROM='2.5/fTest' TO='3.0/fTest'
 .measure TRAN voutpp1        PP  V(nout) FROM='1.1/fTest' TO='1.4/fTest'
 .measure TRAN voutpp2        PP  V(nout) FROM='1.6/fTest' TO='1.9/fTest'
 .measure TRAN voutpp3        PP  V(nout) FROM='2.1/fTest' TO='2.4/fTest'
@@ -1920,8 +1942,12 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
 .measure TRAN toutzc2       FIND 'time'  WHEN V(nout)=0 TD='1.4/fTest'
 .measure TRAN toutzc3       FIND 'time'  WHEN V(nout)=0 TD='1.9/fTest'
 .measure TRAN toutzc4       FIND 'time'  WHEN V(nout)=0 TD='2.4/fTest'
-.measure tran maxpwr        MAX  power
-.measure tran avgpwr        AVG  power
+.measure      toutzc1d      PARAM = '(toutzc1 - 1.0/fTest) * fTest'
+.measure      toutzc2d      PARAM = '(toutzc2 - 1.5/fTest) * fTest'
+.measure      toutzc3d      PARAM = '(toutzc3 - 2.0/fTest) * fTest'
+.measure      toutzc4d      PARAM = '(toutzc4 - 2.5/fTest) * fTest'
+.measure TRAN maxpwr        MAX  power
+.measure TRAN avgpwr        AVG  power
 
 """
         op_metrics = [
@@ -1936,10 +1962,10 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
                       Metric('voutpp2', float('-Inf'), 0.5, True),
                       Metric('voutpp3', float('-Inf'), 0.5, True),
                       Metric('voutpp4', float('-Inf'), 0.5, True),
-                      Metric('toutzc1', 0.9/d['fTest'], 1.1/d['fTest'], True),
-                      Metric('toutzc2', 1.4/d['fTest'], 1.6/d['fTest'], True),
-                      Metric('toutzc3', 1.9/d['fTest'], 2.1/d['fTest'], True),
-                      Metric('toutzc4', 2.4/d['fTest'], 2.6/d['fTest'], True)
+                      Metric('toutzc1d', -0.1, 0.1, True),
+                      Metric('toutzc2d', -0.1, 0.1, True),
+                      Metric('toutzc3d', -0.1, 0.1, True),
+                      Metric('toutzc4d', -0.1, 0.1, True)
                       ]
 
         # if we use a .lis output like 'region' or 'vgs' even once in
@@ -1947,7 +1973,7 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
         # (if you forget a measure, it _will_ complain)
         doc_measures = ['test']
         sim = Simulator({#'ma0':['gain','phase0','phasemargin','gbw'],
-                         'mt0':['voutdc', 'voutav1', 'voutav2', 'voutav3', 'voutav4', 'voutpp1', 'voutpp2', 'voutpp3', 'voutpp4', 'toutzc1', 'toutzc2', 'toutzc3', 'toutzc4', 'maxpwr', 'avgpwr'],
+                         'mt0':['voutdc', 'voutav1', 'voutav2', 'voutav3', 'voutav4', 'voutpp1', 'voutpp2', 'voutpp3', 'voutpp4', 'toutzc1d', 'toutzc2d', 'toutzc3d', 'toutzc4d', 'maxpwr', 'avgpwr'],
                          #'ic0':['pwrnode','fbmnode'],
                          #'ic0':['pwrnode']
                          #'lis':['perc_DOCs_met']
@@ -1961,83 +1987,6 @@ Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
                         
         op_an = CircuitAnalysis(op_env_points, op_metrics, sim)
         analyses.append(op_an)
-
-        d2 = {
-             'pRload': 10000000,
-             'pVcc': vcc,
-             'pVee': vee,
-             'fTest': 89
-             }
-        op_env_points2 = [EnvPoint(True, d2)]
-        test_fixture_string2 = """
-Rload   nout    gnd pRload
-
-* biasing circuitry
-Vcc         nVcc        gnd         DC=pVcc
-Vee         nVee        gnd         DC=pVee
-Vin         nVindc      gnd         DC=-0.5
-VinNoDc     nVinNodc    nVindc      PULSE(0 0.5 '1/fTest')
-Vinac       nVin        nVinNodc    SIN(0 5 'fTest' '1/fTest')
-
-
-* this measures the amount of feedback biasing there is
-
-* simulation statements
-.OP
-.TRAN '3/fTest/1000' '3/fTest'
-
-* time-domain measurements
-.measure TRAN voutdc-2        AVG  V(nout) TO='1/fTest'
-.measure TRAN voutav1-2       AVG  V(nout) FROM='1/fTest'  TO='1.5/fTest'
-.measure TRAN voutav2-2       AVG  V(nout) FROM='1.5/fTest' TO='2/fTest'
-.measure TRAN voutav3-2       AVG  V(nout) FROM='2/fTest'  TO='2.5/fTest'
-.measure TRAN voutav4-2       AVG  V(nout) FROM='2.5/fTest' TO='3/fTest'
-.measure TRAN voutpp1-2        PP  V(nout) FROM='1.1/fTest' TO='1.4/fTest'
-.measure TRAN voutpp2-2        PP  V(nout) FROM='1.6/fTest' TO='1.9/fTest'
-.measure TRAN voutpp3-2        PP  V(nout) FROM='2.1/fTest' TO='2.4/fTest'
-.measure TRAN voutpp4-2        PP  V(nout) FROM='2.6/fTest' TO='2.9/fTest'
-.measure TRAN toutzc1-2       FIND 'time'  WHEN V(nout)=0 TD='0.9/fTest'
-.measure TRAN toutzc2-2       FIND 'time'  WHEN V(nout)=0 TD='1.4/fTest'
-.measure TRAN toutzc3-2       FIND 'time'  WHEN V(nout)=0 TD='1.9/fTest'
-.measure TRAN toutzc4-2       FIND 'time'  WHEN V(nout)=0 TD='2.4/fTest'
-.measure tran maxpwr-2        MAX  power
-.measure tran avgpwr-2        AVG  power
-
-"""
-        op_metrics2 = [
-                      Metric('maxpwr-2', float('-Inf'), 1, False),
-                      Metric('avgpwr-2', float('-Inf'), 1, False),
-                      Metric('voutdc-2', 6.0, float('Inf'), False),
-                      Metric('voutav1-2', float('-Inf'), -6.0, False),
-                      Metric('voutav2-2', 6.0, float('Inf'), False),
-                      Metric('voutav3-2', float('-Inf'), -6.0, False),
-                      Metric('voutav4-2', 6.0, float('Inf'), False),
-                      Metric('voutpp1-2', float('-Inf'), 0.5, True),
-                      Metric('voutpp2-2', float('-Inf'), 0.5, True),
-                      Metric('voutpp3-2', float('-Inf'), 0.5, True),
-                      Metric('voutpp4-2', float('-Inf'), 0.5, True),
-                      Metric('toutzc1-2', 0.9/d2['fTest'], 1.1/d2['fTest'], True),
-                      Metric('toutzc2-2', 1.4/d2['fTest'], 1.6/d2['fTest'], True),
-                      Metric('toutzc3-2', 1.9/d2['fTest'], 2.1/d2['fTest'], True),
-                      Metric('toutzc4-2', 2.4/d2['fTest'], 2.6/d2['fTest'], True)
-                      ]
-
-        # if we use a .lis output like 'region' or 'vgs' even once in
-        # order to constrain DOCs via perc_DOCs_met, list it here
-        # (if you forget a measure, it _will_ complain)
-        doc_measures2 = ['test']
-        sim2 = Simulator({
-                         'mt0': ['voutdc-2', 'voutav1-2', 'voutav2-2', 'voutav3-2', 'voutav4-2', 'voutpp1-2', 'voutpp2-2', 'voutpp3-2', 'voutpp4-2', 'toutzc1-2', 'toutzc2-2', 'toutzc3-2', 'toutzc4-2', 'maxpwr-2', 'avgpwr-2']
-                         },
-                         cir_file_path,
-                         max_simulation_time,
-                         simulator_options_string,
-                         models_string,
-                         test_fixture_string2,
-                         doc_measures2)
-                        
-        op_an2 = CircuitAnalysis(op_env_points2, op_metrics2, sim2)
-        analyses.append(op_an2)
 
         # -------------------------------------------------------
         # function analysis
