@@ -862,7 +862,12 @@ class Simulator(Analysis):
         s.append('\n*------Env and Rnd Variables---------')
         s.append('\n')
         for envvar_name, envvar_val in env_point.items():
-            s.append('\n.param %s = %5.3e' % (envvar_name, envvar_val))
+            if type(envvar_val) == int or type(envvar_val) == float:
+                s.append('\n.param %s = %5.3e' % (envvar_name, envvar_val))
+            elif type(envvar_val) == str:
+                s.append('\n.param %s = str(\'%s\')' % (envvar_name, envvar_val))
+            else:
+                raise ValueError("env_point var '%s' has wrong value type: %s" % (envvar_name, type(envvar_val)))
         #for rndvar_name, rndvar_val in rnd_point.items():
         #    s.append('.param %s = %5.3e\n' % (rndvar_name, rndvar_val))
         s.append('\n')
