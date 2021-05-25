@@ -5471,9 +5471,6 @@ class OpLibrary(Library):
         pm = self.updatePointMeta(pm, ampOrComp_mux, pm_ampOrComp_mux)
 
 
-        pm_opvOrComp = {'chosen_part_index': 'use_comparator'}
-        pm = self.updatePointMeta(pm, opvOrComp1, pm_opvOrComp)
-
 
         pm_fbStgOcOrDiode = {'chosen_part_index': 'use_feedback_diode1'}
         pm = self.updatePointMeta(pm, fbStgOcOrDiode, pm_fbStgOcOrDiode)
@@ -5520,7 +5517,7 @@ class OpLibrary(Library):
 
         n8 = part.addInternalNode()
         # whether the opvOrComp FlexPart is OPV is derived from whether positive or negative feedback is used
-        part.addPart(opvOrComp1,            {'IN+': n6, 'IN-': n7, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': n8}, {'use_comparator': 'is_positive_feedback'})
+        part.addPart(opvOrComp1,            {'IN+': n6, 'IN-': n7, 'VCC': 'Vcc', 'VEE': 'Vee', 'OUT': n8}, {'chosen_part_index': 'is_positive_feedback'})
         part.addPart(fbStgOcOrDiode,        {'A': n5,    'K': n8},        pm_fbStgOcOrDiode)
 
         part.addPart(fbStg1WireOrDiode,     {'A': n8,    'K': 'Out'},     pm_fbStg1WireOrDiode)
