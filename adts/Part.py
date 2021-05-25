@@ -1142,7 +1142,7 @@ class EmbeddedPart:
                              % (part.name,
                                 part.name, extra_fnames,
                                 part.name, extra_pnames,
-                                part.name, functions.items()[:5], ddd ))
+                                part.name, list(functions.items())[:5], ddd ))
         
         self.part = part
         self.connections = connections
