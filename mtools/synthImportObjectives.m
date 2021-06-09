@@ -51,7 +51,9 @@ for i = 1:length(all_metric_vars)
         end
     end
     if found_match
-        objective_I = [objective_I i];
+        % (j) ist very! important, else the order would depend on the order
+        % of occurence in all_metric_vars
+        objective_I(j) = i;
     end
 end
 objective_X = all_metric_X(objective_I, :);
