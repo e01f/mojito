@@ -13,13 +13,6 @@ run('plotsettings.m');
 %synthPlotGenerationMetrics3D(dataset1{105},'voutpp3', 'voutav3','toutzc3','rx')
 %synthPlotGenerationMetrics2DMovie(dataset1, 'voutav3', 'toutzc3', 'r.');
 
-% Step 3
-wd = cd;
-cd(m_path);
-cmd = [python ' ./summarize_db.py ' num2str(problem) ' ' base '/' state_file ' None temp_metrics temp_points'];
-%system(cmd);
-cd(wd);
-
 fancyFmt = 1;
 
 %(not used, so turned off)

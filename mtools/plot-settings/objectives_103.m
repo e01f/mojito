@@ -6,6 +6,10 @@
 %	toutzc2 ?[1.4/f_Test,1.6/f_Test], möglichst genau 1.5/f_Test
 %	toutzc3 ?[1.9/f_Test,2.1/f_Test], möglichst genau 2/f_Test
 %	toutzc4 ?[2.4/f_Test,2.6/f_Test], möglichst genau 2.5/f_Test
+%   toutzc1d, -0.1, 0.1
+%   toutzc2d, -0.1, 0.1
+%   toutzc3d, -0.1, 0.1
+%   toutzc4d, -0.1, 0.1
 
 s(1).name = 'voutpp1';
 s(1).min = 0;
@@ -61,3 +65,20 @@ s(12).name = 'toutzc4-2';
 s(12).min = 2.4/f_Test2;
 s(12).max = 2.6/f_Test2;
 s(12).goal = 2.5/f_Test2;
+
+s(13).name = 'toutzc1d';
+s(13).min = -0.1;
+s(13).max = 0.1;
+s(13).goal = 0.0;
+s(14).name = 'toutzc2d';
+s(14).min = -0.1;
+s(14).max = 0.1;
+s(14).goal = 0.0;
+s(15).name = 'toutzc3d';
+s(15).min = -0.1;
+s(15).max = 0.1;
+s(15).goal = 0.0;
+s(16).name = 'toutzc4d';
+s(16).min = -0.1;
+s(16).max = 0.1;
+s(16).goal = 0.0;

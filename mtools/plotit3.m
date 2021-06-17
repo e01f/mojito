@@ -13,20 +13,13 @@ run('plotsettings.m');
 %synthPlotGenerationMetrics3D(dataset1{105},'voutpp3', 'voutav3','toutzc3','rx')
 %synthPlotGenerationMetrics2DMovie(dataset1, 'voutav3', 'toutzc3', 'r.');
 
-% Step 3
-wd = cd;
-cd(m_path);
-%cmd = [python ' ./summarize_db.py ' num2str(problem) ' ' base '/' state_file ' None temp_metrics temp_points'];
-%system(cmd);
-cd(wd);
-
 %(not used, so turned off)
 %[scaled, unscaled] = synthImportPoints([base '_points']);  
 %all_unscaled_vars = unscaled.header; % {var index}
 %all_unscaled_X = unscaled.data'; % [var index][sample index]
 
 %'objective_X' has _only_ metric_value data for objectives; not ind_ID etc
-objectives = synthImportObjectives(objsfil, [m_path '\temp_metrics']);
+objectives = synthImportObjectives(objsfilhists, [m_path '\temp_metrics']);
 objective_vars = objectives.header; % {objective index}
 objective_X = objectives.data'; % [objective index][sample index]
 for i = 1:length(objective_vars)
