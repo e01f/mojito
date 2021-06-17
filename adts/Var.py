@@ -546,17 +546,17 @@ class DiscreteVarMeta(VarMeta):
         @return
           unscaled_var_value -- int          
         """
-        return numpy.argmin([abs(scaled_var_value - v)
-                               for v in self.possible_values])
+        return numpy.argmin([abs(scaled_var_value - v) for v in self.possible_values])
+
     def isChoiceVar(self):
         """
         @description
-          Is this Discrete VarMeta a 'choice' var?>
-          ie are its possible values integers that are identical to it indices?
-          i.e. are its possible values [0,1,2,...,n-1] ?
-          or otherwise, are they ordered and of integral type?
+          Is this DiscreteVarMeta a 'choice' var?
+          i.e. are its possible values integers that are identical to its indices?
+          i.e. are its possible values [0,1,2,...,n-1]?
+          or otherwise, are they ordered and of integral type having cov(diff(possible_values)) < 310%?
 
-          Auto-detects based on its possible values.
+          Auto-detects based on possible values.
         
         @arguments
          <<none>>
@@ -569,21 +569,38 @@ class DiscreteVarMeta(VarMeta):
         """
         if self._is_choice_var is not None:
             return self._is_choice_var
+
+        # current strategy:
+        #   a) being strictly ordered
+        #   b) having acceptable variation
         
         self._is_choice_var = True
-        lastel = self.possible_values[0]
-        for index, poss_value in enumerate(self.possible_values):
-            if not isinstance(poss_value, int) and \
-               not isinstance(poss_value, float):
+        if len(self.possible_values) < 2:
+            self._is_choice_var = False
+        else:
+            lastel = self.possible_values[0]
+            for index, poss_value in enumerate(self.possible_values):
+                if not isinstance(poss_value, int) and \
+                   not isinstance(poss_value, float):
+                    self._is_choice_var = False
+                    break
+                # this criterion is removed for now
+                # if poss_value != index:
+                #     self._is_choice_var = False
+                #     break
+                if poss_value < lastel:
+                    # equal or unsorted numbers, reject
+                    self._is_choice_var = False
+                    break
+                lastel = poss_value
+
+        # it is numeric and ordered, let's see if it has acceptable gaps
+        if self._is_choice_var:
+            d = numpy.diff(self.possible_values)
+            cov = numpy.std(d)/numpy.mean(d)
+            if cov > 3.1:
+                # coefficient of variation of 310% is too high, reject
                 self._is_choice_var = False
-                break
-            if (poss_value != index):
-                self._is_choice_var = False
-                break
-            if (poss_value < lastel):
-                self._is_choice_var = False
-                break
-            lastel = poss_value
 
         return self._is_choice_var
 
@@ -619,27 +636,27 @@ class DiscreteVarMeta(VarMeta):
           Does not care if the input value is not binned and scaled.
           The returned value will be binned and scaled appropriately.
         """
-        #corner case:
-        #'choice' vars have no concept of small change from one value to next
-        if self.isChoiceVar():
+        # corner case:
+        # 'choice' vars have no concept of small change from one value to next
+        if not self.isChoiceVar():
             return self.createRandomUnscaledVar()
 
-        #main case: ...
+        # main case: ...
         
-        #a fraction of the time, choose the value uniformly
+        # a fraction of the time, choose the value uniformly
         if random.random() < stddev:
             return self.createRandomUnscaledVar()
 
-        #the rest of the time, change value by +1 or -1 with equal
+        # the rest of the time, change value by +1 or -1 with equal
         # probability.  (There are special cases to handle too, of course)
         else:
             unscaled_var_value = self.railbinUnscaled(unscaled_var_value)
             num_choices = len(self.possible_values)
             if num_choices == 1:
                 return unscaled_var_value
-            elif unscaled_var_value <= 0: #at min value
+            elif unscaled_var_value <= 0:  # at min value
                 return 1
-            elif unscaled_var_value >= (num_choices-1): #at max value
+            elif unscaled_var_value >= (num_choices-1):  # at max value
                 return unscaled_var_value - 1
             else:
                 if random.random() < 0.5:
