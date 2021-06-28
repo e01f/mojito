@@ -5002,6 +5002,40 @@ class OpLibrary(Library):
         self._parts[name] = part
         return part
 
+    def OCOrNStageFilter(self, nStages):
+        """
+        Description: optional three stage filter
+
+        Ports: 1, 2, gnd
+
+        Variables: Values of the embedded components
+
+        Variable breakdown:
+
+        """
+        name = whoami()
+        if name in self._parts: return self._parts[name]
+
+        # parts to embed
+        oc_part = self.openCircuit()
+        filter_part = self.nStageFilter(nStages)
+
+        # build the point_meta (pm)
+        pm = PointMeta({})
+
+        pm = self.updatePointMeta(pm, filter_part, filter_part.unityVarMap())
+
+        # build the main part
+        part = FlexPart(['1', '2'], pm, name)
+        part.addPartChoice(oc_part, {'1': '1', '2': '2'}, {})
+        part.addPartChoice(filter_part, {'1': '1', '2': '2'}, filter_part.unityVarMap())
+
+        # build a summaryStr
+        part.addToSummaryStr('0=O.C.,1=nStageFilter: ', 'chosen_part_index')
+
+        self._parts[name] = part
+        return part
+
     def paralleledFilterStages(self):
         """
         Description: 
@@ -5433,10 +5467,10 @@ class OpLibrary(Library):
 
         fbStg1OCOrDiode = self.ocOrD1n4148()
         fbStg1OCOrRCL = self.ocOrRCL()
-        fbStg1Filter = self.nStageFilter(3)
+        fbStg1OCOrFilter = self.OCOrNStageFilter(3)
         fbStg2OCOrDiode = self.ocOrD1n4148()
         fbStg2OCOrRCL = self.ocOrRCL()
-        fbStg2Filter = self.nStageFilter(3)
+        fbStg2OCOrFilter = self.OCOrNStageFilter(3)
         fbStgWireOrDiode = self.wireOrD1n4148()
 
         opBiasOCOrRCL = self.ocOrRCL()
@@ -5494,25 +5528,26 @@ class OpLibrary(Library):
         pm_fbStg1OCOrRCL = {'chosen_part_index': 'fbstg_oc_rcl_posfb_choice', 'R': 'fbstg_R_posfb', 'C': 'fbstg_C_posfb', 'L': 'fbstg_L_posfb'}
         pm = self.updatePointMeta(pm, fbStg1OCOrRCL, pm_fbStg1OCOrRCL)
 
-        pm_fbStg1Filter = {'chosen_part_index_wire_1': 'fbstg_filter_posfb_upper_choice1',
-                           'R_wire_1': 'fbstg_R_posfb_upper_1', 'C_wire_1': 'fbstg_C_posfb_upper_1',
-                           'L_wire_1': 'fbstg_L_posfb_upper_1',
-                           'chosen_part_index_oc_1': 'fbstg_filter_posfb_lower_choice1',
-                           'R_oc_1': 'fbstg_R_posfb_lower_1', 'C_oc_1': 'fbstg_C_posfb_lower_1',
-                           'L_oc_1': 'fbstg_L_posfb_lower_1',
-                           'chosen_part_index_wire_2': 'fbstg_filter_posfb_upper_choice2',
-                           'R_wire_2': 'fbstg_R_posfb_upper_2', 'C_wire_2': 'fbstg_C_posfb_upper_2',
-                           'L_wire_2': 'fbstg_L_posfb_upper_2',
-                           'chosen_part_index_oc_2': 'fbstg_filter_posfb_lower_choice2',
-                           'R_oc_2': 'fbstg_R_posfb_lower_2', 'C_oc_2': 'fbstg_C_posfb_lower_2',
-                           'L_oc_2': 'fbstg_L_posfb_lower_2',
-                           'chosen_part_index_wire_3': 'fbstg_filter_posfb_upper_choice3',
-                           'R_wire_3': 'fbstg_R_posfb_upper_3', 'C_wire_3': 'fbstg_C_posfb_upper_3',
-                           'L_wire_3': 'fbstg_L_posfb_upper_3',
-                           'chosen_part_index_oc_3': 'fbstg_filter_posfb_lower_choice3',
-                           'R_oc_3': 'fbstg_R_posfb_lower_3', 'C_oc_3': 'fbstg_C_posfb_lower_3',
-                           'L_oc_3': 'fbstg_L_posfb_lower_3'}
-        pm = self.updatePointMeta(pm, fbStg1Filter, pm_fbStg1Filter)
+        pm_fbStg1OCOrFilter = {'chosen_part_index': 'fbstg_oc_filter_posfb_choice',
+                               'chosen_part_index_wire_1': 'fbstg_filter_posfb_upper_choice1',
+                               'R_wire_1': 'fbstg_R_posfb_upper_1', 'C_wire_1': 'fbstg_C_posfb_upper_1',
+                               'L_wire_1': 'fbstg_L_posfb_upper_1',
+                               'chosen_part_index_oc_1': 'fbstg_filter_posfb_lower_choice1',
+                               'R_oc_1': 'fbstg_R_posfb_lower_1', 'C_oc_1': 'fbstg_C_posfb_lower_1',
+                               'L_oc_1': 'fbstg_L_posfb_lower_1',
+                               'chosen_part_index_wire_2': 'fbstg_filter_posfb_upper_choice2',
+                               'R_wire_2': 'fbstg_R_posfb_upper_2', 'C_wire_2': 'fbstg_C_posfb_upper_2',
+                               'L_wire_2': 'fbstg_L_posfb_upper_2',
+                               'chosen_part_index_oc_2': 'fbstg_filter_posfb_lower_choice2',
+                               'R_oc_2': 'fbstg_R_posfb_lower_2', 'C_oc_2': 'fbstg_C_posfb_lower_2',
+                               'L_oc_2': 'fbstg_L_posfb_lower_2',
+                               'chosen_part_index_wire_3': 'fbstg_filter_posfb_upper_choice3',
+                               'R_wire_3': 'fbstg_R_posfb_upper_3', 'C_wire_3': 'fbstg_C_posfb_upper_3',
+                               'L_wire_3': 'fbstg_L_posfb_upper_3',
+                               'chosen_part_index_oc_3': 'fbstg_filter_posfb_lower_choice3',
+                               'R_oc_3': 'fbstg_R_posfb_lower_3', 'C_oc_3': 'fbstg_C_posfb_lower_3',
+                               'L_oc_3': 'fbstg_L_posfb_lower_3'}
+        pm = self.updatePointMeta(pm, fbStg1OCOrFilter, pm_fbStg1OCOrFilter)
 
         pm_fbStg2OCOrDiode = {'chosen_part_index': 'use_negfb_diode'}
         pm = self.updatePointMeta(pm, fbStg2OCOrDiode, pm_fbStg2OCOrDiode)
@@ -5521,25 +5556,26 @@ class OpLibrary(Library):
                             'C': 'fbstg_C_negfb', 'L': 'fbstg_L_negfb'}
         pm = self.updatePointMeta(pm, fbStg2OCOrRCL, pm_fbStg2OCOrRCL)
 
-        pm_fbStg2Filter = {'chosen_part_index_wire_1': 'fbstg_filter_negfb_upper_choice1',
-                           'R_wire_1': 'fbstg_R_negfb_upper_1', 'C_wire_1': 'fbstg_C_negfb_upper_1',
-                           'L_wire_1': 'fbstg_L_negfb_upper_1',
-                           'chosen_part_index_oc_1': 'fbstg_filter_negfb_lower_choice1',
-                           'R_oc_1': 'fbstg_R_negfb_lower_1', 'C_oc_1': 'fbstg_C_negfb_lower_1',
-                           'L_oc_1': 'fbstg_L_negfb_lower_1',
-                           'chosen_part_index_wire_2': 'fbstg_filter_negfb_upper_choice2',
-                           'R_wire_2': 'fbstg_R_negfb_upper_2', 'C_wire_2': 'fbstg_C_negfb_upper_2',
-                           'L_wire_2': 'fbstg_L_negfb_upper_2',
-                           'chosen_part_index_oc_2': 'fbstg_filter_negfb_lower_choice2',
-                           'R_oc_2': 'fbstg_R_negfb_lower_2', 'C_oc_2': 'fbstg_C_negfb_lower_2',
-                           'L_oc_2': 'fbstg_L_negfb_lower_2',
-                           'chosen_part_index_wire_3': 'fbstg_filter_negfb_upper_choice3',
-                           'R_wire_3': 'fbstg_R_negfb_upper_3', 'C_wire_3': 'fbstg_C_negfb_upper_3',
-                           'L_wire_3': 'fbstg_L_negfb_upper_3',
-                           'chosen_part_index_oc_3': 'fbstg_filter_negfb_lower_choice3',
-                           'R_oc_3': 'fbstg_R_negfb_lower_3', 'C_oc_3': 'fbstg_C_negfb_lower_3',
-                           'L_oc_3': 'fbstg_L_negfb_lower_3'}
-        pm = self.updatePointMeta(pm, fbStg2Filter, pm_fbStg2Filter)
+        pm_fbStg2OCOrFilter = {'chosen_part_index': 'fbstg_oc_filter_negfb_choice',
+                               'chosen_part_index_wire_1': 'fbstg_filter_negfb_upper_choice1',
+                               'R_wire_1': 'fbstg_R_negfb_upper_1', 'C_wire_1': 'fbstg_C_negfb_upper_1',
+                               'L_wire_1': 'fbstg_L_negfb_upper_1',
+                               'chosen_part_index_oc_1': 'fbstg_filter_negfb_lower_choice1',
+                               'R_oc_1': 'fbstg_R_negfb_lower_1', 'C_oc_1': 'fbstg_C_negfb_lower_1',
+                               'L_oc_1': 'fbstg_L_negfb_lower_1',
+                               'chosen_part_index_wire_2': 'fbstg_filter_negfb_upper_choice2',
+                               'R_wire_2': 'fbstg_R_negfb_upper_2', 'C_wire_2': 'fbstg_C_negfb_upper_2',
+                               'L_wire_2': 'fbstg_L_negfb_upper_2',
+                               'chosen_part_index_oc_2': 'fbstg_filter_negfb_lower_choice2',
+                               'R_oc_2': 'fbstg_R_negfb_lower_2', 'C_oc_2': 'fbstg_C_negfb_lower_2',
+                               'L_oc_2': 'fbstg_L_negfb_lower_2',
+                               'chosen_part_index_wire_3': 'fbstg_filter_negfb_upper_choice3',
+                               'R_wire_3': 'fbstg_R_negfb_upper_3', 'C_wire_3': 'fbstg_C_negfb_upper_3',
+                               'L_wire_3': 'fbstg_L_negfb_upper_3',
+                               'chosen_part_index_oc_3': 'fbstg_filter_negfb_lower_choice3',
+                               'R_oc_3': 'fbstg_R_negfb_lower_3', 'C_oc_3': 'fbstg_C_negfb_lower_3',
+                               'L_oc_3': 'fbstg_L_negfb_lower_3'}
+        pm = self.updatePointMeta(pm, fbStg2OCOrFilter, pm_fbStg2OCOrFilter)
 
         pm_fbStgWireOrDiode = {'chosen_part_index': 'use_feedback_output_diode'}
         pm = self.updatePointMeta(pm, fbStgWireOrDiode, pm_fbStgWireOrDiode)
@@ -5578,13 +5614,13 @@ class OpLibrary(Library):
 
         part.addPart(fbStg1OCOrDiode,       {'A': n4,    'K': n8},                      pm_fbStg1OCOrDiode)
         part.addPart(fbStg1OCOrRCL,         {'1': n4,    '2': 'Out'},                   pm_fbStg1OCOrRCL)
-        part.addPart(fbStg1Filter,          {'2': n4,    '1': 'Out', 'gnd': 'gnd'},     pm_fbStg1Filter)
+        part.addPart(fbStg1OCOrFilter,      {'2': n4,    '1': 'Out', 'gnd': 'gnd'},     pm_fbStg1OCOrFilter)
 
         part.addPart(fbStgWireOrDiode,      {'A': n8,    'K': 'Out'},                   pm_fbStgWireOrDiode)
 
         part.addPart(fbStg2OCOrDiode,       {'A': n5,    'K': n8},                      pm_fbStg2OCOrDiode)
         part.addPart(fbStg2OCOrRCL,         {'1': n5,    '2': 'Out'},                   pm_fbStg2OCOrRCL)
-        part.addPart(fbStg2Filter,          {'2': n5,    '1': 'Out', 'gnd': 'gnd'},     pm_fbStg2Filter)
+        part.addPart(fbStg2OCOrFilter,      {'2': n5,    '1': 'Out', 'gnd': 'gnd'},     pm_fbStg2OCOrFilter)
 
         part.addPart(opBiasOCOrRCL,         {'1': 'Out',    '2': 'gnd'},  pm_opBiasOCOrRCL)
         part.addPart(opBiasOCOrRCLVcc,      {'1': 'Out',    '2': 'Vcc'},  pm_opBiasOCOrRCLVcc)
