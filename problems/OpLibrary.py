@@ -5026,9 +5026,9 @@ class OpLibrary(Library):
         pm = self.updatePointMeta(pm, filter_part, filter_part.unityVarMap())
 
         # build the main part
-        part = FlexPart(['1', '2'], pm, name)
+        part = FlexPart(['1', '2', 'gnd'], pm, name)
         part.addPartChoice(oc_part, {'1': '1', '2': '2'}, {})
-        part.addPartChoice(filter_part, {'1': '1', '2': '2'}, filter_part.unityVarMap())
+        part.addPartChoice(filter_part, {'1': '1', '2': '2', 'gnd': 'gnd'}, filter_part.unityVarMap())
 
         # build a summaryStr
         part.addToSummaryStr('0=O.C.,1=nStageFilter: ', 'chosen_part_index')
